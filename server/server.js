@@ -2,11 +2,11 @@ const express = require('express')
 const path = require('path')
 const app = express()
 
-// Serve static content in directory 'home'
-app.use(express.static(path.join(__dirname, 'pages/home')));
+// Serve static content
+app.use('/images', express.static(path.join(__dirname, '../images')));
 
 app.get('/home', function (req, res) {
-    res.send('Hello World')
+    res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
 })
 
 app.listen(666)
