@@ -3,7 +3,8 @@ const path = require('path')
 const app = express()
 
 // Serve static content
-app.use('/images', express.static(path.join(__dirname, '../images')));
+app.use('/client', express.static(path.join(__dirname, '../client')));
+app.use('/images', express.static(path.join(__dirname, '../client/images')));
 
 app.get('/home', function (req, res) {
     res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
