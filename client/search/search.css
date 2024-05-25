@@ -1,3 +1,5 @@
+@import url(../base.css);
+
 .search-bar input {
     min-width: 400px;
     min-height: 50px;
@@ -5,7 +7,7 @@
     border-radius: 4em;
     font-size: 1em;
     color: white;
-    border: 0.25em solid #a3a3a3;
+    border: 0.25em solid var(--grey);
     outline: none;
     background: transparent;
 }

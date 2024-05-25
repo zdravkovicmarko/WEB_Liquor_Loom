@@ -6,6 +6,7 @@ const app = express()
 app.use('/client', express.static(path.join(__dirname, '../client')));
 app.use('/images', express.static(path.join(__dirname, '../client/images')));
 app.use('/search', express.static(path.join(__dirname, '../client/search')));
+app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
 
 app.get('/home', function (req, res) {
     res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
