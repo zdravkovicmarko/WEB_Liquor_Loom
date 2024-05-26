@@ -4,18 +4,20 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const { isValidUser } = require('../client/pages/login/login.js');
 let fetch;
+const { processCocktailData } = require('./cocktail-utils');
+const app = express();
 
 
 import('node-fetch').then(module => {
     fetch = module.default;
 
     // Now that fetch is available, proceed with the server setup
-    const app = express();
-    const { processCocktailData } = require('./cocktail-model');
+
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
     app.use('/images', express.static(path.join(__dirname, '../client/images')));
+    app.use('/search', express.static(path.join(__dirname, '../client/search')));
     app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
     app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
 
@@ -73,15 +75,37 @@ import('node-fetch').then(module => {
     });
 
     app.get('/recipe/:recipeID', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
+        // Fetch and process cocktail data asynchronously
+        fetchCocktailData('search.php', 's', 'Blue%20Margarita')
+            .then(jsonData => {
+                const drinks = processCocktailData(jsonData);
+                // Now fetch the specific recipe data
+                const recipeID = req.params.recipeID; // Get recipeID from request params
+                const recipeData = fetchRecipeData(drinks, recipeID);
+                console.log("My recipe data: ", recipeData);
+
+                // Render recipe HTML page and pass recipeData to the template
+                if (recipeData) {
+                    // Send the recipe data as JSON response
+                    res.json(recipeData);
+                } else {
+                    res.status(404).send('Recipe not found');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching and processing cocktail data:', error);
+                res.status(500).send('Internal Server Error');
+            });
     });
 
     app.get('/recipe/', function (req, res) {
         res.send("Enter a valid recipe ID");
     });
-
-    function fetchCocktailData(searchType, searchTerm) {
-        const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/search.php?${searchType}=${searchTerm}`;
+    function fetchCocktailData(endpoint, searchType, searchTerm) {
+        const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
+        // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
+        // possible searchtypes: s, f, i, iid, a, c, g,
+        // visit https://www.thecocktaildb.com/api.php to see all endpoints, query, etc.
 
         return fetch(apiUrl)
             .then(response => {
@@ -91,24 +115,40 @@ import('node-fetch').then(module => {
                 console.log(apiUrl);
                 return response.json();
             })
-            .then(data => {
-                return data;
-            })
             .catch(error => {
                 console.error('Fetch error:', error);
+                throw error; // Re-throw the error to propagate it down the promise chain
             });
     }
 
     // Example usage:
-    fetchCocktailData('s', 'Margarita')
+    fetchCocktailData('search.php', 's', 'Strawberry%20Margarita')
         .then(jsonData => {
             // Process the data here
             const drinks = processCocktailData(jsonData);
+
             console.log("These are my drinks: ");
-            drinks.forEach(drink => {
+            Object.values(drinks).forEach(drink => {
                 console.log(drink.name);
             });
+        })
+        .catch(error => {
+            console.error('Error fetching and processing cocktail data:', error);
         });
+    // End of example usage
+
+    function fetchRecipeData(drinks, recipeID){
+        if (!Array.isArray(drinks)) {
+            throw new Error('Drinks should be an array');
+        }
+        for (const drink of drinks) {
+            console.log(drink.id);
+            console.log(typeof drink.id);
+        }
+        console.log(recipeID);
+        console.log(typeof recipeID);
+        return drinks.find(drink => drink.id === recipeID);
+    }
 
     app.listen(666, () => {
         console.log("Server now listening on http://localhost:666/home");
