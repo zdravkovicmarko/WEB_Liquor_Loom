@@ -5,9 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="/client/base.css">
+    <link rel="stylesheet" href="/client/pages/login/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-<form action="/login" method="POST">
+
+<header>
+    <div class="logo-container">
+        <img class="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
+        <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
+    </div>
+</header>
+
+<form action="/login" method="POST" class="login">
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" required>
     <br>
