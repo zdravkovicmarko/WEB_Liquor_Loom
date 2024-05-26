@@ -74,9 +74,22 @@ import('node-fetch').then(module => {
         res.send("Enter a valid profile ID");
     });
 
+    // temporary endpoint containing all recipes as JSON, which will be used for /home later
+    app.get('/allrecipes', async (req, res) => {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        let allCocktails = [];
+
+        for (const letter of alphabet) {
+            const cocktails = await fetchCocktailsByLetter(letter);
+            allCocktails = allCocktails.concat(cocktails);
+        }
+
+        res.json(allCocktails);
+    });
+
     app.get('/recipe/:recipeID', function (req, res) {
         // Fetch and process cocktail data asynchronously
-        fetchCocktailData('search.php', 's', 'Blue%20Margarita')
+        fetchCocktailData('search.php', 's', null)
             .then(jsonData => {
                 const drinks = processCocktailData(jsonData);
                 // Now fetch the specific recipe data
@@ -121,6 +134,9 @@ import('node-fetch').then(module => {
             });
     }
 
+    function fetchCocktailsByLetter(letter) {
+        return fetchCocktailData('search.php', 'f', letter);
+    }
     // Example usage:
     fetchCocktailData('search.php', 's', 'Strawberry%20Margarita')
         .then(jsonData => {
@@ -136,6 +152,7 @@ import('node-fetch').then(module => {
             console.error('Error fetching and processing cocktail data:', error);
         });
     // End of example usage
+
 
     function fetchRecipeData(drinks, recipeID){
         if (!Array.isArray(drinks)) {
