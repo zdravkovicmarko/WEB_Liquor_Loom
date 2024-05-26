@@ -7,6 +7,7 @@ app.use('/client', express.static(path.join(__dirname, '../client')));
 app.use('/images', express.static(path.join(__dirname, '../client/images')));
 app.use('/search', express.static(path.join(__dirname, '../client/search')));
 app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
+const { processCocktailData } = require('./cocktail-model');
 
 app.get('/home', function (req, res) {
     res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
@@ -31,24 +32,6 @@ app.get('/recipe/:recipeID', function (req, res) {
 app.get('/recipe/', function (req, res) {
     res.send("Enter a valid recipe ID");
 });
-
-
-const apiUrl = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita';
-fetch(apiUrl)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(responseData => {
-        // Process the data
-        // console.log(responseData);
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-    });
-
 function fetchCocktailData(searchType, searchTerm) {
     const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/search.php?${searchType}=${searchTerm}`;
 
@@ -57,6 +40,7 @@ function fetchCocktailData(searchType, searchTerm) {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            console.log(apiUrl)
             return response.json();
         })
         .then(data => {
@@ -68,11 +52,32 @@ function fetchCocktailData(searchType, searchTerm) {
 }
 
 // Example usage:
-fetchCocktailData('s','Martini')
-    .then(data => {
-        console.log(data);
+fetchCocktailData('s','Strawberry%20Margarita')
+    .then(jsonData => {
+        // console.log(jsonData);
         // Process the data here
+        console.log(Array.from(extractValues(jsonData)));
+        const drinks = processCocktailData(Array.from(extractValues(jsonData)));
+        console.log("These are my drinks: ")
+        console.log(drinks)
     });
+function extractValues(obj) {
+    const values = [];
 
+    function recurse(o) {
+        for (const key in o) {
+            if (o.hasOwnProperty(key)) {
+                if (typeof o[key] === 'object' && o[key] !== null) {
+                    recurse(o[key]);
+                } else {
+                    values.push(o[key]);
+                }
+            }
+        }
+    }
+
+    recurse(obj);
+    return values;
+}
 app.listen(666)
 console.log("Server now listening on http://localhost:666/home")
