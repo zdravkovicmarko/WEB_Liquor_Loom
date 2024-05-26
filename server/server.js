@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
-
 let fetch;
+
 import('node-fetch').then(module => {
     fetch = module.default;
 
@@ -11,9 +11,6 @@ import('node-fetch').then(module => {
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
-    app.use('/images', express.static(path.join(__dirname, '../client/images')));
-    app.use('/search', express.static(path.join(__dirname, '../client/search')));
-    app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
 
     app.get('/home', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
@@ -65,7 +62,7 @@ import('node-fetch').then(module => {
             const drinks = processCocktailData(jsonData);
             console.log("These are my drinks: ");
             drinks.forEach(drink => {
-                console.log(drink);
+                console.log(drink.name);
             });
         });
 
