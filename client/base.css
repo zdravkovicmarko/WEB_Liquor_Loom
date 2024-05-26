@@ -1,5 +1,6 @@
 :root {
     --orange: #ffbd00;
+    --orange-50-opacity: rgba(255, 189, 0, 0.5);
     --grey: #a3a3a3;
 }
 
@@ -7,7 +8,12 @@
     box-sizing: border-box;
     font-family: "Jost", sans-serif;
     font-weight: 400;
+    background: url('images/background.png') no-repeat fixed;
     /* Light: 300, Regular: 400, Medium: 500, Semibold: 600, Bold: 700 */
+}
+
+body {
+    background: black;
 }
 
 header {
@@ -24,15 +30,23 @@ button {
     background: none;
     font-size: 175%;
     color: var(--grey);
+    border-radius: 4em;
+    padding: 0 1% 0 1%;
+    transition: box-shadow 0.3s ease;
 }
+
+button:hover {
+    box-shadow: 0 0 35px var(--orange-50-opacity)
+}
+
 .logo {
     height: 73px;
 }
 
-.profile-picture{
+.profile-picture {
     height: 73px;
     border-radius: 50%;
-    padding: 3px;
+    padding: 4px;
     border: 0.25em solid var(--orange);
 }
 
@@ -41,10 +55,3 @@ button {
     height:73px;
     border: none;
 }
-
-body {
-    background: black;
-}
-
-
-
