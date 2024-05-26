@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Home - LiquorLoom</title>
+    <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
+    <script type="module" src="/client/base.js"></script>
     <link rel="stylesheet" href="home.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,10 +14,17 @@
 </head>
 <body>
 <header>
-    <img src="../../images/logo.png" alt="LiquorLoom Logo" class="logo" >
-    <iframe src="../../search/search.html" class="search-frame"> </iframe>
-    <button id="login-btn" class="button" >LOGIN</button>
-    <img src="../../images/profile_picture_empty.png" alt="Profile Picture" class="profile-picture">
+    <div class="logo-container">
+        <img class="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
+        <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
+    </div>
+    <div class="middle-container">
+        <label class="search-bar" for="search"><input id="search"></label>
+    </div>
+    <div class="profile-container">
+        <button class="button" id="login-btn">LOGIN</button>
+        <img class="profile-picture" src="../../images/profile_picture_empty.png" alt="Profile Picture">
+    </div>
 </header>
 
 <div class="container">
