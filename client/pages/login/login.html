@@ -2,10 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - LiquorLoom</title>
-    <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/client/base.css">
 </head>
 <body>
-<label id="text">This is my login page!</label>
+<form action="/login" method="POST">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <button type="submit">Login</button>
+</form>
 </body>
 </html>

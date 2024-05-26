@@ -1,6 +1,10 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const { isValidUser } = require('../client/pages/login/login.js');
 let fetch;
+
 
 import('node-fetch').then(module => {
     fetch = module.default;
@@ -14,6 +18,43 @@ import('node-fetch').then(module => {
     app.use('/images', express.static(path.join(__dirname, '../client/images')));
     app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
     app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
+
+    // Middleware to parse URL-encoded data and JSON data
+    app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+
+    // Session setup
+    app.use(session({
+        secret: 'secret-key',
+        resave: false,
+        saveUninitialized: false,
+        cookie: { maxAge: 60000 } // session timeout of 60 seconds
+    }));
+
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, '../client/pages/login/login.html'));
+    });
+
+    app.post('/login', (req, res) => {
+        const { username, password } = req.body;
+        if (isValidUser(username, password)) {
+            req.session.isLoggedIn = true;
+            req.session.username = username;
+            res.redirect('/home');
+        } else {
+            res.redirect('/login');
+        }
+    });
+
+    app.get('/logout', (req, res) => {
+        req.session.destroy((err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.redirect('/home');
+            }
+        });
+    });
 
     app.get('/home', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
