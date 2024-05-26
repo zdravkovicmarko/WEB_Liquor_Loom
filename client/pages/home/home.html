@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/client/base.css">
     <script type="module" src="/client/base.js"></script>
     <link rel="stylesheet" href="home.css">
+    <script type="module" src="home.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -19,19 +20,20 @@
         <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
     <div class="middle-container">
-        <label class="search-bar" for="search"><input id="search"></label>
+        <label class="search-bar" for="search">
+            <input id="search">
+        </label>
     </div>
     <div class="profile-container">
         <button class="button" id="login-btn">LOGIN</button>
         <img class="profile-picture" src="../../images/profile_picture_empty.png" alt="Profile Picture">
     </div>
 </header>
-
-<div class="container">
-    <div class="advanced-search">
-        <h3>ADVANCED SEARCH</h3>
+<aside id="sidebar">
+    <div class="filter">
+        <h3>FILTER</h3>
         <div class="filter-section">
-            <label>Categories</label>
+            <label class="filter-label">Categories</label>
             <div class="tags">
                 <span class="tag">vodka</span>
                 <span class="tag">whiskey</span>
@@ -42,7 +44,7 @@
             </div>
         </div>
         <div class="filter-section">
-            <label>Ingredients</label>
+            <label class="filter-label">Ingredients</label>
             <div class="tags">
                 <span class="tag">lime</span>
                 <span class="tag">cherry</span>
@@ -53,21 +55,25 @@
             </div>
         </div>
         <div class="filter-section">
-            <label>Rating</label>
-            <input type="range" min="3.5" max="5.0" step="0.1">
+            <label class="filter-label">Rating</label>
+            <div>
+            <label class="rating-bar" for="slide">
+                <input id="slide" type="range" min="3.5" max="5.0" step="0.1">
+                <span class="slide-value"></span>
+            </label>
+            </div>
         </div>
         <div class="filter-section">
-            <label>Sort by</label>
-            <div class="sort-options">
-                <span class="sort-option">asc</span>
-                <span class="sort-option">desc</span>
-                <span class="sort-option">trending</span>
-                <span class="sort-option">top rated</span>
-                <span class="sort-option">most popular</span>
+            <label class="filter-label">Sort by</label>
+            <div class="tags">
+                <span class="tag">asc</span>
+                <span class="tag">desc</span>
+                <span class="tag">trending</span>
+                <span class="tag">top rated</span>
+                <span class="tag">most popular</span>
             </div>
         </div>
     </div>
-</div>
-
+</aside>
 </body>
 </html>
