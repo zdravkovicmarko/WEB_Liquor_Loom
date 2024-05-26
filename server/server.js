@@ -11,6 +11,9 @@ import('node-fetch').then(module => {
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
+    app.use('/images', express.static(path.join(__dirname, '../client/images')));
+    app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
+    app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
 
     app.get('/home', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
