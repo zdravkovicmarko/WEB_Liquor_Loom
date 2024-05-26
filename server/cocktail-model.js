@@ -12,21 +12,34 @@ class Cocktail {
     }
 }
 
-function processCocktailData(drinks) {
-    return drinks.map(drink => {
+function processCocktailData(data) {
+    // Log the received data to debug the structure
+    console.log('Received data:', JSON.stringify(data, null, 2));
 
-        // Extrahiere Zutaten und Maße aus dem Objekt
+    // Check if the drinks array exists
+    if (!data || !data.drinks || !Array.isArray(data.drinks)) {
+        throw new Error('Unexpected data format from API');
+    }
+
+    return data.drinks.map(drink => {
+        // Ensure the drink object is not null
+        if (!drink) return null;
+
+        // Extract ingredients and measures from the object
         const ingredients = [];
         const measures = [];
         for (let i = 1; i <= 15; i++) {
-            const ingredient = `strIngredient${i}`;
-            const measure = `strMeasure${i}`;
-            if (ingredient && measure) {
+            const ingredient = drink[`strIngredient${i}`];
+            const measure = drink[`strMeasure${i}`];
+            if (ingredient) {
                 ingredients.push(ingredient);
+            }
+            if (measure) {
                 measures.push(measure);
             }
         }
-        // Erstelle ein neues Cocktail-Objekt
+
+        // Create a new Cocktail object
         return new Cocktail(
             drink.idDrink,
             drink.strDrink,
@@ -38,10 +51,10 @@ function processCocktailData(drinks) {
             ingredients,
             measures
         );
-    });
+    }).filter(cocktail => cocktail !== null); // Filter out any null entries
 }
 
-// Exportieren Sie die Funktion, um sie in anderen Dateien zu verwenden
+// Export the function for use in other files
 module.exports = {
     processCocktailData
 };
