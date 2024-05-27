@@ -1,56 +1,33 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const range = document.querySelector("#slide");
+    const minRange = document.querySelector("#min-slide");
+    const maxRange = document.querySelector("#max-slide");
     const slideValue = document.querySelector(".slide-value");
-    const cocktailsContainer = document.querySelector(".cocktails-container");
 
     // Initialize the slide value display
-    slideValue.innerText = "≥ " + range.value;
-    console.log("Initial slider value:", range.value); // Log initial value
-
-    // Function to update slide value and log it to the console
-    const updateSlideValue = (value) => {
-        value === "5" ? slideValue.innerText = value : slideValue.innerText = "≥ " + value;
-        console.log("Updated slider value:", value);
+    const updateSlideValue = () => {
+        const minValue = minRange.value;
+        const maxValue = maxRange.value;
+        slideValue.innerText = `★ ${minValue} - ${maxValue}`;
+        console.log("Updated slider value:", minValue, maxValue);
     };
 
-    // Add event listener directly in JavaScript
-    range.addEventListener("input", (event) => {
-        updateSlideValue(event.target.value);
+    // Add event listeners to update the slide value
+    minRange.addEventListener("input", () => {
+        if (parseFloat(minRange.value) > parseFloat(maxRange.value)) {
+            minRange.value = maxRange.value;
+        }
+        updateSlideValue();
     });
 
-    // Fetch cocktail data from the /allrecipes endpoint
-    fetch('/allrecipes')
-        .then(response => response.json())
-        .then(cocktails => {
-            cocktails.forEach(cocktail => appendCocktail(cocktail));
-        })
-        .catch(error => {
-            console.error('Error fetching cocktails:', error);
-        });
+    maxRange.addEventListener("input", () => {
+        if (parseFloat(maxRange.value) < parseFloat(minRange.value)) {
+            maxRange.value = minRange.value;
+        }
+        updateSlideValue();
+    });
 
-    const appendCocktail = (cocktail) => {
-        // Create new div for cocktail container
-        const cocktailContainer = document.createElement("div");
-        cocktailContainer.classList.add("cocktail-container");
-
-        // Create label for cocktail title
-        const cocktailTitleLabel = document.createElement("label");
-        cocktailTitleLabel.classList.add("cocktail-title-label");
-        cocktailTitleLabel.textContent = cocktail.name;
-
-        // Create img element for cocktail image
-        const cocktailImg = document.createElement("img");
-        cocktailImg.classList.add("cocktail-img");
-        cocktailImg.src = cocktail.thumbnail;
-        cocktailImg.alt = cocktail.name;
-
-        // Append title & image to cocktail container
-        cocktailContainer.appendChild(cocktailTitleLabel);
-        cocktailContainer.appendChild(cocktailImg);
-
-        // Append cocktail container to cocktails-container in DOM
-        cocktailsContainer.appendChild(cocktailContainer);
-    };
+    // Initialize display
+    updateSlideValue();
 });
 
 
