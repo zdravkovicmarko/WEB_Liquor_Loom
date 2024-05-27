@@ -15,7 +15,7 @@
 
 <header>
     <div class="logo-container">
-        <img class="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
+        <img class="logo" id="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
         <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
 </header>
@@ -41,5 +41,12 @@
         </form>
     </div>
 </main>
+
+<script>
+    document.getElementById('logo').addEventListener('click', function() {
+        window.location.href = '/home';
+    });
+</script>
+
 </body>
 </html>
