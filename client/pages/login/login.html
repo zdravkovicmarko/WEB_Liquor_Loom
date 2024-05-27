@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - LiquorLoom</title>
+    <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
     <link rel="stylesheet" href="/client/pages/login/login.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,16 +19,27 @@
         <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
 </header>
-
-<form action="/login" method="POST" class="login">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <button type="submit">Login</button>
-</form>
+<main>
+    <div class="element-border">
+    <form action="/login" method="POST" class="login">
+        <div class="element-container">
+            <label class="main-label" for="username">Username</label>
+            <div class="element-inner-container">
+                <input type="text" id="username" name="username" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="password">Password</label>
+            <div class="element-inner-container">
+                <input type="password" id="password" name="password" required>
+            </div>
+        </div>
+        <div class="element-container">
+        <button type="submit">LOGIN</button>
+        </div>
+    </form>
+    </div>
+</main>
 
 <script>
     document.getElementById('logo').addEventListener('click', function() {

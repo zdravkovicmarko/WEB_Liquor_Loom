@@ -1,78 +1,61 @@
-@import url('../../base.css');
+@import url(../../base.css);
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    display: grid;
+    grid-template-areas:
+        "h"
+        "m";
+    grid-template-rows: 135px auto;
     margin: 0;
 }
 
-/* Position the header at the top left */
-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 20px;
-}
-
-/* Styling the form for centering */
-form.login {
+main {
     display: flex;
-    flex-direction: column;
-    width: 80%; /* Use percentage for width */
-    max-width: 300px; /* Set a maximum width */
-    padding: 20px;
-    border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for better visibility */
+    justify-content: center;
+    align-items: center;
 }
 
-label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: white;
-}
 
 input {
-    margin-bottom: 10px;
-    padding: 8px;
+    padding: 3% 5%;
     border: 1px solid white;
-    border-radius: 5px;
+    border-radius: 35px;
     background: transparent;
-    color: white; /* Ensure text is visible on dark background */
+    color: white;
 }
 
 button {
-    padding: 10px;
+    font-size: 125%;
+    padding: 3% 5%;
     border: none;
-    border-radius: 5px;
+    border-radius: 35px;
     background-color: var(--orange);
     color: white;
-    font-size: 16px;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: var(--orange);
+    color: black;
+    text-shadow: none;
+    background-color: white;
 }
 
-/* Responsive adjustments */
+/* Responsive Layout */
 @media (max-width: 600px) {
     form.login {
-        width: 90%; /* Increase width for smaller screens */
-        padding: 15px; /* Adjust padding */
+        width: 90%;
+        padding: 15px;
     }
 
     label, input, button {
-        font-size: 14px; /* Reduce font size */
+        font-size: 14px;
     }
 
     input {
-        padding: 6px; /* Reduce padding */
+        padding: 6px;
     }
 
     button {
-        padding: 8px; /* Reduce padding */
+        padding: 8px;
     }
 }

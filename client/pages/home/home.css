@@ -14,26 +14,7 @@ body {
     grid-area: s;
     padding-left: 35px;
 }
-.filter {
-    padding: 1px 15px 15px 15px;
-    border-radius: 35px;
-    background-color: var(--black-50-opacity);
-}
-.filter h3 {
-    font-size: 20px;
-    color: #ffcc00;
-    text-shadow: 0 0 3px black;
-    padding-left: 10px;
-}
-.filter-section {
-    margin-bottom: 20px;
-}
 
-.filter-label {
-    color: white;
-    text-shadow: 0 0 3px black;
-    padding-left: 10px;
-}
 .tags {
     color: white;
     text-shadow: 0 0 3px black;
