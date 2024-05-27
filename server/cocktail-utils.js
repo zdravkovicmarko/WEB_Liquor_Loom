@@ -2,7 +2,7 @@ const Cocktail = require('./cocktail-model')
 
 function processCocktailData(data) {
     // Log the received data to debug the structure
-    console.log('Received data:', JSON.stringify(data, null, 2));
+    // console.log('Received data:', JSON.stringify(data, null, 2));
 
     // Check if the drinks array exists
     if (!data || !data.drinks || !Array.isArray(data.drinks)) {

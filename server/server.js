@@ -3,9 +3,13 @@ const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const { isValidUser } = require('../client/pages/login/login.js');
-let fetch;
 const { processCocktailData } = require('./cocktail-utils');
+const { addCocktailToDb } = require('./recipeDatabase');
+const { getAllCocktailsFromDb } = require('./recipeDatabase');
+const { removeCocktailFromDb } = require('./recipeDatabase');
 const app = express();
+
+let fetch;
 
 import('node-fetch').then(module => {
     fetch = module.default;
@@ -78,26 +82,51 @@ import('node-fetch').then(module => {
     });
 
     // temporary endpoint containing all recipes as JSON, which will be used for /home later
-    app.get('/allrecipes', async (req, res) => {
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
-        let allCocktails = [];
-
-        for (const letter of alphabet) {
-            const cocktails = await fetchCocktailsByLetter(letter);
-            allCocktails = allCocktails.concat(cocktails);
-        }
+    app.get('/allrecipes/', async (req, res) => {
+        const allCocktails = await getAllCocktailsFromAPI();
         res.json(allCocktails);
     });
 
     app.get('/recipe/:recipeID', function (req, res) {
         // Fetch and process cocktail data asynchronously
-        fetchCocktailData('search.php', 's', null)
+        fetchCocktailData('search.php', 's', 'Margarita')
             .then(jsonData => {
                 const drinks = processCocktailData(jsonData);
                 // Now fetch the specific recipe data
                 const recipeID = req.params.recipeID; // Get recipeID from request params
                 const recipeData = fetchRecipeData(drinks, recipeID);
-                //console.log("My recipe data: ", recipeData);
+                console.log("My recipe data: ", recipeData);
+
+                addCocktailToDb(recipeData)
+                    .then(addedCocktails => {
+                        console.log("Successfully added cocktails:", addedCocktails);
+
+                        getAllCocktailsFromDb()
+                            .then(cocktails => {
+                                // Handle the resolved value (cocktails) here
+                                console.log("Retrieved cocktails from the database:", cocktails);
+                            })
+                            .catch(error => {
+                                // Handle any errors that occurred during the execution of getAllCocktailsFromDb()
+                                console.error("Error retrieving cocktails from the database:", error);
+                            });
+
+                        // Do something with the added cocktails
+                    })
+                    .catch(error => { // If adding cocktail to db fails (b.c. of duplicate entries), then show all entries in db
+                        console.error("Error adding cocktails:", error);
+
+                        getAllCocktailsFromDb()
+                            .then(cocktails => {
+                                // Handle the resolved value (cocktails) here
+                                console.log("Retrieved cocktails from the database:", cocktails);
+                            })
+                            .catch(error => {
+                                // Handle any errors that occurred during the execution of getAllCocktailsFromDb()
+                                console.error("Error retrieving cocktails from the database:", error);
+                            });
+                        // Handle the error
+                    });
 
                 // Render recipe HTML page and pass recipeData to the template
                 if (recipeData) {
@@ -117,14 +146,31 @@ import('node-fetch').then(module => {
         res.send("Enter a valid recipe ID");
     });
 
+    app.post('/add-cocktail', (req, res) => {
+        //If cocktail data is in the request body
+        const cocktailData = req.body;
+
+        addCocktailToDb(cocktailData)
+            .then(cocktail => {
+                res.status(201).json({ message: 'Cocktail added successfully', cocktail });
+            })
+            .catch(error => {
+                res.status(500).json({ error: 'Failed to add cocktail', message: error.message });
+            });
+    });
+
     function fetchCocktailData(endpoint, searchType, searchTerm) {
         const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
+        // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
+        // possible searchtypes: s, f, i, iid, a, c, g,
+        // visit https://www.thecocktaildb.com/api.php to see all endpoints, query, etc.
 
         return fetch(apiUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                console.log(apiUrl);
                 return response.json();
             })
             .catch(error => {
@@ -158,18 +204,34 @@ import('node-fetch').then(module => {
         if (!Array.isArray(drinks)) {
             throw new Error('Drinks should be an array');
         }
-        for (const drink of drinks) {
-            console.log(drink.id);
-            console.log(typeof drink.id);
-        }
-        console.log(recipeID);
-        console.log(typeof recipeID);
+        //for (const drink of drinks) {
+            //console.log(drink.id);
+            //console.log(typeof drink.id);
+        //
+        //}
+        //console.log(recipeID);
+        //console.log(typeof recipeID);
         return drinks.find(drink => drink.id === recipeID);
     }
 
-    app.listen(666, () => {
-        console.log("Server now listening on http://localhost:666/home");
-    });
+async function getAllCocktailsFromAPI(){
+    let allCocktails = [];
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    for (const letter of alphabet) { // fetchCocktailsByLetter is called with every letter and their results concatinated
+        const cocktails = await fetchCocktailsByLetter(letter);
+        allCocktails = allCocktails.concat(cocktails);
+
+        if (allCocktails.length >= 20) {
+            allCocktails = allCocktails.slice(0, 20); // Limit to 20 cocktails
+            break;
+        }
+    }
+    return allCocktails;
+}
+
+app.listen(666, () => {
+    console.log("Server now listening on http://localhost:666/home");
+});
 }).catch(err => {
     console.error('Error importing node-fetch:', err);
 });
