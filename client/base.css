@@ -12,8 +12,17 @@
 * {
     box-sizing: border-box;
     font-family: "Jost", sans-serif;
-    font-weight: 400; /* Light: 300, Regular: 400, Medium: 500, Semibold: 600, Bold: 700 */
-    transition: color 1s ease, font-weight 1s ease, text-shadow 1s ease, background-color 0.5s ease, background 0.5s ease, box-shadow 1s ease, height 1s ease;
+    font-weight: 400;
+    /* Light: 300, Regular: 400, Medium: 500, Semibold: 600, Bold: 700 */
+    transition:
+            color 1s ease,
+            font-weight 1s ease,
+            text-shadow 1s ease,
+            box-shadow 0.5s ease,
+            height 1s ease,
+            opacity 0.5s ease,
+            background-color 0.5s ease,
+            background 0.5s ease;
 }
 body {
     background: url('images/background.png') no-repeat fixed center;
