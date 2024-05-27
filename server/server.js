@@ -85,32 +85,37 @@ import('node-fetch').then(module => {
         for (const letter of alphabet) {
             const cocktails = await fetchCocktailsByLetter(letter);
             allCocktails = allCocktails.concat(cocktails);
+
+            // Check if we have reached the limit of 20 cocktails
+            if (allCocktails.length >= 20) {
+                allCocktails = allCocktails.slice(0, 20); // Limit to 20 cocktails
+                break;
+            }
         }
         res.json(allCocktails);
     });
 
-    app.get('/recipe/:recipeID', function (req, res) {
-        // Fetch and process cocktail data asynchronously
-        fetchCocktailData('search.php', 's', null)
-            .then(jsonData => {
-                const drinks = processCocktailData(jsonData);
-                // Now fetch the specific recipe data
-                const recipeID = req.params.recipeID; // Get recipeID from request params
-                const recipeData = fetchRecipeData(drinks, recipeID);
-                //console.log("My recipe data: ", recipeData);
+    app.get('/recipe/:cocktailID', async (req, res) => {
+        try {
+            const cocktailID = req.params.cocktailID;
 
-                // Render recipe HTML page and pass recipeData to the template
-                if (recipeData) {
-                    // Send the recipe data as JSON response
-                    res.json(recipeData);
-                } else {
-                    res.status(404).send('Recipe not found');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching and processing cocktail data:', error);
-                res.status(500).send('Internal Server Error');
-            });
+            // Fetch and process cocktail data asynchronously
+            const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
+            const drinks = processCocktailData(jsonData);
+
+            // Find the specific cocktail by ID
+            const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
+
+            if (recipeData) {
+                // Send the recipe data as JSON response
+                res.json(recipeData);
+            } else {
+                res.status(404).send('Recipe not found');
+            }
+        } catch (error) {
+            console.error('Error fetching and processing cocktail data:', error);
+            res.status(500).send('Internal Server Error');
+        }
     });
 
     app.get('/recipe/', function (req, res) {

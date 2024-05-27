@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
     const appendCocktail = (cocktail) => {
+        console.log("Cocktail:", cocktail);
         // Create new div for cocktail container
         const cocktailContainer = document.createElement("div");
         cocktailContainer.classList.add("cocktail-container");
@@ -48,6 +49,12 @@ document.addEventListener("DOMContentLoaded", () => {
         cocktailImg.classList.add("cocktail-img");
         cocktailImg.src = cocktail.strDrinkThumb;
         cocktailImg.alt = cocktail.strDrink;
+
+        // Add event listener to each cocktail element
+        cocktailContainer.addEventListener("click", () => {
+            // Redirect to recipe page with the appropriate recipe ID
+            window.location.href = `/recipe/${cocktail.idDrink}`;
+        });
 
         // Append title & image to cocktail container
         cocktailContainer.appendChild(cocktailTitleLabel);
