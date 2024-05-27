@@ -20,6 +20,7 @@ import('node-fetch').then(module => {
     app.use('/search', express.static(path.join(__dirname, '../client/search')));
     app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
     app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
+    app.use('/home.js', express.static(path.join(__dirname, '../client/pages/home/home.js')));
 
     // Middleware to parse URL-encoded data and JSON data
     app.use(bodyParser.urlencoded({ extended: true }));
