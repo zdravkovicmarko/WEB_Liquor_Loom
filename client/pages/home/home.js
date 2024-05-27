@@ -1,34 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const minRange = document.querySelector("#min-slide");
-    const maxRange = document.querySelector("#max-slide");
+    const range = document.querySelector("#slide");
     const slideValue = document.querySelector(".slide-value");
     const cocktailsContainer = document.querySelector(".cocktails-container");
 
     // Initialize the slide value display
-    const updateSlideValue = () => {
-        const minValue = minRange.value;
-        const maxValue = maxRange.value;
-        slideValue.innerText = `★ ${minValue} - ${maxValue}`;
-        console.log("Updated slider value:", minValue, maxValue);
+    slideValue.innerText = "★ " + range.value + " - 5";
+    console.log("Initial slider value:", range.value); // Log initial value
+
+    // Function to update slide value and log it to the console
+    const updateSlideValue = (value) => {
+        value === "5" ? slideValue.innerText = "★ " + value : slideValue.innerText = "★ " + value + " - 5";
+        console.log("Updated slider value:", value);
     };
 
-    // Add event listeners to update the slide value
-    minRange.addEventListener("input", () => {
-        if (parseFloat(minRange.value) > parseFloat(maxRange.value)) {
-            minRange.value = maxRange.value;
-        }
-        updateSlideValue();
+    // Add event listener directly in JavaScript
+    range.addEventListener("input", (event) => {
+        updateSlideValue(event.target.value);
     });
-
-    maxRange.addEventListener("input", () => {
-        if (parseFloat(maxRange.value) < parseFloat(minRange.value)) {
-            maxRange.value = minRange.value;
-        }
-        updateSlideValue();
-    });
-
-    // Initialize display
-    updateSlideValue();
 
     // Fetch cocktail data from the /allrecipes endpoint
     fetch('/allrecipes')
