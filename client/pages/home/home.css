@@ -47,10 +47,9 @@ input::-webkit-slider-thumb {
     appearance: none;
     height: 15px;
     width: 15px;
-    border: 2px solid var(--grey);
     border-radius: 50%;
     background-color: white;
-    box-shadow: 210px 0 0 200px white;
+    box-shadow: 0 0 5px 2px var(--black-50-opacity), 208px 0 0 200px white;
 }
 .slide-value {
     color: white;

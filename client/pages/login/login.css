@@ -8,45 +8,56 @@ body {
     grid-template-rows: 135px auto;
     margin: 0;
 }
-
 main {
+    padding-top: 10%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-
+.element-border {
+    width: 400px;
+}
 input {
     font-size: 110%;
     color: white;
     text-shadow: 0 0 3px black;
     outline: none;
     border: none;
+    width: calc(100% - 5px);
     border-radius: 35px;
     background-color: var(--white-33-opacity);
     padding: 5px 15px;
-    margin: 5px;
+    margin-left: 5px;
 }
 
+.btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 .login-btn {
     font-size: 125%;
-    color: white;
+    font-weight: 500;
+    color: black;
     border: none;
     border-radius: 35px;
     background-color: var(--orange);
-    padding: 3% 7%;
+    padding: 5px 17px;
     margin-left: 5px;
     cursor: pointer;
 }
-
 .login-btn:hover {
-    color: black;
+    font-weight: 700;
     text-shadow: none;
     background-color: white;
 }
 .header-btn {
     font-size: 125%;
     margin-right: 5px;
+}
+.header-btn:hover {
+    text-shadow: 0 0 15px black;
 }
 
 /* Responsive Layout */
