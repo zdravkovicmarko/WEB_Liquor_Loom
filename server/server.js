@@ -94,6 +94,22 @@ import('node-fetch').then(module => {
             // Fetch and process cocktail data asynchronously
             const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
             const drinks = processCocktailData(jsonData);
+
+            // Find the specific cocktail by ID
+            const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
+
+            if (recipeData) {
+                // Send the recipe data as JSON response
+                res.json(recipeData);
+            } else {
+                res.status(404).send('Recipe not found');
+            }
+        } catch (error) {
+            console.error('Error fetching and processing cocktail data:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
     app.get('/recipe/:recipeID', function (req, res) {
         // Fetch and process cocktail data asynchronously
         fetchCocktailData('search.php', 's', 'Margarita')
