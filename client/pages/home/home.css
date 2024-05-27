@@ -64,18 +64,24 @@ body {
 }
 input::-webkit-slider-thumb {
     appearance: none;
-    height: 18px;
-    width: 18px;
+    height: 15px;
+    width: 15px;
     border-radius: 50%;
     background-color: white;
-    box-shadow: -208px 0 0 200px var(--orange);
+    box-shadow: 210px 0 0 200px white;
+    border: 2px solid var(--grey);
 }
+
 .rating-bar .slide-value {
     font-size: 27px;
     font-weight: 500;
     color: black;
     width: 70px;
     text-align: center;
+}
+
+.slide-value {
+    color: white;
 }
 
 main {
