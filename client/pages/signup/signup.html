@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - LiquorLoom</title>
+    <title>Title</title>
     <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
     <link rel="stylesheet" href="/client/pages/login/login.css">
@@ -23,9 +22,21 @@
     <div class="element-border">
         <form action="/login" method="POST">
             <div class="element-container">
+                <label class="main-label" for="name">Name</label>
+                <div class="element-inner-container">
+                    <input type="text" id="name" name="name" required>
+                </div>
+            </div>
+            <div class="element-container">
                 <label class="main-label" for="username">Username</label>
                 <div class="element-inner-container">
                     <input type="text" id="username" name="username" required>
+                </div>
+            </div>
+            <div class="element-container">
+                <label class="main-label" for="email">Email</label>
+                <div class="element-inner-container">
+                    <input type="text" id="email" name="email" required>
                 </div>
             </div>
             <div class="element-container">
@@ -35,8 +46,13 @@
                 </div>
             </div>
             <div class="element-container">
-                <button class="login-btn" type="submit">LOGIN</button>
-                <button class="header-btn" id="signup">SIGN UP</button>
+                <label class="main-label" for="verification">Password Verification</label>
+                <div class="element-inner-container">
+                    <input type="text" id="verification" name="verification" required>
+                </div>
+            </div>
+            <div class="element-container">
+                <button class="login-btn" type="submit">CREATE ACCOUNT</button>
             </div>
         </form>
     </div>
@@ -47,11 +63,7 @@
         window.location.href = '/home';
     });
 </script>
-<script>
-    document.getElementById('signup').addEventListener('click', function() {
-        window.location.href = '/signup';
-    });
-</script>
-<script src="login.js"></script>
+
+<script src="signup.js"></script>
 </body>
 </html>

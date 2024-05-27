@@ -12,8 +12,8 @@
 </head>
 <body>
 <header>
-    <div class="logo-container">
-        <img class="logo" id="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
+    <div class="logo-container" id="logo-container">
+        <img class="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
         <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
     <div class="middle-container">
@@ -27,9 +27,10 @@
     </div>
 </header>
 <script>
-    document.getElementById('logo').addEventListener('click', function() {
+    document.getElementById('logo-container').addEventListener('click', function() {
         window.location.href = '/home';
     });
 </script>
+<script src="profile.js"></script>
 </body>
 </html>
