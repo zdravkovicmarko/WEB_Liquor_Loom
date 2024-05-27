@@ -86,7 +86,6 @@ import('node-fetch').then(module => {
             const cocktails = await fetchCocktailsByLetter(letter);
             allCocktails = allCocktails.concat(cocktails);
         }
-
         res.json(allCocktails);
     });
 
@@ -120,16 +119,12 @@ import('node-fetch').then(module => {
 
     function fetchCocktailData(endpoint, searchType, searchTerm) {
         const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
-        // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
-        // possible searchtypes: s, f, i, iid, a, c, g,
-        // visit https://www.thecocktaildb.com/api.php to see all endpoints, query, etc.
 
         return fetch(apiUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                console.log(apiUrl);
                 return response.json();
             })
             .catch(error => {
@@ -139,7 +134,8 @@ import('node-fetch').then(module => {
     }
 
     function fetchCocktailsByLetter(letter) {
-        return fetchCocktailData('search.php', 'f', letter);
+        return fetchCocktailData('search.php', 'f', letter)
+            .then(data => data.drinks || []);
     }
 
     // Example usage:
