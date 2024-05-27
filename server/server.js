@@ -7,12 +7,10 @@ let fetch;
 const { processCocktailData } = require('./cocktail-utils');
 const app = express();
 
-
 import('node-fetch').then(module => {
     fetch = module.default;
 
     // Now that fetch is available, proceed with the server setup
-
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
@@ -21,7 +19,6 @@ import('node-fetch').then(module => {
     app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
     app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
     app.use('/home.js', express.static(path.join(__dirname, '../client/pages/home/home.js')));
-    app.use('/profile.css', express.static(path.join(__dirname, '../client/pages/profile/profile.css')));
 
     // Middleware to parse URL-encoded data and JSON data
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -76,6 +73,10 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
     });
 
+    app.get('/signup/', function (req, res) {
+        res.sendFile(path.join(__dirname, '../client/pages/signup/signup.html'));
+    });
+
     // temporary endpoint containing all recipes as JSON, which will be used for /home later
     app.get('/allrecipes', async (req, res) => {
         const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -97,7 +98,7 @@ import('node-fetch').then(module => {
                 // Now fetch the specific recipe data
                 const recipeID = req.params.recipeID; // Get recipeID from request params
                 const recipeData = fetchRecipeData(drinks, recipeID);
-                console.log("My recipe data: ", recipeData);
+                //console.log("My recipe data: ", recipeData);
 
                 // Render recipe HTML page and pass recipeData to the template
                 if (recipeData) {
@@ -116,6 +117,7 @@ import('node-fetch').then(module => {
     app.get('/recipe/', function (req, res) {
         res.send("Enter a valid recipe ID");
     });
+
     function fetchCocktailData(endpoint, searchType, searchTerm) {
         const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
         // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
@@ -139,6 +141,7 @@ import('node-fetch').then(module => {
     function fetchCocktailsByLetter(letter) {
         return fetchCocktailData('search.php', 'f', letter);
     }
+
     // Example usage:
     fetchCocktailData('search.php', 's', 'Strawberry%20Margarita')
         .then(jsonData => {
@@ -155,8 +158,7 @@ import('node-fetch').then(module => {
         });
     // End of example usage
 
-
-    function fetchRecipeData(drinks, recipeID){
+    function fetchRecipeData(drinks, recipeID) {
         if (!Array.isArray(drinks)) {
             throw new Error('Drinks should be an array');
         }
