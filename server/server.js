@@ -21,6 +21,7 @@ import('node-fetch').then(module => {
     app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
     app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
     app.use('/home.js', express.static(path.join(__dirname, '../client/pages/home/home.js')));
+    app.use('/profile.css', express.static(path.join(__dirname, '../client/pages/profile/profile.css')));
 
     // Middleware to parse URL-encoded data and JSON data
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -72,7 +73,7 @@ import('node-fetch').then(module => {
     });
 
     app.get('/profile/', function (req, res) {
-        res.send("Enter a valid profile ID");
+        res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
     });
 
     // temporary endpoint containing all recipes as JSON, which will be used for /home later
