@@ -4,10 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize the slide value display
     slideValue.innerText = range.value;
+    console.log("Initial slider value:", range.value); // Log initial value
 
-    // Update slide value and print to console when slider value changes
-    range.addEventListener("input", () => {
-        slideValue.innerText = range.value;
-        console.log("Slider value:", range.value);
+    // Function to update slide value and log it to the console
+    const updateSlideValue = (value) => {
+        slideValue.innerText = value;
+        console.log("Updated slider value:", value);
+    };
+
+    // Add event listener directly in JavaScript
+    range.addEventListener("input", (event) => {
+        updateSlideValue(event.target.value);
     });
 });
