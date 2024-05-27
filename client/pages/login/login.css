@@ -17,27 +17,36 @@ main {
 
 
 input {
-    padding: 3% 5%;
-    border: 1px solid white;
-    border-radius: 35px;
-    background: transparent;
+    font-size: 110%;
     color: white;
+    text-shadow: 0 0 3px black;
+    outline: none;
+    border: none;
+    border-radius: 35px;
+    background-color: var(--white-33-opacity);
+    padding: 5px 15px;
+    margin: 5px;
 }
 
-button {
+.login-btn {
     font-size: 125%;
-    padding: 3% 5%;
+    color: white;
     border: none;
     border-radius: 35px;
     background-color: var(--orange);
-    color: white;
+    padding: 3% 7%;
+    margin-left: 5px;
     cursor: pointer;
 }
 
-button:hover {
+.login-btn:hover {
     color: black;
     text-shadow: none;
     background-color: white;
+}
+.header-btn {
+    font-size: 125%;
+    margin-right: 5px;
 }
 
 /* Responsive Layout */

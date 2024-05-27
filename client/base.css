@@ -14,7 +14,7 @@
     box-sizing: border-box;
     font-family: "Jost", sans-serif;
     font-weight: 400; /* Light: 300, Regular: 400, Medium: 500, Semibold: 600, Bold: 700 */
-    transition: background-color 0.5s ease, color 1s ease, text-shadow 1s ease, box-shadow 1s ease;
+    transition: color 1s ease, font-weight 1s ease, text-shadow 1s ease, background-color 0.5s ease, box-shadow 1s ease, height 1s ease;
 }
 
 body {
@@ -70,7 +70,7 @@ header {
     box-shadow: 0 0 15px var(--grey-33-opacity);
 }
 
-button {
+.header-btn {
     font-size: 175%;
     color: var(--grey);
     text-shadow: 0 0 15px black;
@@ -78,12 +78,12 @@ button {
     border: none;
     background: none;
 }
-.button:hover {
+.header-btn:hover {
     text-shadow: 0 0 20px var(--grey-66-opacity);
 }
 
 .profile-picture {
-    height: 73px;
+    height: 75px;
     border-radius: 50%;
     /*padding: 4px;*/
     /*border: 0.25em solid var(--orange);*/
@@ -96,7 +96,7 @@ button {
     font-size: 135%;
     color: var(--orange);
     text-shadow: 0 0 3px black;
-    padding-left: 10px;
+    padding: 20px 0 0 10px;
 }
 .main-label {
     font-size: 115%;
@@ -105,7 +105,7 @@ button {
     padding-left: 10px;
 }
 .element-border {
-    padding: 20px 15px;
+    padding: 0 15px 20px 15px;
     border-radius: 35px;
     background-color: var(--black-50-opacity);
 }

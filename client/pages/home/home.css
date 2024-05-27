@@ -22,8 +22,8 @@ body {
     flex-wrap: wrap;
 }
 .tag {
-    background-color: var(--white-33-opacity);
     border-radius: 35px;
+    background-color: var(--white-33-opacity);
     padding: 2px 10px;
     margin: 5px;
     cursor: pointer;
@@ -47,20 +47,11 @@ input::-webkit-slider-thumb {
     appearance: none;
     height: 15px;
     width: 15px;
+    border: 2px solid var(--grey);
     border-radius: 50%;
     background-color: white;
     box-shadow: 210px 0 0 200px white;
-    border: 2px solid var(--grey);
 }
-
-.rating-bar .slide-value {
-    font-size: 27px;
-    font-weight: 500;
-    color: black;
-    width: 70px;
-    text-align: center;
-}
-
 .slide-value {
     color: white;
 }
