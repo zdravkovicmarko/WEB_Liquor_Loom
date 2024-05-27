@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
     <link rel="stylesheet" href="/client/pages/login/login.css">
+    <link rel="stylesheet" href="signup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -21,12 +22,6 @@
 <main>
     <div class="element-border">
         <form action="/login" method="POST">
-            <div class="element-container">
-                <label class="main-label" for="name">Name</label>
-                <div class="element-inner-container">
-                    <input type="text" id="name" name="name" required>
-                </div>
-            </div>
             <div class="element-container">
                 <label class="main-label" for="username">Username</label>
                 <div class="element-inner-container">
@@ -51,8 +46,9 @@
                     <input type="text" id="verification" name="verification" required>
                 </div>
             </div>
-            <div class="element-container">
+            <div class="element-container btn-container">
                 <button class="login-btn" type="submit">CREATE ACCOUNT</button>
+                <button class="header-btn" id="login-btn">LOGIN</button>
             </div>
         </form>
     </div>
@@ -61,6 +57,9 @@
 <script>
     document.getElementById('logo-container').addEventListener('click', function() {
         window.location.href = '/home';
+    });
+    document.getElementById('login-btn').addEventListener('click', function() {
+        window.location.href = '/login';
     });
 </script>
 
