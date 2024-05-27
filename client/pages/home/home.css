@@ -4,15 +4,18 @@ body {
     display: grid;
     grid-template-areas:
         "h h"
-        "s m";
+        "s m"
+        "f f";
     grid-template-columns: minmax(100px, 330px) minmax(300px, auto);
-    grid-template-rows: 135px auto;
+    grid-template-rows: 135px auto 35px;
     margin: 0;
 }
-
 #sidebar {
     grid-area: s;
     padding-left: 35px;
+}
+footer {
+    grid-area: f;
 }
 
 .tags {
