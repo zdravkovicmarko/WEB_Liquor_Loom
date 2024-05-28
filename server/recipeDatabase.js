@@ -48,10 +48,10 @@ async function addCocktailToDb(cocktail) {
     const { id, name, category, alcoholic, glass, instructions, thumbnail, ingredients } = cocktail;
     try {
         // Check if the cocktail already exists in the database
-        const existingCocktail = await getCocktailByName(id);
+        const existingCocktail = await getCocktailById(id);
         if (existingCocktail) {
             // If the cocktail already exists, throw an error or handle it accordingly
-            throw new Error("Cocktail already in database");
+            console.log('Cocktail already in database')
         }
 
         // Insert cocktail
@@ -66,7 +66,7 @@ async function addCocktailToDb(cocktail) {
         console.log("Cocktail added successfully");
     } catch (err) {
         console.error("Error adding cocktail:", err);
-        throw err;
+        //throw err;
     }
 }
 
@@ -155,6 +155,7 @@ module.exports = {
     db,
     addCocktailToDb,
     getCocktailById,
+    getCocktailByName,
     getAllCocktailsFromDb,
     removeCocktailFromDb
 };

@@ -84,13 +84,34 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
     });
 
+    app.get('/recipe/:cocktailID', function (req, res) {
+        res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
+    })
+
+    app.get('/recipe/', function (req, res) {
+        res.send("Enter a valid recipe ID");
+    });
+
+    app.post('/add-cocktail', (req, res) => {
+        //If cocktail data is in the request body
+        const cocktailData = req.body;
+
+        addCocktailToDb(cocktailData)
+            .then(cocktail => {
+                res.status(201).json({ message: 'Cocktail added successfully', cocktail });
+            })
+            .catch(error => {
+                res.status(500).json({ error: 'Failed to add cocktail', message: error.message });
+            });
+    });
+
     // temporary endpoint containing all recipes as JSON, which will be used for /home later
-    app.get('/allrecipes/', async (req, res) => {
+    app.get('/api/allrecipes/', async (req, res) => {
         const allCocktails = await getAllCocktailsFromAPI();
         res.json(allCocktails);
     });
 
-    app.get('/recipe/:cocktailID', async (req, res) => {
+    app.get('/api/recipe/:cocktailID', async (req, res) => {
         try {
             const cocktailID = req.params.cocktailID;
 
@@ -127,23 +148,6 @@ import('node-fetch').then(module => {
             console.error('Error fetching and processing cocktail data:', error);
             res.status(500).send('Internal Server Error');
         }
-    });
-
-    app.get('/recipe/', function (req, res) {
-        res.send("Enter a valid recipe ID");
-    });
-
-    app.post('/add-cocktail', (req, res) => {
-        //If cocktail data is in the request body
-        const cocktailData = req.body;
-
-        addCocktailToDb(cocktailData)
-            .then(cocktail => {
-                res.status(201).json({ message: 'Cocktail added successfully', cocktail });
-            })
-            .catch(error => {
-                res.status(500).json({ error: 'Failed to add cocktail', message: error.message });
-            });
     });
 
     function fetchCocktailData(endpoint, searchType, searchTerm) {
