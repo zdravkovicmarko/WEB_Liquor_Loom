@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
     <script type="module" src="/client/base.js"></script>
+    <script type="module" src="/client/pages/recipe/recipe.js"></script>
     <link rel="stylesheet" href="/client/pages/recipe/recipe.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +15,7 @@
 </head>
 <body>
 <header>
-    <div class="logo-container">
+    <div class="logo-container" id="logo-container">
         <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
         <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
@@ -28,72 +29,25 @@
         <img class="profile-picture" id="profile-pic" src="/client/images/profile_picture_empty.png">
     </div>
 </header>
-<aside id="sidebar">
-    <div class="element-border">
-        <div class="title-label">
-            <label>FILTER</label>
-        </div>
-        <div class="element-container">
-            <label class="main-label">Categories</label>
-            <div class="element-inner-container tags">
-                <span class="tag">vodka</span>
-                <span class="tag">whiskey</span>
-                <span class="tag">beer</span>
-                <span class="tag">gin</span>
-                <span class="tag">wine</span>
-                <span class="tag">...</span>
-            </div>
-        </div>
-        <div class="element-container">
-            <label class="main-label">Ingredients</label>
-            <div class="element-inner-container tags">
-                <span class="tag">lime</span>
-                <span class="tag">cherry</span>
-                <span class="tag">orange</span>
-                <span class="tag">sugar</span>
-                <span class="tag">salt</span>
-                <span class="tag">...</span>
-            </div>
-        </div>
-        <div class="element-container">
-            <label class="main-label">Rating</label>
-            <div class="element-inner-container rating-container">
-                <label class="rating-bar" for="slide">
-                    <input id="slide" type="range" min="0.0" max="5.0" step="0.1">
-                </label>
-                <span class="main-label slide-value">2.5</span>
-            </div>
-        </div>
-        <div class="element-container">
-            <label class="main-label">Sort by</label>
-            <div class="element-inner-container tags">
-                <span class="tag">asc</span>
-                <span class="tag">desc</span>
-                <span class="tag">trending</span>
-                <span class="tag">top rated</span>
-                <span class="tag">most popular</span>
-            </div>
-        </div>
-    </div>
-</aside>
 <main>
     <div class="element-border">
         <div class="title-label">
             <label>COCKTAILS</label>
         </div>
-        <div class="cocktails-container">
-            <!-- Cocktail items will be dynamically appended here -->
+        <div class="cocktail-details">
+            <img id="cocktail-thumbnail" src="" alt="Cocktail Thumbnail">
+            <h2 id="cocktail-name"></h2>
+            <p id="cocktail-category"></p>
+            <p id="cocktail-alcoholic"></p>
+            <p id="cocktail-glass"></p>
+            <h3>Ingredients:</h3>
+            <ul id="cocktail-ingredients"></ul>
+            <h3>Instructions:</h3>
+            <p id="cocktail-instructions"></p>
         </div>
     </div>
 </main>
 <script>
-    document.getElementById('login-btn').addEventListener('click', function() {
-        window.location.href = '/login';
-    });
-    document.getElementById('profile-pic').addEventListener('click', function() {
-        window.location.href = '/profile';
-    });
 </script>
-<script src="home.js"></script>
 </body>
 </html>
