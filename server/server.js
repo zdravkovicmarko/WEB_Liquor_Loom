@@ -18,11 +18,13 @@ import('node-fetch').then(module => {
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
+    /*
     app.use('/images', express.static(path.join(__dirname, '../client/images')));
     app.use('/search', express.static(path.join(__dirname, '../client/search')));
     app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
     app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
     app.use('/home.js', express.static(path.join(__dirname, '../client/pages/home/home.js')));
+     */
 
     // Middleware to parse URL-encoded data and JSON data
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -35,10 +37,6 @@ import('node-fetch').then(module => {
         saveUninitialized: false,
         cookie: { maxAge: 60000 } // session timeout of 60 seconds
     }));
-
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '../client/pages/authentication/authentication.html'));
-    });
 
     app.post('/login', (req, res) => {
         const { username, password } = req.body;
@@ -59,6 +57,11 @@ import('node-fetch').then(module => {
                 res.redirect('/home');
             }
         });
+    });
+
+    // Middleware to redirect from '/' to '/home'
+    app.get('/', (req, res) => {
+        res.redirect('/home');
     });
 
     app.get('/home', function (req, res) {
@@ -253,7 +256,7 @@ async function getAllCocktailsFromAPI(){
 }
 
 app.listen(666, () => {
-    console.log("Server now listening on http://localhost:666/home");
+    console.log("Server now listening on http://localhost:666");
 });
 }).catch(err => {
     console.error('Error importing node-fetch:', err);
