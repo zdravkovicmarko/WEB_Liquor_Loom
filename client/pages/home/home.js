@@ -20,6 +20,26 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSlideValue(event.target.value);
     });
 
+    // Handles selection of tags & tag sets
+    const tags = document.querySelectorAll(".tag");
+    tags.forEach(tag => {
+        tag.addEventListener("click", () => {
+            const tagSet = tag.getAttribute("tag-set");
+
+            if (tag.classList.contains("selected")) {
+                // Deselect selected tag
+                tag.classList.remove("selected");
+            } else {
+                // Deselect tags in same set
+                document.querySelectorAll(`.tag[tag-set="${tagSet}"]`).forEach(otherTag => {
+                    otherTag.classList.remove("selected");
+                });
+                // Select clicked tag
+                tag.classList.add("selected");
+            }
+        });
+    });
+    
     const fetchMoreCocktails = async (limit) => {
         if (isLoading) return;
         isLoading = true;
@@ -62,6 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
         cocktailContainer.appendChild(cocktailImg);
 
         cocktailsContainer.appendChild(cocktailContainer);
+
+        // Add event listener to each cocktail element
+        cocktailContainer.addEventListener("click", () => {
+            // Redirect to recipe page with the appropriate recipe ID
+            window.location.href = `/recipe/${cocktail.idDrink}`;
+        });
     };
 
     window.addEventListener('scroll', () => {
@@ -81,5 +107,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2000);
 
     // Optional: clear the interval after a certain time or condition
-    setTimeout(() => clearInterval(intervalId), 30000); // stops fetching after 30 seconds
+    setTimeout(() => clearInterval(intervalId), 50000); // stops fetching after 30 seconds
 });
