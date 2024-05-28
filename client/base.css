@@ -34,6 +34,17 @@ header {
     align-items: center;
     gap: 2%;
 }
+#sidebar {
+    grid-area: s;
+    padding-left: 35px;
+}
+main {
+    grid-area: m;
+    padding: 0 30px 0 30px;
+}
+footer {
+    grid-area: f;
+}
 
 .logo-container {
     display: flex;
@@ -60,7 +71,8 @@ header {
     display: none;
     height: 70px;
 }
-.logo:hover, .logo-small:hover {
+.logo:hover,
+.logo-small:hover {
     height: 75px;
 }
 
@@ -193,19 +205,19 @@ header {
     max-width: 200px;
     border-radius: 10px;
     background-image: var(--black-gradient);
-    pointer-events: none; /* Ensure the overlay does not interfere with any interactions */
+    pointer-events: none;
 }
 .cocktail-title-label {
     font-size: 125%;
     color: white;
     text-shadow: 0 0 5px black, 0 0 10px black, 0 0 15px black;
+    text-align: center;
     display: block;
     position: absolute;
-    left: 10px;
-    right: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 90%;
     bottom: 10px;
-    max-width: 200px;
-    text-align: center;
     margin-bottom: 5px;
 }
 .cocktail-rating-label {
@@ -231,7 +243,9 @@ header {
 
 /* Responsive Layout */
 @media (max-width: 930px) {
-    .logo-container, .middle-container, .profile-container {
+    .logo-container,
+    .middle-container,
+    .profile-container {
         padding-left: 0;
         padding-right: 0;
     }
@@ -242,20 +256,19 @@ header {
         padding-right: 25px;
     }
 
-    .logo {
+    .logo,
+    .btn-normal-grey {
         display: none;
     }
     .logo-small {
         display: block;
-    }
-
-    .btn-normal-grey {
-        display: none;
     }
 }
 
 @media (max-width: 630px) {
-    .logo-container, .middle-container, .profile-container {
+    .logo-container,
+    .middle-container,
+    .profile-container {
         padding-left: 0;
         padding-right: 0;
     }
@@ -264,13 +277,6 @@ header {
     }
     .profile-container {
         padding-right: 25px;
-    }
-
-    .logo {
-        display: none;
-    }
-    .logo-small {
-        display: block;
     }
 
     .search-bar input {
