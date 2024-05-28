@@ -18,20 +18,28 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSlideValue(event.target.value);
     });
 
-    // Fetch cocktail data from the /allrecipes endpoint
-    fetch('/api/allrecipes')
-        .then(response => {
+    const fetchAndDisplayCocktails = async () => {
+        try {
+            const response = await fetch('/api/allrecipes');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return response.json();
-        })
-        .then(cocktails => {
-            cocktails.forEach(cocktail => appendCocktail(cocktail));
-        })
-        .catch(error => {
+            const cocktails = await response.json();
+            cocktails.slice(0, 24).forEach(cocktail => appendCocktail(cocktail)); // Display the first 50 cocktails
+            if (cocktails.length > 24) {
+                setTimeout(() => fetchAndDisplayNext(cocktails.slice(24)), 1000); // Fetch the next 50 cocktails after a delay
+            }
+        } catch (error) {
             console.error('Error fetching cocktails:', error);
-        });
+        }
+    };
+
+    const fetchAndDisplayNext = async (remainingCocktails) => {
+        remainingCocktails.slice(0, 24).forEach(cocktail => appendCocktail(cocktail)); // Display the next 50 cocktails
+        if (remainingCocktails.length > 24) {
+            setTimeout(() => fetchAndDisplayNext(remainingCocktails.slice(24)), 1000); // Fetch the next 50 cocktails after a delay
+        }
+    };
 
     const appendCocktail = (cocktail) => {
         console.log("Cocktail:", cocktail);
@@ -69,4 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Append cocktail container to cocktails-container in DOM
         cocktailsContainer.appendChild(cocktailContainer);
     };
+
+    // Start fetching and displaying cocktails
+    fetchAndDisplayCocktails();
 });
