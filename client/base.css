@@ -151,7 +151,7 @@ header {
     text-shadow: 0 0 3px black;
     outline: none;
     border: none;
-    width: calc(100% - 5px);
+    width: calc(100% - 10px);
     border-radius: 35px;
     background-color: var(--white-33-opacity);
     padding: 5px 15px;

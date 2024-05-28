@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Fetch cocktail data from the /allrecipes endpoint
-    fetch('/allrecipes')
+    fetch('/api/allrecipes')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
