@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
+    <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
-    <link rel="stylesheet" href="/client/pages/login/login.css">
-    <link rel="stylesheet" href="/client/pages/signup/signup.css">
+    <link rel="stylesheet" href="/client/pages/authentication/authentication.css">
+    <link rel="stylesheet" href="/client/pages/authentication/signup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script type="module" src="/client/pages/signup/signup.js"></script>
+    <script type="module" src="/client/pages/authentication/signup.js"></script>
 </head>
 <body>
 
 <header>
     <div class="logo-container" id="logo-container">
-        <img class="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
-        <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
+        <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
+        <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
 </header>
 <main>
@@ -26,30 +26,30 @@
             <div class="element-container">
                 <label class="main-label" for="username">Username</label>
                 <div class="element-inner-container">
-                    <input type="text" id="username" name="username" required>
+                    <input class="element-input" type="text" id="username" name="username" required>
                 </div>
             </div>
             <div class="element-container">
                 <label class="main-label" for="email">Email</label>
                 <div class="element-inner-container">
-                    <input type="text" id="email" name="email" required>
+                    <input class="element-input"  type="text" id="email" name="email" required>
                 </div>
             </div>
             <div class="element-container">
                 <label class="main-label" for="password">Password</label>
                 <div class="element-inner-container">
-                    <input type="password" id="password" name="password" required>
+                    <input class="element-input" type="password" id="password" name="password" required>
                 </div>
             </div>
             <div class="element-container">
                 <label class="main-label" for="verification">Password Verification</label>
                 <div class="element-inner-container">
-                    <input type="text" id="verification" name="verification" required>
+                    <input class="element-input" type="text" id="verification" name="verification" required>
                 </div>
             </div>
             <div class="element-container btn-container">
-                <button class="login-btn" type="submit">CREATE ACCOUNT</button>
-                <button class="header-btn" id="login-btn">LOGIN</button>
+                <button class="btn-bold-orange" type="submit">CREATE ACCOUNT</button>
+                <button class="btn-normal-grey" id="login-btn">LOGIN</button>
             </div>
         </form>
     </div>

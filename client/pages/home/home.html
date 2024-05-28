@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - LiquorLoom</title>
-    <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
+    <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
     <script type="module" src="/client/base.js"></script>
-    <link rel="stylesheet" href="home.css">
+    <script type="module" src="/client/pages/home/home.js"></script>
+    <link rel="stylesheet" href="/client/pages/home/home.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -15,8 +16,8 @@
 <body>
 <header>
     <div class="logo-container">
-        <img class="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
-        <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
+        <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
+        <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
     <div class="middle-container">
         <label class="search-bar" for="search">
@@ -24,8 +25,8 @@
         </label>
     </div>
     <div class="profile-container">
-        <button class="header-btn" id="login-btn">LOGIN</button>
-        <img class="profile-picture" id="profile-pic" src="../../images/profile_picture_empty.png">
+        <button class="btn-normal-grey" id="login-btn">LOGIN</button>
+        <img class="profile-picture" id="profile-pic" src="/client/images/profile_picture_empty.png">
     </div>
 </header>
 <aside id="sidebar">
@@ -94,6 +95,5 @@
         window.location.href = '/profile';
     });
 </script>
-<script src="home.js"></script>
 </body>
 </html>
