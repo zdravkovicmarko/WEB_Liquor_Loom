@@ -31,19 +31,21 @@
 </header>
 <main>
     <div class="element-border">
-        <div class="title-label">
-            <label>COCKTAILS</label>
+        <div class="cocktail-container">
+            <label class="cocktail-title-label" id="name"></label>
+            <label class="cocktail-rating-label" id="rating"></label>
+            <img class="cocktail-img" id="img" src="" alt="Cocktail Thumbnail">
         </div>
-        <div class="cocktail-details">
-            <img id="cocktail-thumbnail" src="" alt="Cocktail Thumbnail">
-            <h2 id="cocktail-name"></h2>
-            <p id="cocktail-category"></p>
-            <p id="cocktail-alcoholic"></p>
-            <p id="cocktail-glass"></p>
-            <h3>Ingredients:</h3>
-            <ul id="cocktail-ingredients"></ul>
-            <h3>Instructions:</h3>
-            <p id="cocktail-instructions"></p>
+        <div>
+            <div class="element-inner-container tags">
+                <span class="tag" id="category"></span>
+                <span class="tag" id="alcoholic"></span>
+                <span class="tag" id="glass"></span>
+            </div>
+            <div class="main-label"><label>Ingredients</label></div>
+            <ul id="ingredients"></ul>
+            <div class="main-label"><label>Instructions</label></div>
+            <p id="instructions"></p>
         </div>
     </div>
 </main>

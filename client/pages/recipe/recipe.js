@@ -4,17 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             // Fetch cocktail data asynchronously
             const response = await fetch(`/api/recipe/${cocktailID}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch recipe data');
-            }
+            if (!response.ok) console.error('Failed to fetch recipe data');
+
             const recipeData = await response.json();
             // Update HTML elements with recipe data
-            document.getElementById('cocktail-thumbnail').src = recipeData.thumbnail;
-            document.getElementById('cocktail-name').textContent = recipeData.name;
-            document.getElementById('cocktail-category').textContent = `Category: ${recipeData.category}`;
-            document.getElementById('cocktail-alcoholic').textContent = `Alcoholic: ${recipeData.alcoholic}`;
-            document.getElementById('cocktail-glass').textContent = `Glass: ${recipeData.glass}`;
-            const ingredientsList = document.getElementById('cocktail-ingredients');
+            document.getElementById('name').textContent = recipeData.name;
+            document.getElementById('rating').textContent = "★ " + (Math.random() * 50 / 10).toFixed(1);
+            document.getElementById('img').src = recipeData.thumbnail;
+            document.getElementById('category').textContent = `${recipeData.category}`;
+            document.getElementById('alcoholic').textContent = `${recipeData.alcoholic}`;
+            document.getElementById('glass').textContent = `${recipeData.glass}`;
+            const ingredientsList = document.getElementById('ingredients');
             ingredientsList.innerHTML = '';
             for (let i = 0; i < recipeData.ingredients.length; i++) {
                 const listItem = document.createElement('li');

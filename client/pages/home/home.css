@@ -22,24 +22,6 @@ footer {
     grid-area: f;
 }
 
-.tags {
-    color: white;
-    text-shadow: 0 0 3px black;
-    display: flex;
-    flex-wrap: wrap;
-}
-.tag {
-    border-radius: 35px;
-    background-color: var(--white-33-opacity);
-    padding: 2px 10px;
-    margin: 5px;
-    cursor: pointer;
-}
-.tag:hover {
-    color: black;
-    text-shadow: none;
-    background-color: white;
-}
 .rating-bar input {
     overflow: hidden;
     cursor: pointer;
@@ -62,62 +44,6 @@ input::-webkit-slider-thumb {
     color: white;
 }
 
-.cocktails-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-}
-.cocktail-container {
-    position: relative;
-    max-width: 200px;
-    margin: 10px;
-    text-align: center;
-}
-.cocktail-container::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    max-width: 200px;
-    border-radius: 10px;
-    background-image: var(--black-gradient);
-    pointer-events: none; /* Ensure the overlay does not interfere with any interactions */
-}
-.cocktail-title-label {
-    font-size: 125%;
-    color: white;
-    text-shadow: 0 0 5px black, 0 0 10px black, 0 0 15px black;
-    display: block;
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    max-width: 200px;
-    text-align: center;
-    margin-bottom: 5px;
-}
-.cocktail-rating-label {
-    font-size: 100%;
-    color: white;
-    text-shadow: 0 0 5px var(--black-50-opacity), 0 0 10px black;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    margin-left: 5px;
-}
-.cocktail-img {
-    box-shadow: 0 3px 5px var(--black-50-opacity);
-}
-.cocktail-container .cocktail-img {
-    display: block;
-    width: 100%;
-    max-width: 200px;
-    height: auto;
-    border-radius: 10px;
-    z-index: 0;
-}
 .cocktails-container:hover > :not(:hover) {
     opacity: 0.5;
 }

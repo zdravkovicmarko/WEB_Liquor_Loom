@@ -1,1 +1,22 @@
 @import url(/client/base.css);
+
+body {
+    display: grid;
+    grid-template-areas:
+        "h"
+        "m"
+        "f";
+    grid-template-rows: 135px auto 35px;
+    margin: 0;
+}
+main {
+    grid-area: m;
+    padding: 0 30px 0 30px;
+}
+footer {
+    grid-area: f;
+}
+
+.element-border {
+    padding-top: 15px;
+}
