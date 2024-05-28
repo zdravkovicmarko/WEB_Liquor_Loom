@@ -111,7 +111,7 @@ import('node-fetch').then(module => {
             const offset = parseInt(req.query.offset) || 0;
             const limit = parseInt(req.query.limit) || 50;
 
-            const allCocktails = await getAllCocktailsFromAPI(offset, limit);
+            const allCocktails = await getAllCocktailsFromAPI(offset, limit, true);
             res.json(allCocktails);
         } catch (error) {
             console.error('Error fetching cocktails:', error);
@@ -213,7 +213,7 @@ import('node-fetch').then(module => {
         return drinks.find(drink => drink.id === recipeID);
     }
 
-    async function getAllCocktailsFromAPI(offset, limit) {
+    async function getAllCocktailsFromAPI(offset, limit, shouldSlice ) {
         let allCocktails = [];
         const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
         let fetchedCount = 0;
@@ -231,7 +231,11 @@ import('node-fetch').then(module => {
             fetchedCount += cocktails.length;
         }
 
-        return allCocktails.slice(0, limit);
+        if (shouldSlice) {
+            return allCocktails.slice(0, limit);
+        } else {
+            return allCocktails;
+        }
     }
 
 app.listen(666, () => {
