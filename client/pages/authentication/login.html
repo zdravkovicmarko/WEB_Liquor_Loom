@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - LiquorLoom</title>
-    <link rel="icon" type="image/png" href="../../images/logo_small_black.png">
+    <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
-    <link rel="stylesheet" href="/client/pages/login/login.css">
+    <link rel="stylesheet" href="/client/pages/authentication/authentication.css">
+    <link rel="stylesheet" href="/client/pages/authentication/login.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script type="module" src="/client/pages/login/login.js"></script>
+    <script type="module" src="/client/pages/authentication/login.js"></script>
 </head>
 <body>
 
 <header>
     <div class="logo-container" id="logo-container">
-        <img class="logo" src="../../images/logo_full.png" alt="LiquorLoom Logo">
-        <img class="logo-small" src="../../images/logo_small_orange.png" alt="LiquorLoom Logo Small">
+        <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
+        <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
     </div>
 </header>
 <main>
@@ -26,18 +27,18 @@
             <div class="element-container">
                 <label class="main-label" for="username">Username / Email</label>
                 <div class="element-inner-container">
-                    <input type="text" id="username" name="username" required>
+                    <input class="element-input" type="text" id="username" name="username" required>
                 </div>
             </div>
             <div class="element-container">
                 <label class="main-label" for="password">Password</label>
                 <div class="element-inner-container">
-                    <input type="password" id="password" name="password" required>
+                    <input class="element-input" type="password" id="password" name="password" required>
                 </div>
             </div>
             <div class="element-container btn-container">
-                <button class="login-btn" type="submit">LOGIN</button>
-                <button class="header-btn" id="signup">SIGN UP</button>
+                <button class="btn-bold-orange" type="submit">LOGIN</button>
+                <button class="btn-normal-grey" id="signup">SIGN UP</button>
             </div>
         </form>
     </div>

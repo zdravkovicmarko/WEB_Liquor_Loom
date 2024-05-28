@@ -14,6 +14,10 @@ body {
     grid-area: s;
     padding-left: 35px;
 }
+main {
+    grid-area: m;
+    padding: 0 30px 0 30px;
+}
 footer {
     grid-area: f;
 }
@@ -58,11 +62,6 @@ input::-webkit-slider-thumb {
     color: white;
 }
 
-main {
-    grid-area: m;
-    padding: 0 30px 0 30px;
-}
-
 .cocktails-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -93,7 +92,6 @@ main {
     border-radius: 10px;
     box-shadow: 0 3px 5px var(--black-50-opacity);
 }
-
 .cocktails-container:hover > :not(:hover) {
     opacity: 0.5;
 }

@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const { isValidUser } = require('../client/pages/login/login.js');
+const { isValidUser } = require('../client/pages/authentication/login.js');
 const { processCocktailData } = require('./cocktail-utils');
 const { addCocktailToDb } = require('./recipeDatabase');
 const { getAllCocktailsFromDb } = require('./recipeDatabase');
@@ -37,7 +37,7 @@ import('node-fetch').then(module => {
     }));
 
     app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '../client/pages/login/login.html'));
+        res.sendFile(path.join(__dirname, '../client/pages/authentication/authentication.html'));
     });
 
     app.post('/login', (req, res) => {
@@ -66,7 +66,7 @@ import('node-fetch').then(module => {
     });
 
     app.get('/login', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/login/login.html'));
+        res.sendFile(path.join(__dirname, '../client/pages/authentication/login.html'));
     });
 
     app.get('/profile/:userID', function (req, res) {
@@ -78,7 +78,7 @@ import('node-fetch').then(module => {
     });
 
     app.get('/signup/', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/signup/signup.html'));
+        res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
     });
 
     // temporary endpoint containing all recipes as JSON, which will be used for /home later
@@ -244,8 +244,8 @@ async function getAllCocktailsFromAPI(){
         const cocktails = await fetchCocktailsByLetter(letter);
         allCocktails = allCocktails.concat(cocktails);
 
-        if (allCocktails.length >= 20) {
-            allCocktails = allCocktails.slice(0, 20); // Limit to 20 cocktails
+        if (allCocktails.length >= 24) {
+            allCocktails = allCocktails.slice(0, 24); // Limit to 20 cocktails
             break;
         }
     }
