@@ -7,13 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!response.ok) console.error('Failed to fetch recipe data');
 
             const recipeData = await response.json();
+
             // Update HTML elements with recipe data
             document.getElementById('name').textContent = recipeData.name;
             document.getElementById('rating').textContent = "★ " + (Math.random() * 50 / 10).toFixed(1);
             document.getElementById('img').src = recipeData.thumbnail;
-            document.getElementById('category').textContent = `${recipeData.category}`;
-            document.getElementById('alcoholic').textContent = `${recipeData.alcoholic}`;
-            document.getElementById('glass').textContent = `${recipeData.glass}`;
+
+            document.getElementById('category').textContent = `${recipeData.category.toLowerCase()}`;
+            document.getElementById('alcoholic').textContent = `${recipeData.alcoholic.toLowerCase()}`;
+            document.getElementById('glass').textContent = `${recipeData.glass.toLowerCase()}`;
+
             const ingredientsList = document.getElementById('ingredients');
             ingredientsList.innerHTML = '';
             for (let i = 0; i < recipeData.ingredients.length; i++) {
