@@ -171,11 +171,6 @@ header {
     margin: 5px;
     cursor: pointer;
 }
-.tag:hover {
-    color: black;
-    text-shadow: none;
-    background-color: white;
-}
 
 .cocktails-container {
     display: grid;

@@ -20,6 +20,26 @@ document.addEventListener("DOMContentLoaded", () => {
         updateSlideValue(event.target.value);
     });
 
+    // Handles selection of tags & tag sets
+    const tags = document.querySelectorAll(".tag");
+    tags.forEach(tag => {
+        tag.addEventListener("click", () => {
+            const tagSet = tag.getAttribute("tag-set");
+
+            if (tag.classList.contains("selected")) {
+                // Deselect selected tag
+                tag.classList.remove("selected");
+            } else {
+                // Deselect tags in same set
+                document.querySelectorAll(`.tag[tag-set="${tagSet}"]`).forEach(otherTag => {
+                    otherTag.classList.remove("selected");
+                });
+                // Select clicked tag
+                tag.classList.add("selected");
+            }
+        });
+    });
+    
     const fetchMoreCocktails = async (limit) => {
         if (isLoading) return;
         isLoading = true;
