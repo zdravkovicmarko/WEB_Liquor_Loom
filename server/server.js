@@ -84,89 +84,9 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
     });
 
-    // temporary endpoint containing all recipes as JSON, which will be used for /home later
-    app.get('/allrecipes/', async (req, res) => {
-        const allCocktails = await getAllCocktailsFromAPI();
-        res.json(allCocktails);
-    });
-
-    app.get('/recipe/:cocktailID', async (req, res) => {
-        try {
-            const cocktailID = req.params.cocktailID;
-
-            // Fetch and process cocktail data asynchronously
-            const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
-            const drinks = processCocktailData(jsonData);
-
-            // Find the specific cocktail by ID
-            const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
-
-            if (recipeData) {
-                // Send the recipe data as JSON response
-                res.json(recipeData);
-            } else {
-                res.status(404).send('Recipe not found');
-            }
-        } catch (error) {
-            console.error('Error fetching and processing cocktail data:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    });
-
-    app.get('/recipe/:recipeID', function (req, res) {
-        // Fetch and process cocktail data asynchronously
-        fetchCocktailData('search.php', 's', 'Margarita')
-            .then(jsonData => {
-                const drinks = processCocktailData(jsonData);
-                // Now fetch the specific recipe data
-                const recipeID = req.params.recipeID; // Get recipeID from request params
-                const recipeData = fetchRecipeData(drinks, recipeID);
-                console.log("My recipe data: ", recipeData);
-
-                addCocktailToDb(recipeData)
-                    .then(addedCocktails => {
-                        console.log("Successfully added cocktails:", addedCocktails);
-
-                        getAllCocktailsFromDb()
-                            .then(cocktails => {
-                                // Handle the resolved value (cocktails) here
-                                console.log("Retrieved cocktails from the database:", cocktails);
-                            })
-                            .catch(error => {
-                                // Handle any errors that occurred during the execution of getAllCocktailsFromDb()
-                                console.error("Error retrieving cocktails from the database:", error);
-                            });
-
-                        // Do something with the added cocktails
-                    })
-                    .catch(error => { // If adding cocktail to db fails (b.c. of duplicate entries), then show all entries in db
-                        console.error("Error adding cocktails:", error);
-
-                        getAllCocktailsFromDb()
-                            .then(cocktails => {
-                                // Handle the resolved value (cocktails) here
-                                console.log("Retrieved cocktails from the database:", cocktails);
-                            })
-                            .catch(error => {
-                                // Handle any errors that occurred during the execution of getAllCocktailsFromDb()
-                                console.error("Error retrieving cocktails from the database:", error);
-                            });
-                        // Handle the error
-                    });
-
-                // Render recipe HTML page and pass recipeData to the template
-                if (recipeData) {
-                    // Send the recipe data as JSON response
-                    res.json(recipeData);
-                } else {
-                    res.status(404).send('Recipe not found');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching and processing cocktail data:', error);
-                res.status(500).send('Internal Server Error');
-            });
-    });
+    app.get('/recipe/:cocktailID', function (req, res) {
+        res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
+    })
 
     app.get('/recipe/', function (req, res) {
         res.send("Enter a valid recipe ID");
@@ -183,6 +103,51 @@ import('node-fetch').then(module => {
             .catch(error => {
                 res.status(500).json({ error: 'Failed to add cocktail', message: error.message });
             });
+    });
+
+    // temporary endpoint containing all recipes as JSON, which will be used for /home later
+    app.get('/api/allrecipes/', async (req, res) => {
+        const allCocktails = await getAllCocktailsFromAPI();
+        res.json(allCocktails);
+    });
+
+    app.get('/api/recipe/:cocktailID', async (req, res) => {
+        try {
+            const cocktailID = req.params.cocktailID;
+
+            // Fetch and process cocktail data asynchronously
+            const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
+            const drinks = processCocktailData(jsonData);
+
+            // Find the specific cocktail by ID
+            const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
+
+            if (recipeData) {
+                // Add cocktail to database
+                try {
+                    await addCocktailToDb(recipeData);
+                    console.log("Successfully added cocktail:", recipeData);
+                } catch (error) {
+                    // If adding cocktail to db fails (e.g., because of duplicate entries), show all entries in db
+                    console.error("Error adding cocktail:", error);
+                }
+
+                try {
+                    const cocktails = await getAllCocktailsFromDb();
+                    console.log("Retrieved cocktails from the database:", cocktails);
+                } catch (error) {
+                    console.error("Error retrieving cocktails from the database:", error);
+                }
+
+                // Send the recipe data as JSON response
+                res.json(recipeData);
+            } else {
+                res.status(404).send('Recipe not found');
+            }
+        } catch (error) {
+            console.error('Error fetching and processing cocktail data:', error);
+            res.status(500).send('Internal Server Error');
+        }
     });
 
     function fetchCocktailData(endpoint, searchType, searchTerm) {
