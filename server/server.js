@@ -212,8 +212,8 @@ async function getAllCocktailsFromAPI(){
         const cocktails = await fetchCocktailsByLetter(letter);
         allCocktails = allCocktails.concat(cocktails);
 
-        if (allCocktails.length >= 50) {
-            allCocktails = allCocktails.slice(0, 50); // Limit to 20 cocktails
+        if (allCocktails.length >= 48) {
+            allCocktails = allCocktails.slice(0, 48); // Limit to 20 cocktails
             break;
         }
     }

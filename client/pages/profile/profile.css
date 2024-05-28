@@ -3,14 +3,42 @@
 body {
     display: grid;
     grid-template-areas:
-        "h"
-        "m";
-    grid-template-rows: 135px auto;
+        "h h"
+        "s m"
+        "f f";
+    grid-template-columns: minmax(100px, 330px) minmax(300px, auto);
+    grid-template-rows: 135px auto 35px;
     margin: 0;
+}
+#sidebar {
+    grid-area: s;
+    padding-left: 35px;
 }
 main {
     grid-area: m;
+    padding: 0 30px 0 30px;
+}
+footer {
+    grid-area: f;
+}
+
+.header-profile-picture {
+    height: 75px;
+    border-radius: 50%;
+    box-shadow: 0 0 20px var(--grey-50-opacity);
+}
+
+#profile-border {
+    border-radius: 200px 200px 35px 35px;
+}
+.profile-picture-container {
+    width: 100%;
+    padding-top: 15px;
     display: flex;
     justify-content: center;
-    align-items: center;
+}
+.profile-picture {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
 }

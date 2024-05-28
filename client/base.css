@@ -7,13 +7,14 @@
     --grey-66-opacity: rgba(163, 163, 163, 0.66);
     --grey-50-opacity: rgba(163, 163, 163, 0.5);
     --grey-33-opacity: rgba(163, 163, 163, 0.33);
+    --black-66-opacity: rgba(0, 0, 0, 0.66);
     --black-50-opacity: rgba(0, 0, 0, 0.5);
+    --black-gradient: linear-gradient(to bottom, transparent, transparent, var(--black-66-opacity));
 }
 * {
     box-sizing: border-box;
     font-family: "Jost", sans-serif;
-    font-weight: 400;
-    /* Light: 300, Regular: 400, Medium: 500, Semibold: 600, Bold: 700 */
+    font-weight: 400; /* Light: 300, Regular: 400, Medium: 500, Semibold: 600, Bold: 700 */
     transition:
             color 1s ease,
             font-weight 1s ease,
@@ -27,7 +28,6 @@
 body {
     background: url('images/background.png') no-repeat fixed center;
 }
-
 header {
     grid-area: h;
     display: flex;
@@ -96,14 +96,28 @@ header {
     font-weight: 600;
     text-shadow: 0 0 20px var(--grey-66-opacity);
 }
+.btn-bold-orange {
+    font-size: 125%;
+    font-weight: 500;
+    color: black;
+    border: none;
+    border-radius: 35px;
+    background-color: var(--orange);
+    padding: 5px 17px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+.btn-bold-orange:hover {
+    font-weight: 700;
+    text-shadow: none;
+    background-color: white;
+}
 
-.profile-picture {
+.header-profile-picture {
     height: 70px;
     border-radius: 50%;
-    /*padding: 4px;*/
-    /*border: 0.25em solid var(--orange);*/
 }
-.profile-picture:hover {
+.header-profile-picture:hover {
     height: 75px;
     box-shadow: 0 0 20px var(--grey-50-opacity);
 }
@@ -122,7 +136,7 @@ header {
 }
 .element-border {
     padding: 0 15px 20px 15px;
-    border-radius: 35px;
+    border-radius: 25px;
     background-color: var(--black-50-opacity);
 }
 .element-container {
@@ -142,23 +156,6 @@ header {
     background-color: var(--white-33-opacity);
     padding: 5px 15px;
     margin-left: 5px;
-}
-
-.btn-bold-orange {
-    font-size: 125%;
-    font-weight: 500;
-    color: black;
-    border: none;
-    border-radius: 35px;
-    background-color: var(--orange);
-    padding: 5px 17px;
-    margin-left: 5px;
-    cursor: pointer;
-}
-.btn-bold-orange:hover {
-    font-weight: 700;
-    text-shadow: none;
-    background-color: white;
 }
 
 /* Responsive Layout */

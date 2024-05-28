@@ -50,6 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
         cocktailImg.src = cocktail.strDrinkThumb;
         cocktailImg.alt = cocktail.strDrink;
 
+        // Create label for cocktail rating
+        const cocktailRatingLabel = document.createElement("label");
+        cocktailRatingLabel.classList.add("cocktail-rating-label");
+        cocktailRatingLabel.textContent = "★ " + (Math.random() * 50 / 10).toFixed(1); // Placeholder rating value
+
         // Add event listener to each cocktail element
         cocktailContainer.addEventListener("click", () => {
             // Redirect to recipe page with the appropriate recipe ID
@@ -58,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Append title & image to cocktail container
         cocktailContainer.appendChild(cocktailTitleLabel);
+        cocktailContainer.appendChild(cocktailRatingLabel);
         cocktailContainer.appendChild(cocktailImg);
 
         // Append cocktail container to cocktails-container in DOM
