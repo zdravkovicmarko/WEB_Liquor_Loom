@@ -87,7 +87,7 @@ async function removeCocktailFromDb(cocktailId) {
         return { id: cocktailId };
     } catch (error) {
         // If any error occurs during deletion or checking for existence, throw the error
-        throw error;
+        console.log('Issue in removeCocktailFromDb: ', error);
     }
 }
 
