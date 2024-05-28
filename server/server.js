@@ -99,6 +99,22 @@ import('node-fetch').then(module => {
             const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
 
             if (recipeData) {
+                // Add cocktail to database
+                try {
+                    await addCocktailToDb(recipeData);
+                    console.log("Successfully added cocktail:", recipeData);
+                } catch (error) {
+                    // If adding cocktail to db fails (e.g., because of duplicate entries), show all entries in db
+                    console.error("Error adding cocktail:", error);
+                }
+
+                try {
+                    const cocktails = await getAllCocktailsFromDb();
+                    console.log("Retrieved cocktails from the database:", cocktails);
+                } catch (error) {
+                    console.error("Error retrieving cocktails from the database:", error);
+                }
+
                 // Send the recipe data as JSON response
                 res.json(recipeData);
             } else {
@@ -110,60 +126,6 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.get('/recipe/:recipeID', function (req, res) {
-        // Fetch and process cocktail data asynchronously
-        fetchCocktailData('search.php', 's', 'Margarita')
-            .then(jsonData => {
-                const drinks = processCocktailData(jsonData);
-                // Now fetch the specific recipe data
-                const recipeID = req.params.recipeID; // Get recipeID from request params
-                const recipeData = fetchRecipeData(drinks, recipeID);
-                console.log("My recipe data: ", recipeData);
-
-                addCocktailToDb(recipeData)
-                    .then(addedCocktails => {
-                        console.log("Successfully added cocktails:", addedCocktails);
-
-                        getAllCocktailsFromDb()
-                            .then(cocktails => {
-                                // Handle the resolved value (cocktails) here
-                                console.log("Retrieved cocktails from the database:", cocktails);
-                            })
-                            .catch(error => {
-                                // Handle any errors that occurred during the execution of getAllCocktailsFromDb()
-                                console.error("Error retrieving cocktails from the database:", error);
-                            });
-
-                        // Do something with the added cocktails
-                    })
-                    .catch(error => { // If adding cocktail to db fails (b.c. of duplicate entries), then show all entries in db
-                        console.error("Error adding cocktails:", error);
-
-                        getAllCocktailsFromDb()
-                            .then(cocktails => {
-                                // Handle the resolved value (cocktails) here
-                                console.log("Retrieved cocktails from the database:", cocktails);
-                            })
-                            .catch(error => {
-                                // Handle any errors that occurred during the execution of getAllCocktailsFromDb()
-                                console.error("Error retrieving cocktails from the database:", error);
-                            });
-                        // Handle the error
-                    });
-
-                // Render recipe HTML page and pass recipeData to the template
-                if (recipeData) {
-                    // Send the recipe data as JSON response
-                    res.json(recipeData);
-                } else {
-                    res.status(404).send('Recipe not found');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching and processing cocktail data:', error);
-                res.status(500).send('Internal Server Error');
-            });
-    });
 
     app.get('/recipe/', function (req, res) {
         res.send("Enter a valid recipe ID");
@@ -244,8 +206,8 @@ async function getAllCocktailsFromAPI(){
         const cocktails = await fetchCocktailsByLetter(letter);
         allCocktails = allCocktails.concat(cocktails);
 
-        if (allCocktails.length >= 20) {
-            allCocktails = allCocktails.slice(0, 20); // Limit to 20 cocktails
+        if (allCocktails.length >= 50) {
+            allCocktails = allCocktails.slice(0, 50); // Limit to 20 cocktails
             break;
         }
     }
