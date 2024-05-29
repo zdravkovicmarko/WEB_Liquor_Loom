@@ -4,20 +4,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const filterButton = document.getElementById("filter-button");
     let selectedTag = null;
+    let allCocktails = [];
     let isLoading = false;
 
     // Initialize the slide value display
-    slideValue.innerText = "★ " + range.value + " - 5";
-    console.log("Initial slider value:", range.value);
+    if (range && slideValue) {
+        slideValue.innerText = "★ " + range.value + " - 5";
+        console.log("Initial slider value:", range.value);
 
-    const updateSlideValue = (value) => {
-        value === "5" ? slideValue.innerText = "★ " + value : slideValue.innerText = "★ " + value + " - 5";
-        console.log("Updated slider value:", value);
-    };
+        const updateSlideValue = (value) => {
+            value === "5" ? slideValue.innerText = "★ " + value : slideValue.innerText = "★ " + value + " - 5";
+            console.log("Updated slider value:", value);
+        };
 
-    range.addEventListener("input", (event) => {
-        updateSlideValue(event.target.value);
-    });
+        range.addEventListener("input", (event) => {
+            updateSlideValue(event.target.value);
+        });
+    }
 
     // Handles selection of tags & tag sets
     const tags = document.querySelectorAll(".tag");
@@ -47,25 +50,40 @@ document.addEventListener("DOMContentLoaded", () => {
         return data.drinks || [];
     };
 
-    const applyFilter = async () => {
-        if (isLoading || !selectedTag) return;
-        isLoading = true;
-
-        try {
-            cocktailsContainer.innerHTML = ''; // Clear current cocktails
-            let apiUrl = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=';
-            apiUrl += selectedTag === 'alcoholic' ? 'Alcoholic' : 'Non_Alcoholic';
-
-            const cocktails = await fetchCocktails(apiUrl);
-            cocktails.forEach(cocktail => appendCocktail(cocktail));
-        } catch (error) {
-            console.error('Error fetching and filtering cocktails:', error);
-        } finally {
-            isLoading = false;
+    const fetchAllCocktails = async () => {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        for (const letter of alphabet) {
+            const url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${letter}`;
+            const cocktails = await fetchCocktails(url);
+            allCocktails.push(...cocktails);
         }
     };
 
-    filterButton.addEventListener("click", applyFilter);
+    const filterCocktails = () => {
+        if (!selectedTag) return allCocktails;
+
+        return allCocktails.filter(cocktail => {
+            if (selectedTag === 'alcoholic') {
+                return cocktail.strAlcoholic.toLowerCase() === 'alcoholic';
+            } else if (selectedTag === 'non alcoholic') {
+                return cocktail.strAlcoholic.toLowerCase() === 'non alcoholic';
+            }
+            return true;
+        });
+    };
+
+    const applyFilter = () => {
+        if (isLoading) return;
+
+        cocktailsContainer.innerHTML = ''; // Clear current cocktails
+
+        const filteredCocktails = filterCocktails();
+        filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
+    };
+
+    if (filterButton) {
+        filterButton.addEventListener("click", applyFilter);
+    }
 
     const appendCocktail = (cocktail) => {
         console.log("Cocktail:", cocktail);
@@ -97,4 +115,20 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = `/recipe/${cocktail.idDrink}`;
         });
     };
+
+    const displayInitialCocktails = async () => {
+        isLoading = true;
+
+        try {
+            await fetchAllCocktails();
+            allCocktails.forEach(cocktail => appendCocktail(cocktail));
+        } catch (error) {
+            console.error('Error fetching initial cocktails:', error);
+        } finally {
+            isLoading = false;
+        }
+    };
+
+    // Display all cocktails initially
+    displayInitialCocktails();
 });
