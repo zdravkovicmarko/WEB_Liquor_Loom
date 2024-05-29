@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const slideValue = document.querySelector(".slide-value");
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const filterButton = document.getElementById("filter-button");
+    const searchInput = document.getElementById("search"); // Added search input reference
     let selectedTags = new Set(); // Store selected tags
     let allCocktails = [];
     let isLoading = false;
@@ -84,6 +85,46 @@ document.addEventListener("DOMContentLoaded", () => {
     // Display all cocktails initially
     displayInitialCocktails();
 
+    // Function to filter cocktails based on search term
+    const filterCocktailsByName = (searchTerm) => {
+        // Convert search term to lowercase for case-insensitive search
+        const lowercaseSearchTerm = searchTerm.toLowerCase();
+
+        // Filter cocktails whose name contains the search term
+        return allCocktails.filter(cocktail => cocktail.strDrink.toLowerCase().includes(lowercaseSearchTerm));
+    };
+
+    const updateDisplayedCocktails = (searchTerm) => {
+        // Clear current cocktails
+        cocktailsContainer.innerHTML = '';
+
+        // Filter cocktails based on search term
+        const filteredCocktails = filterCocktailsByName(searchTerm);
+
+        if (filteredCocktails.length === 0) {
+            // If no matches found, display a message
+            const noResultsMessage = document.createElement("div");
+            noResultsMessage.textContent = "No results found.";
+            cocktailsContainer.appendChild(noResultsMessage);
+        } else {
+            // Sort the filtered cocktails based on the selected order
+            if (sortOrder === 'asc') {
+                filteredCocktails.sort((a, b) => a.strDrink.localeCompare(b.strDrink));
+            } else if (sortOrder === 'desc') {
+                filteredCocktails.sort((a, b) => b.strDrink.localeCompare(a.strDrink));
+            }
+
+            // If matches found, append cocktails
+            filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
+        }
+    };
+
+    // Event listener for input events on the search input field
+    searchInput.addEventListener('input', (event) => {
+        const searchTerm = event.target.value.trim();
+        updateDisplayedCocktails(searchTerm);
+    });
+
     // Handle (de-)selection of tags visually & for filter method
     const tags = document.querySelectorAll(".tag");
     tags.forEach(tag => {
@@ -119,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Filter cocktails (backend)
     const filterCocktails = () => {
-
         // With no tags
         if (selectedTags.size === 0) {
             return allCocktails.sort((a, b) =>
