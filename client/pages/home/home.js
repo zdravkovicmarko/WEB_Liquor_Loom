@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedTags = new Set(); // Store selected tags
     let allCocktails = [];
     let isLoading = false;
+    let sortOrder = 'asc'; // Default sort order
 
     // Initialize the slide value display
     if (range && slideValue) {
@@ -23,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Handles selection of tags
-    const tags = document.querySelectorAll(".tag");
+    const tags = document.querySelectorAll(".tag[tag-set='1']");
     tags.forEach(tag => {
         tag.addEventListener("click", () => {
             const tagText = tag.textContent.trim().toLowerCase();
@@ -61,6 +62,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Handles selection of sort order
+    const sortTags = document.querySelectorAll(".tag[tag-set='2']");
+    sortTags.forEach(tag => {
+        tag.addEventListener("click", () => {
+            const tagText = tag.textContent.trim().toLowerCase();
+            if (tagText === 'asc' || tagText === 'desc') {
+                sortOrder = tagText;
+                // Remove sorting order from selected tags
+                selectedTags.delete('asc');
+                selectedTags.delete('desc');
+            } else {
+                // Handle other tags if needed
+            }
+        });
+    });
+
     const fetchCocktails = async (url) => {
         const response = await fetch(url);
         const data = await response.json();
@@ -77,7 +94,17 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const filterCocktails = () => {
-        if (selectedTags.size === 0) return allCocktails;
+        if (selectedTags.size === 0) {
+            // If no filter tags are selected
+            if (sortOrder === 'asc') {
+                // Sort alphabetically in ascending order
+                allCocktails.sort((a, b) => a.strDrink.localeCompare(b.strDrink));
+            } else if (sortOrder === 'desc') {
+                // Sort alphabetically in descending order
+                allCocktails.sort((a, b) => b.strDrink.localeCompare(a.strDrink));
+            }
+            return allCocktails;
+        }
 
         return allCocktails.filter(cocktail => {
             // Check if any selected tag matches the category
@@ -95,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 
+
     const applyFilter = () => {
         if (isLoading) return;
 
@@ -107,10 +135,21 @@ document.addEventListener("DOMContentLoaded", () => {
             noResultsMessage.textContent = "No results found.";
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
+            // Sort the filtered cocktails based on the selected order
+            if (sortOrder === 'asc') {
+                filteredCocktails.sort((a, b) => a.strDrink.localeCompare(b.strDrink));
+            } else if (sortOrder === 'desc') {
+                filteredCocktails.sort((a, b) => b.strDrink.localeCompare(a.strDrink));
+            }
+
             // If matches found, append cocktails
             filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
         }
+        console.log("Selected tags:", selectedTags);
+        console.log("Sort order:", sortOrder);
+        console.log("FilteredCocktails: ", filteredCocktails)
     };
+
 
     if (filterButton) {
         filterButton.addEventListener("click", applyFilter);
