@@ -9,7 +9,6 @@ body {
     margin: 0;
 }
 main {
-    grid-area: m;
     display: flex;
     justify-content: center;
     align-items: center;

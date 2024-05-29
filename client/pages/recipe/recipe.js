@@ -21,10 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
             ingredientsList.innerHTML = '';
             for (let i = 0; i < recipeData.ingredients.length; i++) {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${recipeData.ingredients[i]} - ${recipeData.measures[i]}`;
+                const ingredient = recipeData.ingredients[i].toLowerCase();
+                const measure = recipeData.measures[i] ? recipeData.measures[i].toLowerCase() : '';
+                listItem.textContent = measure ? `${ingredient} - ${measure}` : ingredient;
                 ingredientsList.appendChild(listItem);
             }
-            document.getElementById('cocktail-instructions').textContent = recipeData.instructions;
+            document.getElementById('instructions').textContent = recipeData.instructions;
         } catch (error) {
             console.error('Error fetching recipe data:', error);
         }
