@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const slideValue = document.querySelector(".slide-value");
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const filterButton = document.getElementById("filter-button");
-    let selectedTag = null;
+    let selectedTags = new Set(); // Store selected tags
     let allCocktails = [];
     let isLoading = false;
 
@@ -22,24 +22,41 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Handles selection of tags & tag sets
+    // Handles selection of tags
     const tags = document.querySelectorAll(".tag");
     tags.forEach(tag => {
         tag.addEventListener("click", () => {
-            const tagSet = tag.getAttribute("tag-set");
+            const tagText = tag.textContent.trim().toLowerCase();
 
-            if (tag.classList.contains("selected")) {
-                // Deselect selected tag
-                tag.classList.remove("selected");
-                selectedTag = null;
+            if (tagText === 'alcoholic' || tagText === 'non alcoholic') {
+                // Handle alcoholic and non-alcoholic separately
+                if (selectedTags.has(tagText)) {
+                    // Deselect tag
+                    tag.classList.remove("selected");
+                    selectedTags.delete(tagText);
+                } else {
+                    // Deselect the other tag and select this one
+                    const otherTagText = tagText === 'alcoholic' ? 'non alcoholic' : 'alcoholic';
+                    tags.forEach(otherTag => {
+                        if (otherTag.textContent.trim().toLowerCase() === otherTagText) {
+                            otherTag.classList.remove("selected");
+                            selectedTags.delete(otherTagText);
+                        }
+                    });
+                    // Select tag
+                    tag.classList.add("selected");
+                    selectedTags.add(tagText);
+                }
             } else {
-                // Deselect tags in same set
-                document.querySelectorAll(`.tag[tag-set="${tagSet}"]`).forEach(otherTag => {
-                    otherTag.classList.remove("selected");
-                });
-                // Select clicked tag
-                tag.classList.add("selected");
-                selectedTag = tag.textContent.trim().toLowerCase();
+                if (selectedTags.has(tagText)) {
+                    // Deselect tag
+                    tag.classList.remove("selected");
+                    selectedTags.delete(tagText);
+                } else {
+                    // Select tag
+                    tag.classList.add("selected");
+                    selectedTags.add(tagText);
+                }
             }
         });
     });
@@ -60,17 +77,23 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const filterCocktails = () => {
-        if (!selectedTag) return allCocktails;
+        if (selectedTags.size === 0) return allCocktails;
 
         return allCocktails.filter(cocktail => {
-            if (selectedTag === 'alcoholic') {
-                return cocktail.strAlcoholic.toLowerCase() === 'alcoholic';
-            } else if (selectedTag === 'non alcoholic') {
-                return cocktail.strAlcoholic.toLowerCase() === 'non alcoholic';
-            }
-            return true;
+            // Check if any selected tag matches the category
+            const selectedAlcoholicTag = Array.from(selectedTags).find(tag => tag === 'alcoholic');
+            const selectedNonAlcoholicTag = Array.from(selectedTags).find(tag => tag === 'non alcoholic');
+            const selectedCategoryTags = Array.from(selectedTags).filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic');
+
+            // Check if the cocktail matches both alcoholic/non-alcoholic and category criteria
+            const matchesAlcoholicCriteria = selectedAlcoholicTag ? cocktail.strAlcoholic.toLowerCase() === 'alcoholic' : true;
+            const matchesNonAlcoholicCriteria = selectedNonAlcoholicTag ? cocktail.strAlcoholic.toLowerCase() === 'non alcoholic' : true;
+            const matchesCategoryCriteria = selectedCategoryTags.length === 0 || selectedCategoryTags.includes(cocktail.strCategory.toLowerCase());
+
+            return matchesAlcoholicCriteria && matchesNonAlcoholicCriteria && matchesCategoryCriteria;
         });
     };
+
 
     const applyFilter = () => {
         if (isLoading) return;
@@ -78,7 +101,15 @@ document.addEventListener("DOMContentLoaded", () => {
         cocktailsContainer.innerHTML = ''; // Clear current cocktails
 
         const filteredCocktails = filterCocktails();
-        filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
+        if (filteredCocktails.length === 0) {
+            // If no matches found, display a message
+            const noResultsMessage = document.createElement("div");
+            noResultsMessage.textContent = "No results found.";
+            cocktailsContainer.appendChild(noResultsMessage);
+        } else {
+            // If matches found, append cocktails
+            filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
+        }
     };
 
     if (filterButton) {
@@ -86,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const appendCocktail = (cocktail) => {
-        console.log("Cocktail:", cocktail);
         const cocktailContainer = document.createElement("div");
         cocktailContainer.classList.add("cocktail-container");
 

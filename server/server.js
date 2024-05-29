@@ -100,16 +100,8 @@ import('node-fetch').then(module => {
 
     // temporary endpoint containing all recipes as JSON, which will be used for /home later
     app.get('/api/allrecipes', async (req, res) => {
-        try {
-            const offset = parseInt(req.query.offset) || 0;
-            const limit = parseInt(req.query.limit) || 50;
-
-            const allCocktails = await getAllCocktailsFromAPI(offset, limit, true);
-            res.json(allCocktails);
-        } catch (error) {
-            console.error('Error fetching cocktails:', error);
-            res.status(500).json({ error: 'Failed to fetch cocktails' });
-        }
+        const allCocktails = await getAllCocktailsFromAPI();
+        res.json(allCocktails);
     });
 
     app.get('/api/recipe/:cocktailID', async (req, res) => {
@@ -179,26 +171,11 @@ import('node-fetch').then(module => {
     async function getAllCocktailsFromAPI(offset, limit, shouldSlice) {
         let allCocktails = [];
         const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
-        let fetchedCount = 0;
-
-        for (const letter of alphabet) {
-            if (fetchedCount >= offset + limit) break;
-
+        for (const letter of alphabet) { // fetchCocktailsByLetter is called with every letter and their results concatinated
             const cocktails = await fetchCocktailsByLetter(letter);
-            const cocktailsToAdd = cocktails.slice(
-                Math.max(0, offset - fetchedCount),
-                Math.max(0, offset - fetchedCount + limit - allCocktails.length)
-            );
-
-            allCocktails = allCocktails.concat(cocktailsToAdd);
-            fetchedCount += cocktails.length;
+            allCocktails = allCocktails.concat(cocktails);
         }
-
-        if (shouldSlice) {
-            return allCocktails.slice(0, limit);
-        } else {
-            return allCocktails;
-        }
+        return allCocktails;
     }
 
     function fetchRecipeData(drinks, recipeID) {
