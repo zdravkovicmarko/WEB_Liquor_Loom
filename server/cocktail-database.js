@@ -37,31 +37,41 @@ function runQuery(query, params) { // SQL query on database, creates Promise tha
     });
 }
 
-function insertIngredients(cocktailId, ingredients) {
-    const promises = ingredients.map(({ ingredient, measure }) =>
+function insertIngredients(cocktailId, ingredients, measures) {
+    // Combine ingredients and measures into an array of objects
+    const combined = ingredients.map((ingredient, index) => ({
+        ingredient,
+        measure: measures[index] || null // Use null if there is no corresponding measure
+    }));
+
+    // Create an array of promises to insert each ingredient
+    const promises = combined.map(({ ingredient, measure }) =>
         runQuery(`INSERT INTO ingredients (cocktail_id, ingredient, measure) VALUES (?, ?, ?)`, [cocktailId, ingredient, measure])
     );
+
+    // Return a promise that resolves when all inserts are done
     return Promise.all(promises);
 }
 
 async function addCocktailToDb(cocktail) {
-    const { id, name, category, alcoholic, glass, instructions, thumbnail, ingredients } = cocktail;
+    const { id, name, category, alcoholic, glass, instructions, thumbnail, ingredients, measures } = cocktail;
     try {
         // Check if the cocktail already exists in the database
         const existingCocktail = await getCocktailById(id);
         if (existingCocktail) {
             // If the cocktail already exists, throw an error or handle it accordingly
             console.log('Cocktail already in database')
+            return;
         }
 
         // Insert cocktail
-        const result = await runQuery(
+        await runQuery(
             `INSERT INTO cocktails ( id, name, category, alcoholic, glass, instructions, thumbnail) VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [id, name, category, alcoholic, glass, instructions, thumbnail]
         );
 
         // Insert ingredients
-        await insertIngredients(id, ingredients);
+        await insertIngredients(id, ingredients, measures);
 
         console.log("Cocktail added successfully");
     } catch (err) {
@@ -75,7 +85,7 @@ async function removeCocktailFromDb(cocktailId) {
         // Check if the cocktail exists in the database
         const existingCocktail = await getCocktailById(cocktailId);
         if (!existingCocktail) {
-            throw new Error("Cocktail not found in the database");
+            console.log("Cocktail not found in the database");
         }
 
         // Delete the cocktail from the cocktails table
@@ -88,6 +98,20 @@ async function removeCocktailFromDb(cocktailId) {
     } catch (error) {
         // If any error occurs during deletion or checking for existence, throw the error
         console.log('Issue in removeCocktailFromDb: ', error);
+    }
+}
+
+async function clearDatabase() {
+    try {
+        // Drop the cocktails table
+        await runQuery(`DROP TABLE IF EXISTS cocktails`);
+
+        // Drop the ingredients table
+        await runQuery(`DROP TABLE IF EXISTS ingredients`);
+
+        console.log("Database cleared successfully");
+    } catch (err) {
+        console.error("Error clearing database:", err);
     }
 }
 
@@ -157,5 +181,6 @@ module.exports = {
     getCocktailById,
     getCocktailByName,
     getAllCocktailsFromDb,
-    removeCocktailFromDb
+    removeCocktailFromDb,
+    clearDatabase
 };

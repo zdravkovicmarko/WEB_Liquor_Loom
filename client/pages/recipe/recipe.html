@@ -36,16 +36,33 @@
             <label class="cocktail-rating-label" id="rating"></label>
             <img class="cocktail-img" id="img" src="" alt="Cocktail Thumbnail">
         </div>
-        <div>
+        <div class="tag-container">
             <div class="element-inner-container tags">
-                <span class="tag" id="category"></span>
-                <span class="tag" id="alcoholic"></span>
-                <span class="tag" id="glass"></span>
+                <div class="tag-inner-container">
+                    <span class="tag" id="category"></span>
+                    <span class="tag" id="alcoholic"></span>
+                    <span class="tag" id="glass"></span>
+                </div>
+                <div class="btn-inner-container">
+                    <div class="btn-part btn-recommend">
+                        <img class="btn-img" src="/client/images/symbol_recommend.png" alt="Recommend Button">
+                    </div>
+                    <div class="btn-part btn-recommend-no">
+                        <img class="btn-img" src="/client/images/symbol_recommend_no.png" alt="Not Recommend Button">
+                    </div>
+                    <div class="btn-part btn-pin">
+                        <img class="btn-img" src="/client/images/symbol_pin.png" alt="Pin Button">
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="ingredients">
             <div class="title-label"><label>INGREDIENTS</label></div>
             <div class="element-inner-container">
                 <span id="ingredients"></span>
             </div>
+        </div>
+        <div class="instructions">
             <div class="title-label"><label>INSTRUCTIONS</label></div>
             <div class="element-inner-container">
                 <span id="instructions"></span>
