@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const fetchAllCocktails = async () => {
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
         for (const letter of alphabet) {
             const url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${letter}`;
             const cocktails = await fetchCocktails(url);
