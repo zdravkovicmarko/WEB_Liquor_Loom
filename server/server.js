@@ -18,13 +18,6 @@ import('node-fetch').then(module => {
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
-    /*
-    app.use('/images', express.static(path.join(__dirname, '../client/images')));
-    app.use('/search', express.static(path.join(__dirname, '../client/search')));
-    app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
-    app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
-    app.use('/home.js', express.static(path.join(__dirname, '../client/pages/home/home.js')));
-     */
 
     // Middleware to parse URL-encoded data and JSON data
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -183,37 +176,7 @@ import('node-fetch').then(module => {
             .then(data => data.drinks || []);
     }
 
-    // Example usage:
-    fetchCocktailData('search.php', 's', 'Strawberry%20Margarita')
-        .then(jsonData => {
-            // Process the data here
-            const drinks = processCocktailData(jsonData);
-
-            console.log("These are my drinks: ");
-            Object.values(drinks).forEach(drink => {
-                console.log(drink.name);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching and processing cocktail data:', error);
-        });
-    // End of example usage
-
-    function fetchRecipeData(drinks, recipeID) {
-        if (!Array.isArray(drinks)) {
-            throw new Error('Drinks should be an array');
-        }
-        //for (const drink of drinks) {
-            //console.log(drink.id);
-            //console.log(typeof drink.id);
-        //
-        //}
-        //console.log(recipeID);
-        //console.log(typeof recipeID);
-        return drinks.find(drink => drink.id === recipeID);
-    }
-
-    async function getAllCocktailsFromAPI(offset, limit, shouldSlice ) {
+    async function getAllCocktailsFromAPI(offset, limit, shouldSlice) {
         let allCocktails = [];
         const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
         let fetchedCount = 0;
@@ -238,9 +201,16 @@ import('node-fetch').then(module => {
         }
     }
 
-app.listen(666, () => {
-    console.log("Server now listening on http://localhost:666");
-});
+    function fetchRecipeData(drinks, recipeID) {
+        if (!Array.isArray(drinks)) {
+            throw new Error('Drinks should be an array');
+        }
+        return drinks.find(drink => drink.id === recipeID);
+    }
+
+    app.listen(666, () => {
+        console.log("Server now listening on http://localhost:666");
+    });
 }).catch(err => {
     console.error('Error importing node-fetch:', err);
 });

@@ -2,10 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const range = document.querySelector("#slide");
     const slideValue = document.querySelector(".slide-value");
     const cocktailsContainer = document.querySelector(".cocktails-container");
+    const filterButton = document.getElementById("filter-button");
+    let selectedTag = null;
     let isLoading = false;
-    let offset = 0;
-    const initialLimit = 24;
-    const intervalLimit = 40;
 
     // Initialize the slide value display
     slideValue.innerText = "★ " + range.value + " - 5";
@@ -29,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (tag.classList.contains("selected")) {
                 // Deselect selected tag
                 tag.classList.remove("selected");
+                selectedTag = null;
             } else {
                 // Deselect tags in same set
                 document.querySelectorAll(`.tag[tag-set="${tagSet}"]`).forEach(otherTag => {
@@ -36,28 +36,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 // Select clicked tag
                 tag.classList.add("selected");
+                selectedTag = tag.textContent.trim().toLowerCase();
             }
         });
     });
-    
-    const fetchMoreCocktails = async (limit) => {
-        if (isLoading) return;
+
+    const fetchCocktails = async (url) => {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.drinks || [];
+    };
+
+    const applyFilter = async () => {
+        if (isLoading || !selectedTag) return;
         isLoading = true;
 
         try {
-            const response = await fetch(`/api/allrecipes?offset=${offset}&limit=${limit}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const cocktails = await response.json();
+            cocktailsContainer.innerHTML = ''; // Clear current cocktails
+            let apiUrl = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=';
+            apiUrl += selectedTag === 'alcoholic' ? 'Alcoholic' : 'Non_Alcoholic';
+
+            const cocktails = await fetchCocktails(apiUrl);
             cocktails.forEach(cocktail => appendCocktail(cocktail));
-            offset += limit;
         } catch (error) {
-            console.error('Error fetching cocktails:', error);
+            console.error('Error fetching and filtering cocktails:', error);
         } finally {
             isLoading = false;
         }
     };
+
+    filterButton.addEventListener("click", applyFilter);
 
     const appendCocktail = (cocktail) => {
         console.log("Cocktail:", cocktail);
@@ -89,23 +97,4 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = `/recipe/${cocktail.idDrink}`;
         });
     };
-
-    window.addEventListener('scroll', () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight && !isLoading) {
-            fetchMoreCocktails(intervalLimit);
-        }
-    });
-
-    // Fetch initial cocktails
-    fetchMoreCocktails(initialLimit);
-
-    // Continue fetching in intervals
-    const intervalId = setInterval(() => {
-        if (!isLoading) {
-            fetchMoreCocktails(intervalLimit);
-        }
-    }, 2000);
-
-    // Optional: clear the interval after a certain time or condition
-    setTimeout(() => clearInterval(intervalId), 50000); // stops fetching after 30 seconds
 });
