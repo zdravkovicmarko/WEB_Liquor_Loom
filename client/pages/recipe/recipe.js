@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const recipeData = await response.json();
 
             // Update HTML elements with recipe data
-            document.getElementById('name').textContent = recipeData.name;
+            document.getElementById('name').textContent = recipeData.name.replace(/\b\w/g, char => char.toUpperCase());
             document.getElementById('rating').textContent = "★ " + (Math.random() * 50 / 10).toFixed(1);
             document.getElementById('img').src = recipeData.thumbnail;
 
@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const ingredientsList = document.getElementById('ingredients');
             ingredientsList.innerHTML = '';
+            ingredientsList.classList.add('no-bullets');
+
             for (let i = 0; i < recipeData.ingredients.length; i++) {
                 const listItem = document.createElement('li');
                 const ingredient = recipeData.ingredients[i].toLowerCase();

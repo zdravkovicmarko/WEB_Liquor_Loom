@@ -1,5 +1,12 @@
 @import url(/client/base.css);
 
+:root {
+    --base-font-size: 1rem;
+    --title-font-size: 2rem;
+    --cocktail-img-size: 300px;
+    --btn-part-size: 40px;
+    --btn-img-size: 25px;
+}
 body {
     display: grid;
     grid-template-areas:
@@ -8,24 +15,77 @@ body {
         "f";
     grid-template-rows: 135px auto 35px;
     margin: 0;
+    font-size: var(--base-font-size);
+}
+
+.element-border {
+    display: grid;
+    grid-template-areas:
+        "img tags"
+        "img ingredients"
+        "instructions instructions";
+    grid-template-columns: calc(var(--cocktail-img-size) + 20px) auto;
+    grid-template-rows: min-content auto auto;
+    column-gap: 2%;
+}
+.cocktail-container {
+    grid-area: img;
+}
+.tag-container {
+    grid-area: tags;
+}
+.ingredients {
+    grid-area: ingredients;
+    margin-left: 7px;
+}
+.instructions {
+    grid-area: instructions;
+    margin-left: 7px;
+}
+
+.title-label {
+    font-size: var(--title-font-size);
+    padding: 5px 0 0 0;
+}
+.element-inner-container {
+    font-size: 1.5em;
+}
+.cocktail-title-label {
+    font-size: 2rem;
+}
+.cocktail-rating-label {
+    font-size: 1.5rem;
 }
 
 .element-border {
     padding-top: 15px;
 }
-.element-inner-container {
-    color: white;
+
+.no-bullets {
+    padding-left: 0;
+}
+.no-bullets li {
+    margin-bottom: 5px;
 }
 
-.cocktail-container,
-.cocktail-container::before,
-.cocktail-container .cocktail-img {
-    max-width: 250px;
-}
-.cocktail-title-label {
-    font-size: 150%;
-}
-.cocktail-rating-label {
-    font-size: 125%;
+/* Responsive Layout */
+@media (max-width: 1000px) {
+    :root {
+        --base-font-size: 0.9rem;
+        --title-font-size: 1.8rem;
+        --cocktail-img-size: 300px;
+        --btn-part-size: 38.5px;
+        --btn-img-size: 23.5px;
+    }
 }
 
+@media (max-width: 750px) {
+    .element-border {
+        grid-template-areas:
+        "img"
+        "tags"
+        "ingredients"
+        "instructions";
+        grid-template-columns: auto;
+    }
+}

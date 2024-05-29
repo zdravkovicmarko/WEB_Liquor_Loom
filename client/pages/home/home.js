@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const cocktailTitleLabel = document.createElement("label");
         cocktailTitleLabel.classList.add("cocktail-title-label");
-        cocktailTitleLabel.textContent = cocktail.strDrink;
+        cocktailTitleLabel.textContent = cocktail.strDrink.replace(/\b\w/g, char => char.toUpperCase());
 
         const cocktailImg = document.createElement("img");
         cocktailImg.classList.add("cocktail-img");
