@@ -2,65 +2,160 @@ document.addEventListener("DOMContentLoaded", () => {
     const range = document.querySelector("#slide");
     const slideValue = document.querySelector(".slide-value");
     const cocktailsContainer = document.querySelector(".cocktails-container");
+    const filterButton = document.getElementById("filter-button");
+    let selectedTags = new Set(); // Store selected tags
+    let allCocktails = [];
     let isLoading = false;
-    let offset = 0;
-    const initialLimit = 24;
-    const intervalLimit = 40;
+    let sortOrder = 'asc'; // Default sort order
 
     // Initialize the slide value display
-    slideValue.innerText = "★ " + range.value + " - 5";
-    console.log("Initial slider value:", range.value);
+    if (range && slideValue) {
+        slideValue.innerText = "★ " + range.value + " - 5";
+        console.log("Initial slider value:", range.value);
 
-    const updateSlideValue = (value) => {
-        value === "5" ? slideValue.innerText = "★ " + value : slideValue.innerText = "★ " + value + " - 5";
-        console.log("Updated slider value:", value);
-    };
+        const updateSlideValue = (value) => {
+            value === "5" ? slideValue.innerText = "★ " + value : slideValue.innerText = "★ " + value + " - 5";
+            console.log("Updated slider value:", value);
+        };
 
-    range.addEventListener("input", (event) => {
-        updateSlideValue(event.target.value);
-    });
+        range.addEventListener("input", (event) => {
+            updateSlideValue(event.target.value);
+        });
+    }
 
-    // Handles selection of tags & tag sets
-    const tags = document.querySelectorAll(".tag");
+    // Handles selection of tags
+    const tags = document.querySelectorAll(".tag[tag-set='1']");
     tags.forEach(tag => {
         tag.addEventListener("click", () => {
-            const tagSet = tag.getAttribute("tag-set");
+            const tagText = tag.textContent.trim().toLowerCase();
 
-            if (tag.classList.contains("selected")) {
-                // Deselect selected tag
-                tag.classList.remove("selected");
+            if (tagText === 'alcoholic' || tagText === 'non alcoholic') {
+                // Handle alcoholic and non-alcoholic separately
+                if (selectedTags.has(tagText)) {
+                    // Deselect tag
+                    tag.classList.remove("selected");
+                    selectedTags.delete(tagText);
+                } else {
+                    // Deselect the other tag and select this one
+                    const otherTagText = tagText === 'alcoholic' ? 'non alcoholic' : 'alcoholic';
+                    tags.forEach(otherTag => {
+                        if (otherTag.textContent.trim().toLowerCase() === otherTagText) {
+                            otherTag.classList.remove("selected");
+                            selectedTags.delete(otherTagText);
+                        }
+                    });
+                    // Select tag
+                    tag.classList.add("selected");
+                    selectedTags.add(tagText);
+                }
             } else {
-                // Deselect tags in same set
-                document.querySelectorAll(`.tag[tag-set="${tagSet}"]`).forEach(otherTag => {
-                    otherTag.classList.remove("selected");
-                });
-                // Select clicked tag
-                tag.classList.add("selected");
+                if (selectedTags.has(tagText)) {
+                    // Deselect tag
+                    tag.classList.remove("selected");
+                    selectedTags.delete(tagText);
+                } else {
+                    // Select tag
+                    tag.classList.add("selected");
+                    selectedTags.add(tagText);
+                }
             }
         });
     });
-    
-    const fetchMoreCocktails = async (limit) => {
-        if (isLoading) return;
-        isLoading = true;
 
-        try {
-            const response = await fetch(`/api/allrecipes?offset=${offset}&limit=${limit}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+    // Handles selection of sort order
+    const sortTags = document.querySelectorAll(".tag[tag-set='2']");
+    sortTags.forEach(tag => {
+        tag.addEventListener("click", () => {
+            const tagText = tag.textContent.trim().toLowerCase();
+            if (tagText === 'asc' || tagText === 'desc') {
+                sortOrder = tagText;
+                // Remove sorting order from selected tags
+                selectedTags.delete('asc');
+                selectedTags.delete('desc');
+            } else {
+                // Handle other tags if needed
             }
-            const cocktails = await response.json();
-            cocktails.forEach(cocktail => appendCocktail(cocktail));
-            offset += limit;
-        } catch (error) {
-            console.error('Error fetching cocktails:', error);
-        } finally {
-            isLoading = false;
+        });
+    });
+
+    const fetchCocktails = async (url) => {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.drinks || [];
+    };
+
+    const fetchAllCocktails = async () => {
+        const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
+        for (const letter of alphabet) {
+            const url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${letter}`;
+            const cocktails = await fetchCocktails(url);
+            allCocktails.push(...cocktails);
         }
     };
 
+    const filterCocktails = () => {
+        if (selectedTags.size === 0) {
+            // If no filter tags are selected
+            if (sortOrder === 'asc') {
+                // Sort alphabetically in ascending order
+                allCocktails.sort((a, b) => a.strDrink.localeCompare(b.strDrink));
+            } else if (sortOrder === 'desc') {
+                // Sort alphabetically in descending order
+                allCocktails.sort((a, b) => b.strDrink.localeCompare(a.strDrink));
+            }
+            return allCocktails;
+        }
+
+        return allCocktails.filter(cocktail => {
+            // Check if any selected tag matches the category
+            const selectedAlcoholicTag = Array.from(selectedTags).find(tag => tag === 'alcoholic');
+            const selectedNonAlcoholicTag = Array.from(selectedTags).find(tag => tag === 'non alcoholic');
+            const selectedCategoryTags = Array.from(selectedTags).filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic');
+
+            // Check if the cocktail matches both alcoholic/non-alcoholic and category criteria
+            const matchesAlcoholicCriteria = selectedAlcoholicTag ? cocktail.strAlcoholic.toLowerCase() === 'alcoholic' : true;
+            const matchesNonAlcoholicCriteria = selectedNonAlcoholicTag ? cocktail.strAlcoholic.toLowerCase() === 'non alcoholic' : true;
+            const matchesCategoryCriteria = selectedCategoryTags.length === 0 || selectedCategoryTags.includes(cocktail.strCategory.toLowerCase());
+
+            return matchesAlcoholicCriteria && matchesNonAlcoholicCriteria && matchesCategoryCriteria;
+        });
+    };
+
+
+
+    const applyFilter = () => {
+        if (isLoading) return;
+
+        cocktailsContainer.innerHTML = ''; // Clear current cocktails
+
+        const filteredCocktails = filterCocktails();
+        if (filteredCocktails.length === 0) {
+            // If no matches found, display a message
+            const noResultsMessage = document.createElement("div");
+            noResultsMessage.textContent = "No results found.";
+            cocktailsContainer.appendChild(noResultsMessage);
+        } else {
+            // Sort the filtered cocktails based on the selected order
+            if (sortOrder === 'asc') {
+                filteredCocktails.sort((a, b) => a.strDrink.localeCompare(b.strDrink));
+            } else if (sortOrder === 'desc') {
+                filteredCocktails.sort((a, b) => b.strDrink.localeCompare(a.strDrink));
+            }
+
+            // If matches found, append cocktails
+            filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
+        }
+        console.log("Selected tags:", selectedTags);
+        console.log("Sort order:", sortOrder);
+        console.log("FilteredCocktails: ", filteredCocktails)
+    };
+
+
+    if (filterButton) {
+        filterButton.addEventListener("click", applyFilter);
+    }
+
     const appendCocktail = (cocktail) => {
-        console.log("Cocktail:", cocktail);
         const cocktailContainer = document.createElement("div");
         cocktailContainer.classList.add("cocktail-container");
 
@@ -90,22 +185,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    window.addEventListener('scroll', () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight && !isLoading) {
-            fetchMoreCocktails(intervalLimit);
+    const displayInitialCocktails = async () => {
+        isLoading = true;
+
+        try {
+            await fetchAllCocktails();
+            allCocktails.forEach(cocktail => appendCocktail(cocktail));
+        } catch (error) {
+            console.error('Error fetching initial cocktails:', error);
+        } finally {
+            isLoading = false;
         }
-    });
+    };
 
-    // Fetch initial cocktails
-    fetchMoreCocktails(initialLimit);
-
-    // Continue fetching in intervals
-    const intervalId = setInterval(() => {
-        if (!isLoading) {
-            fetchMoreCocktails(intervalLimit);
-        }
-    }, 2000);
-
-    // Optional: clear the interval after a certain time or condition
-    setTimeout(() => clearInterval(intervalId), 50000); // stops fetching after 30 seconds
+    // Display all cocktails initially
+    displayInitialCocktails();
 });

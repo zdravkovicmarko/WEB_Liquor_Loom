@@ -4,9 +4,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const { isValidUser } = require('../client/pages/authentication/login.js');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb } = require('./recipeDatabase');
-const { getAllCocktailsFromDb } = require('./recipeDatabase');
-const { removeCocktailFromDb } = require('./recipeDatabase');
+const { addCocktailToDb, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById } = require('./cocktail-database');
 const app = express();
 
 let fetch;
@@ -18,13 +16,6 @@ import('node-fetch').then(module => {
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
-    /*
-    app.use('/images', express.static(path.join(__dirname, '../client/images')));
-    app.use('/search', express.static(path.join(__dirname, '../client/search')));
-    app.use('/base.css', express.static(path.join(__dirname, '../client/base.css')));
-    app.use('/home.css', express.static(path.join(__dirname, '../client/pages/home/home.css')));
-    app.use('/home.js', express.static(path.join(__dirname, '../client/pages/home/home.js')));
-     */
 
     // Middleware to parse URL-encoded data and JSON data
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -88,8 +79,8 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
     })
 
-    app.get('/recipe/', function (req, res) {
-        res.send("Enter a valid recipe ID");
+    app.get('/recipe/', async (req, res) => {
+        await addAllCocktailsFromAPIToDb();
     });
 
     app.post('/add-cocktail', (req, res) => {
@@ -107,16 +98,8 @@ import('node-fetch').then(module => {
 
     // temporary endpoint containing all recipes as JSON, which will be used for /home later
     app.get('/api/allrecipes', async (req, res) => {
-        try {
-            const offset = parseInt(req.query.offset) || 0;
-            const limit = parseInt(req.query.limit) || 50;
-
-            const allCocktails = await getAllCocktailsFromAPI(offset, limit, true);
-            res.json(allCocktails);
-        } catch (error) {
-            console.error('Error fetching cocktails:', error);
-            res.status(500).json({ error: 'Failed to fetch cocktails' });
-        }
+        const allCocktails = await getAllCocktailsFromAPI();
+        res.json(allCocktails);
     });
 
     app.get('/api/recipe/:cocktailID', async (req, res) => {
@@ -136,15 +119,13 @@ import('node-fetch').then(module => {
                     await addCocktailToDb(recipeData);
                     //console.log("Successfully added cocktail:", recipeData);
                 } catch (error) {
-                    // If adding cocktail to db fails (e.g., because of duplicate entries), show all entries in db
-                    //console.error("Error adding cocktail:", error);
+                    console.log("Error adding cocktail:", error);
                 }
 
                 try {
-                    const cocktails = await getAllCocktailsFromDb();
-                    //console.log("Retrieved cocktails from the database:", cocktails);
+                    await getAllCocktailsFromDb();
                 } catch (error) {
-                    //console.error("Error retrieving cocktails from the database:", error);
+                    console.error("Error retrieving updated list of cocktails from the database:", error);
                 }
 
                 // Send the recipe data as JSON response
@@ -183,64 +164,39 @@ import('node-fetch').then(module => {
             .then(data => data.drinks || []);
     }
 
-    // Example usage:
-    fetchCocktailData('search.php', 's', 'Strawberry%20Margarita')
-        .then(jsonData => {
-            // Process the data here
-            const drinks = processCocktailData(jsonData);
-
-            console.log("These are my drinks: ");
-            Object.values(drinks).forEach(drink => {
-                console.log(drink.name);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching and processing cocktail data:', error);
-        });
-    // End of example usage
+    async function getAllCocktailsFromAPI(offset, limit, shouldSlice) {
+        let allCocktails = [];
+        const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
+        for (const letter of alphabet) { // fetchCocktailsByLetter is called with every letter and their results concatinated
+            const cocktails = await fetchCocktailsByLetter(letter);
+            allCocktails = allCocktails.concat(cocktails);
+        }
+        return allCocktails;
+    }
 
     function fetchRecipeData(drinks, recipeID) {
         if (!Array.isArray(drinks)) {
             throw new Error('Drinks should be an array');
         }
-        //for (const drink of drinks) {
-            //console.log(drink.id);
-            //console.log(typeof drink.id);
-        //
-        //}
-        //console.log(recipeID);
-        //console.log(typeof recipeID);
         return drinks.find(drink => drink.id === recipeID);
     }
 
-    async function getAllCocktailsFromAPI(offset, limit, shouldSlice ) {
-        let allCocktails = [];
-        const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
-        let fetchedCount = 0;
+    async function addAllCocktailsFromAPIToDb()  {
+        const response = await fetch(`http://localhost:666/api/allrecipes`);
+        const jsonData = await response.json();
+        const wrappedResponse = { drinks: jsonData };
 
-        for (const letter of alphabet) {
-            if (fetchedCount >= offset + limit) break;
-
-            const cocktails = await fetchCocktailsByLetter(letter);
-            const cocktailsToAdd = cocktails.slice(
-                Math.max(0, offset - fetchedCount),
-                Math.max(0, offset - fetchedCount + limit - allCocktails.length)
-            );
-
-            allCocktails = allCocktails.concat(cocktailsToAdd);
-            fetchedCount += cocktails.length;
-        }
-
-        if (shouldSlice) {
-            return allCocktails.slice(0, limit);
-        } else {
-            return allCocktails;
-        }
+        let allCocktails = processCocktailData(wrappedResponse);
+        allCocktails.forEach(cocktail => {
+            addCocktailToDb(cocktail)
+                .then(() => console.log(`Successfully added cocktail: ${cocktail.name}`))
+                .catch(err => console.error(`Error adding cocktail: ${cocktail.name}`, err));
+        });
     }
 
-app.listen(666, () => {
-    console.log("Server now listening on http://localhost:666");
-});
+    app.listen(666, () => {
+        console.log("Server now listening on http://localhost:666");
+    });
 }).catch(err => {
     console.error('Error importing node-fetch:', err);
 });
