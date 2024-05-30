@@ -8,7 +8,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Could not connect to database', err);
     } else {
-        console.log('Connected to database');
+        console.log('Connected to user database');
     }
 });
 
@@ -18,7 +18,11 @@ db.serialize(() => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL,
     email TEXT NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    recommendations INTEGER DEFAULT 0,
+    do_not_recommendations INTEGER DEFAULT 0,
+    favourites INTEGER DEFAULT 0,
+    plan_to_taste INTEGER DEFAULT 0
   )`);
 });
 
@@ -32,6 +36,42 @@ function insertUser(username, email, password) {
             } else {
                 console.log(`${username}, inserted with ID:`, this.lastID);
                 resolve(this.lastID);
+            }
+        });
+    });
+}
+function updateUser(id, username, email, password) {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?`;
+        db.run(query, [username, email, password, id], function (err) {
+            if (err) {
+                console.error('Error updating user:', err);
+                reject(err);
+            } else {
+                console.log(`User with ID ${id} updated successfully`);
+                resolve();
+            }
+        });
+    });
+}
+
+function updateUser2(id, userData) {
+    return new Promise((resolve, reject) => {
+        // Construct the SET clause dynamically based on provided fields
+        const updateFields = Object.keys(userData).map(field => `${field} = ?`).join(', ');
+        const values = Object.values(userData);
+
+        const query = `UPDATE users SET ${updateFields} WHERE id = ?`;
+        // Add the user ID at the end of the values array
+        values.push(id);
+
+        db.run(query, values, function (err) {
+            if (err) {
+                console.error('Error updating user:', err);
+                reject(err);
+            } else {
+                console.log(`User with ID ${id} updated successfully`);
+                resolve();
             }
         });
     });
@@ -71,8 +111,24 @@ function clearUserDatabase() {
     });
 }
 
+function getUser(usernameOrEmail, password) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?';
+        db.get(query, [usernameOrEmail, usernameOrEmail, password], (err, row) => {
+            if (err) {
+                console.error('Error fetching user:', err);
+                reject(err);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+}
+
 module.exports = {
     insertUser,
+    updateUser2,
     removeUserByUsername,
-    clearUserDatabase
+    clearUserDatabase,
+    getUser
 };
