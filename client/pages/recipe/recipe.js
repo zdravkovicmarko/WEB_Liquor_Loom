@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+
     // Function to fetch and display recipe data
     const displayRecipe = async (cocktailID) => {
         try {
@@ -16,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('category').textContent = `${recipeData.category.toLowerCase()}`;
             document.getElementById('alcoholic').textContent = `${recipeData.alcoholic.toLowerCase()}`;
             document.getElementById('glass').textContent = `${recipeData.glass.toLowerCase()}`;
+
+            const titleElement = document.getElementById('name');
+            document.title = `${titleElement.textContent.trim()} - LiquorLoom`;
 
             const ingredientsList = document.getElementById('ingredients');
             ingredientsList.innerHTML = '';
