@@ -1,3 +1,4 @@
+
 //TODO (real users)
 function isValidUser(username, password) {
     // Replace this with real authentication logic

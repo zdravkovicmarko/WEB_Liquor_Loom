@@ -1,3 +1,6 @@
+
+
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
@@ -5,6 +8,7 @@ const bodyParser = require('body-parser');
 const { isValidUser } = require('../client/pages/authentication/login.js');
 const { processCocktailData } = require('./cocktail-utils');
 const { addCocktailToDb, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById } = require('./cocktail-database');
+const { insertUser, clearUserDatabase } = require('../client/pages/authentication/user-database.js');
 const app = express();
 
 let fetch;
@@ -29,27 +33,6 @@ import('node-fetch').then(module => {
         cookie: { maxAge: 60000 } // session timeout of 60 seconds
     }));
 
-    app.post('/login', (req, res) => {
-        const { username, password } = req.body;
-        if (isValidUser(username, password)) {
-            req.session.isLoggedIn = true;
-            req.session.username = username;
-            res.redirect('/home');
-        } else {
-            res.redirect('/login');
-        }
-    });
-
-    app.get('/logout', (req, res) => {
-        req.session.destroy((err) => {
-            if (err) {
-                console.log(err);
-            } else {
-                res.redirect('/home');
-            }
-        });
-    });
-
     // Middleware to redirect from '/' to '/home'
     app.get('/', (req, res) => {
         res.redirect('/home');
@@ -63,6 +46,10 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/authentication/login.html'));
     });
 
+    app.get('/signup/', function (req, res) {
+        res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
+    });
+
     app.get('/profile/:userID', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
     });
@@ -71,16 +58,44 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
     });
 
-    app.get('/signup/', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
-    });
-
     app.get('/recipe/:cocktailID', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
     })
 
     app.get('/recipe/', async (req, res) => {
-        await addAllCocktailsFromAPIToDb();
+        res.send('Enter a valid recipe ID');
+    });
+
+    app.post('/login', (req, res) => {
+        const { username, password } = req.body;
+        if (isValidUser(username, password)) {
+            req.session.isLoggedIn = true;
+            req.session.username = username;
+            res.redirect('/home');
+        } else {
+            res.redirect('/login');
+        }
+    });
+
+    app.post('/logout', (req, res) => {
+        req.session.destroy((err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.redirect('/home');
+            }
+        });
+    });
+
+    app.post('/signup', async (req, res) => {
+        const { username, email, password } = req.body;
+
+        try {
+            const userId = await insertUser(username, email, password);
+            res.status(201).send(`User created with ID ${userId} with username ${username}`);
+        } catch(err) {
+            res.status(500).send('Failed creating user', );
+        }
     });
 
     app.post('/add-cocktail', (req, res) => {
@@ -92,7 +107,7 @@ import('node-fetch').then(module => {
                 res.status(201).json({ message: 'Cocktail added successfully', cocktail });
             })
             .catch(error => {
-                res.status(500).json({ error: 'Failed to add cocktail', message: error.message });
+                res.status(500).json({ error: 'Failed to add cocktail' });
             });
     });
 

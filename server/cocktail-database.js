@@ -23,6 +23,16 @@ db.serialize(() => {
         measure TEXT,
         FOREIGN KEY(cocktail_id) REFERENCES cocktails(id)
     )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS
+    cocktail_stats (
+        cocktail_id INTEGER PRIMARY KEY,
+        recommendations INTEGER DEFAULT 0,
+        do_not_recommendations INTEGER DEFAULT 0,
+        pinned INTEGER DEFAULT 0,
+        rating REAL DEFAULT 0,
+        amount_ratings INTEGER DEFAULT 0
+    )`);
 });
 
 function runQuery(query, params) { // SQL query on database, creates Promise that either resolved or rejected
@@ -101,7 +111,7 @@ async function removeCocktailFromDb(cocktailId) {
     }
 }
 
-async function clearDatabase() {
+async function clearCocktailDatabase() {
     try {
         // Drop the cocktails table
         await runQuery(`DROP TABLE IF EXISTS cocktails`);
@@ -182,5 +192,5 @@ module.exports = {
     getCocktailByName,
     getAllCocktailsFromDb,
     removeCocktailFromDb,
-    clearDatabase
+    clearCocktailDatabase
 };
