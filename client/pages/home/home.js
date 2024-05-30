@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterButton = document.getElementById("filter-button");
     const searchInput = document.getElementById("search");
     const ingredientSearchInput = document.getElementById("search-ingredients");
-    const ingredientTagsContainer = document.querySelector(".element-inner-container.ingredients"); // Update this to match the correct container
+    const ingredientTagsContainer = document.querySelector(".element-inner-container.ingredients");
     let selectedTags = new Set();
     let selectedIngredients = new Set();
     let allCocktails = [];
@@ -214,17 +214,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ingredientTagsContainer.innerHTML = '';
         const lowercaseSearchTerm = searchTerm.toLowerCase();
 
-        const matchingIngredients = Array.from(allIngredients).filter(ingredient =>
-            ingredient.includes(lowercaseSearchTerm)
-        );
-
-        matchingIngredients.forEach(ingredient => {
+        // Append already selected ingredients
+        selectedIngredients.forEach(ingredient => {
             const ingredientTag = document.createElement("span");
-            ingredientTag.classList.add("tag");
+            ingredientTag.classList.add("tag", "selected");
             ingredientTag.textContent = ingredient;
-            if (selectedIngredients.has(ingredient)) {
-                ingredientTag.classList.add("selected");
-            }
 
             ingredientTag.addEventListener("click", () => {
                 if (selectedIngredients.has(ingredient)) {
@@ -239,7 +233,30 @@ document.addEventListener("DOMContentLoaded", () => {
             ingredientTagsContainer.appendChild(ingredientTag);
         });
 
-        if (matchingIngredients.length === 0) {
+        // Append search results excluding already selected ingredients
+        const matchingIngredients = Array.from(allIngredients).filter(ingredient =>
+            ingredient.includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient)
+        );
+
+        matchingIngredients.forEach(ingredient => {
+            const ingredientTag = document.createElement("span");
+            ingredientTag.classList.add("tag");
+            ingredientTag.textContent = ingredient;
+
+            ingredientTag.addEventListener("click", () => {
+                if (selectedIngredients.has(ingredient)) {
+                    ingredientTag.classList.remove("selected");
+                    selectedIngredients.delete(ingredient);
+                } else {
+                    ingredientTag.classList.add("selected");
+                    selectedIngredients.add(ingredient);
+                }
+            });
+
+            ingredientTagsContainer.appendChild(ingredientTag);
+        });
+
+        if (matchingIngredients.length === 0 && selectedIngredients.size === 0) {
             const noResultsMessage = document.createElement("div");
             noResultsMessage.textContent = "No results found.";
             ingredientTagsContainer.appendChild(noResultsMessage);
