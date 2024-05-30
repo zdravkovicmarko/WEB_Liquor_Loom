@@ -184,20 +184,84 @@ function getAllCocktailsFromDb() {
         });
     });
 }
+function updateCocktailInDb(id, name, category, alcoholic, glass, instructions, thumbnail) {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE cocktails SET 
+        name = ?,
+        category = ?,
+        alcoholic = ?,
+        glass = ?,
+        instructions = ?,
+        thumbnail = ?
+        WHERE id = ?`;
 
-function updateRecommendations(cocktailID, newValue){}
+        db.run(query, [name, category, alcoholic, glass, instructions, thumbnail, id], function (err) {
+            if (err) {
+                console.error('Error updating cocktail:', err);
+                reject(err);
+            } else {
+                console.log(`Cocktail with ID ${id} updated successfully`);
+                resolve();
+            }
+        });
+    });
+}
 
-function updateDoNotRecommendations (cocktailID, newValue){}
+function updateCocktailIngredients(cocktailId, ingredients) {
+    return new Promise((resolve, reject) => {
+        // Assuming ingredients are stored in a separate table
+        const deleteQuery = `DELETE FROM ingredients WHERE cocktail_id = ?`;
+        db.run(deleteQuery, [cocktailId], function (err) {
+            if (err) {
+                console.error('Error deleting old ingredients:', err);
+                reject(err);
+            } else {
+                const insertQuery = `INSERT INTO ingredients (cocktail_id, ingredient, measure) VALUES (?, ?, ?)`;
+                const stmt = db.prepare(insertQuery);
+                ingredients.forEach(({ ingredient, measure }) => {
+                    stmt.run([cocktailId, ingredient, measure]);
+                });
+                stmt.finalize((err) => {
+                    if (err) {
+                        console.error('Error inserting new ingredients:', err);
+                        reject(err);
+                    } else {
+                        console.log(`Ingredients for cocktail with ID ${cocktailId} updated successfully`);
+                        resolve();
+                    }
+                });
+            }
+        });
+    });
+}
 
-function updatePinned (cocktailID, newValue) {}
-
-function updateRating (cocktailID, newValue) {}
-
-function updateAmountRatings (cocktailID, newValue){}
+function updateCocktailStats(id, recommendations, do_not_recommendations, pinned, rating, amount_ratings) {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE cocktail_stats SET
+        recommendations = ?,
+        do_not_recommendations = ?,
+        pinned = ?,
+        rating = ?,
+        amount_ratings = ?
+        WHERE cocktail_id = ?`;
+        db.run(query, [recommendations, do_not_recommendations, pinned, rating, amount_ratings, id], function (err) {
+            if (err) {
+                console.error('Error updating cocktail stats:', err);
+                reject(err);
+            } else {
+                console.log(`Stats for cocktail with ID ${id} updated successfully`);
+                resolve();
+            }
+        });
+    });
+}
 
 module.exports = {
     db,
     addCocktailToDb,
+    updateCocktailIngredients,
+    updateCocktailInDb,
+    updateCocktailStats,
     getCocktailById,
     getCocktailByName,
     getAllCocktailsFromDb,

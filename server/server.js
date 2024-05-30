@@ -1,10 +1,11 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
+const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById } = require('./cocktail-database');
-const { insertUser, clearUserDatabase, getUser } = require('../client/pages/authentication/user-database.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById } = require('./cocktail-database');
+const { insertUser, updateUser2, clearUserDatabase, removeUserByUsername, getUser} = require('../client/pages/authentication/user-database.js');
 const app = express();
 
 let fetch;
@@ -39,6 +40,25 @@ import('node-fetch').then(module => {
 
     app.get('/login', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/authentication/login.html'));
+    });
+
+    app.get('/logout', (req, res) => {
+        // Check if the user is logged in
+        if (req.session && req.session.userId) {
+            // Destroy the session
+            req.session.destroy(err => {
+                if (err) {
+                    console.error('Error destroying session:', err);
+                    res.status(500).send('Error logging out');
+                } else {
+                    // Redirect to the login page after logout
+                    res.redirect('/login');
+                }
+            });
+        } else {
+            // If the user is not logged in, send a 401 status
+            res.status(401).send('User is not logged in');
+        }
     });
 
     app.get('/signup/', function (req, res) {
@@ -81,12 +101,151 @@ import('node-fetch').then(module => {
             });
     });
 
-    // temporary endpoint containing all recipes as JSON, which will be used for /home later
-    app.get('/api/allrecipes', async (req, res) => {
-        const allCocktails = await getAllCocktailsFromAPI();
-        res.json(allCocktails);
+    app.post('/login', async (req, res) => {
+        const { username, password } = req.body;
+
+        try {
+            // Check if user is already logged in
+            if (req.session && req.session.userId) {
+                // User is already logged in, send a success response
+                res.status(200).send('User already logged in');
+                return; // Exit the function to prevent further execution
+            }
+
+            // Authenticate the user
+            const user = await getUser(username, password);
+
+            if (user) {
+                // Create a session for the logged-in user
+                req.session.userId = user.id;
+                res.redirect('/profile')
+            } else {
+                // Send 401 status for authentication failure
+                res.status(401).send('Invalid username or password');
+            }
+        } catch (error) {
+            // Send 500 status for server error
+            console.error('Error logging in user:', error);
+            res.status(500).send('Error logging in user');
+        }
     });
 
+    // Add the POST route for signup
+    app.post('/signup', (req, res) => {
+        const { username, email, password, verification } = req.body;
+
+        // Simple validation to check if passwords match
+        if (password !== verification) {
+            return res.status(400).send('Passwords do not match');
+        }
+
+        // Insert the user into the database
+        insertUser(username, email, password)
+            .then(userId => {
+                res.status(201).send(`User created with ID: ${userId}`);
+            })
+            .catch(error => {
+                res.status(500).send('Error creating user');
+            });
+    });
+
+    // Update Cocktail data
+    app.put('/recipe/:cocktailId', (req, res) => {
+        const cocktailId = req.params.cocktailId;
+        const { name, category, alcoholic, glass, instructions, thumbnail } = req.body;
+
+        updateCocktailInDb(cocktailId, name, category, alcoholic, glass, instructions, thumbnail)
+            .then(() => {
+                res.status(200).send(`Cocktail with ID ${cocktailId} updated successfully`);
+            })
+            .catch((error) => {
+                console.error('Error updating cocktail:', error);
+                res.status(500).send(`Failed to update cocktail with ID ${cocktailId}`);
+            });
+    });
+
+    // Update Cocktail ingredients and its measures,
+    app.put('/recipe/:cocktailId/ingredients', (req, res) => {
+        const cocktailId = req.params.cocktailId;
+        const { ingredients } = req.body;
+
+        updateCocktailIngredients(cocktailId, ingredients)
+            .then(() => {
+                res.status(200).send(`Ingredients for cocktail with ID ${cocktailId} updated successfully`);
+            })
+            .catch((error) => {
+                console.error('Error updating cocktail ingredients:', error);
+                res.status(500).send('Failed to update cocktail ingredients');
+            });
+    });
+
+    // Update the stats of a cocktail
+    app.put('/cocktails/:cocktailId/stats', (req, res) => {
+        const cocktailId = req.params.cocktailId;
+        const { recommendations, do_not_recommendations, pinned, rating, amount_ratings } = req.body;
+
+        updateCocktailStats(cocktailId, recommendations, do_not_recommendations, pinned, rating, amount_ratings)
+            .then(() => {
+                res.status(200).send(`Stats for cocktail with ID ${cocktailId} updated successfully`);
+            })
+            .catch((error) => {
+                console.error('Error updating cocktail stats:', error);
+                res.status(500).send('Failed to update cocktail stats');
+            });
+    });
+
+    app.patch('/users/:userId', (req, res) => {
+        const userId = req.params.userId;
+        const userData = req.body; // Contains fields to update
+
+        // Update user data in the database using the userId and provided data
+        updateUser2(userId, userData)
+            .then(() => {
+                res.status(200).send(`User with ID ${userId} updated successfully`);
+            })
+            .catch((error) => {
+                console.error('Error updating user:', error);
+                res.status(500).send('Failed to update user');
+            });
+    });
+
+    app.delete('/users/:userId', (req, res) => {
+        const userId = req.params.userId;
+
+        // Delete user from the database using the userId
+        removeUserByUsername(userId)
+            .then(() => {
+                res.status(200).send(`User with ID ${userId} deleted successfully`);
+            })
+            .catch((error) => {
+                console.error('Error deleting user:', error);
+                res.status(500).send('Failed to delete user');
+            });
+    });
+
+    // returns all recipe data as JSON or XML
+    app.get('/api/allrecipes', async (req, res) => {
+        try {
+            const allCocktails = await getAllCocktailsFromAPI();
+
+            const acceptHeader = req.headers.accept;
+            if (acceptHeader && acceptHeader.includes('application/xml')) {
+                const builder = new xml2js.Builder();
+                const xml = builder.buildObject({ cocktails: allCocktails });
+
+                res.set('Content-Type', 'application/xml');
+                res.send(xml);
+
+            } else {
+                res.json(allCocktails);
+            }
+        } catch (error) {
+            console.log('Error fetch all cocktails', error);
+            res.status(500).send('Failed to fetch all cocktails');
+        }
+    });
+
+    // returns the data of a specific recipe as JSON or XML
     app.get('/api/recipe/:cocktailID', async (req, res) => {
         try {
             const cocktailID = req.params.cocktailID;
@@ -113,8 +272,19 @@ import('node-fetch').then(module => {
                     console.error("Error retrieving updated list of cocktails from the database:", error);
                 }
 
-                // Send the recipe data as JSON response
-                res.json(recipeData);
+                const acceptHeader = req.headers.accept;
+
+                if (acceptHeader && acceptHeader.includes('application/xml')) {
+                    // Convert the recipeData object to XML
+                    const builder = new xml2js.Builder();
+                    const xml = builder.buildObject({ cocktail: recipeData });
+
+                    res.set('Content-Type', 'application/xml');
+                    res.send(xml);
+                } else {
+                    res.json(recipeData);
+                }
+
             } else {
                 res.status(404).send('Recipe not found');
             }
@@ -159,13 +329,6 @@ import('node-fetch').then(module => {
         return allCocktails;
     }
 
-    function fetchRecipeData(drinks, recipeID) {
-        if (!Array.isArray(drinks)) {
-            throw new Error('Drinks should be an array');
-        }
-        return drinks.find(drink => drink.id === recipeID);
-    }
-
     async function addAllCocktailsFromAPIToDb()  {
         const response = await fetch(`http://localhost:666/api/allrecipes`);
         const jsonData = await response.json();
@@ -179,25 +342,6 @@ import('node-fetch').then(module => {
         });
     }
 
-    // Add the POST route for signup
-    app.post('/signup', (req, res) => {
-        const { username, email, password, verification } = req.body;
-
-        // Simple validation to check if passwords match
-        if (password !== verification) {
-            return res.status(400).send('Passwords do not match');
-        }
-
-        // Insert the user into the database
-        insertUser(username, email, password)
-            .then(userId => {
-                res.status(201).send(`User created with ID: ${userId}`);
-            })
-            .catch(error => {
-                res.status(500).send('Error creating user');
-            });
-    });
-
     // Middleware to check if user is logged in
     function checkLoggedIn(req, res, next) {
         // Check if userId is present in the session
@@ -209,54 +353,6 @@ import('node-fetch').then(module => {
             res.status(401).send('User not logged in');
         }
     }
-
-    app.post('/login', async (req, res) => {
-        const { username, password } = req.body;
-
-        try {
-            // Check if user is already logged in
-            if (req.session && req.session.userId) {
-                // User is already logged in, send a success response
-                res.status(200).send('User already logged in');
-                return; // Exit the function to prevent further execution
-            }
-
-            // Authenticate the user
-            const user = await getUser(username, password);
-
-            if (user) {
-                // Create a session for the logged-in user
-                req.session.userId = user.id;
-                res.redirect('/profile')
-            } else {
-                // Send 401 status for authentication failure
-                res.status(401).send('Invalid username or password');
-            }
-        } catch (error) {
-            // Send 500 status for server error
-            console.error('Error logging in user:', error);
-            res.status(500).send('Error logging in user');
-        }
-    });
-
-    app.get('/logout', (req, res) => {
-        // Check if the user is logged in
-        if (req.session && req.session.userId) {
-            // Destroy the session
-            req.session.destroy(err => {
-                if (err) {
-                    console.error('Error destroying session:', err);
-                    res.status(500).send('Error logging out');
-                } else {
-                    // Redirect to the login page after logout
-                    res.redirect('/login');
-                }
-            });
-        } else {
-            // If the user is not logged in, send a 401 status
-            res.status(401).send('User is not logged in');
-        }
-    });
 
     app.listen(666, () => {
         console.log("Server now listening on http://localhost:666");
