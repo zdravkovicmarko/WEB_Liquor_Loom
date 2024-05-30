@@ -212,7 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         ingredientTagsContainer.innerHTML = '';
-        const lowercaseSearchTerm = searchTerm.toLowerCase();
 
         // Append already selected ingredients
         selectedIngredients.forEach(ingredient => {
@@ -224,6 +223,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (selectedIngredients.has(ingredient)) {
                     ingredientTag.classList.remove("selected");
                     selectedIngredients.delete(ingredient);
+                    // Update tags when one is deselected
+                    updateIngredientTags(searchTerm);
                 } else {
                     ingredientTag.classList.add("selected");
                     selectedIngredients.add(ingredient);
@@ -232,6 +233,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             ingredientTagsContainer.appendChild(ingredientTag);
         });
+
+        // If the search term is empty, do not display any other ingredient tags
+        if (searchTerm === '') {
+            return;
+        }
+
+        const lowercaseSearchTerm = searchTerm.toLowerCase();
 
         // Append search results excluding already selected ingredients
         const matchingIngredients = Array.from(allIngredients).filter(ingredient =>
@@ -247,6 +255,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (selectedIngredients.has(ingredient)) {
                     ingredientTag.classList.remove("selected");
                     selectedIngredients.delete(ingredient);
+                    // Update tags when one is deselected
+                    updateIngredientTags(searchTerm);
                 } else {
                     ingredientTag.classList.add("selected");
                     selectedIngredients.add(ingredient);
