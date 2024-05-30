@@ -1,6 +1,15 @@
+// Event listeners for navigation
+document.getElementById('login-btn').addEventListener('click', function() {
+    window.location.href = '/login';
+});
+document.getElementById('profile-pic').addEventListener('click', function() {
+    window.location.href = '/profile';
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     const range = document.querySelector("#slide");
     const slideValue = document.querySelector(".slide-value");
+    const randomContainer = document.getElementById("random-button");
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const filterButton = document.getElementById("filter-button");
     const searchInput = document.getElementById("search");
@@ -12,6 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let isLoading = false;
     let sortOrder = 'asc';
     let allIngredients = new Set();
+
+    const searchBarInput = document.getElementById('search');
+    searchBarInput.addEventListener('input', function() {
+        const searchBar = this.closest('.search-bar');
+        this.value.trim() !== ''? searchBar.classList.add('input-hovered') : searchBar.classList.remove('input-hovered');
+    });
 
     // Initialize slide value display
     if (range && slideValue) {
@@ -53,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const cocktailTitleLabel = document.createElement("label");
         cocktailTitleLabel.classList.add("cocktail-title-label");
-        cocktailTitleLabel.textContent = cocktail.strDrink.replace(/\b\w/g, char => char.toUpperCase());
+        cocktailTitleLabel.textContent = cocktail.strDrink.replace(/(^|\s)\w/g, char => char.toUpperCase());
 
         const cocktailImg = document.createElement("img");
         cocktailImg.classList.add("cocktail-img");
@@ -92,6 +107,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Display all cocktails initially
     displayInitialCocktails();
+
+    // Redirect to random recipe
+    const redirectToRandomRecipe = async () => {
+        try {
+            // Fetch a random cocktail
+            const response = await fetch('https://www.thecocktaildb.com/api/json/v1/1/random.php');
+            const data = await response.json();
+            const randomCocktailID = data.drinks[0].idDrink;
+
+            window.location.href = `/recipe/${randomCocktailID}`;
+        } catch (error) {
+            console.error('Error fetching random cocktail:', error);
+        }
+    };
+
+    randomContainer.addEventListener('click', redirectToRandomRecipe);
 
     // Filter cocktails based on search term
     const filterCocktailsByName = (searchTerm) => {
@@ -149,10 +180,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Handles (de-)selection of clicked tag
-            if (selectedTags.has(tagText)) {
+            if (selectedTags.has(tagText) && tagSet) {
                 tag.classList.remove("selected");
                 selectedTags.delete(tagText);
-            } else {
+            } else if (tagSet) {
                 tag.classList.add("selected");
                 selectedTags.add(tagText);
             }

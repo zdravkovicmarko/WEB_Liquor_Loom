@@ -60,6 +60,16 @@ input::-webkit-slider-thumb {
     color: white;
 }
 
+.subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+#random-button {
+    margin-top: 20px;
+}
+
 .cocktails-container:hover > :not(:hover) {
     opacity: 0.5;
 }
