@@ -250,7 +250,6 @@ footer {
     color: white;
     position: relative;
     margin: 10px;
-    text-align: center;
 }
 .cocktail-container::before {
     content: "";
@@ -273,7 +272,6 @@ footer {
     transform: translateX(-50%);
     max-width: 90%;
     bottom: 10px;
-    margin-bottom: 5px;
 }
 .cocktail-rating-label {
     font-size: 110%;

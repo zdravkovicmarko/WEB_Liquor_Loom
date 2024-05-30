@@ -162,14 +162,14 @@ document.addEventListener("DOMContentLoaded", () => {
     tags.forEach(tag => {
         tag.addEventListener("click", () => {
             const tagText = tag.textContent.trim().toLowerCase();
-            const tagSet = tag.getAttribute('tag-set');
+            const tagSet = tag.getAttribute('data-tag-set');
 
             // Sets order type for filter method
             if (tagSet === '2') sortOrder = tagText;
 
             // Handles deselection of tags in same set
             if (tagSet !== '0') {
-                const tagsInSameSet = document.querySelectorAll(`.tag[tag-set='${tagSet}']`);
+                const tagsInSameSet = document.querySelectorAll(`.tag[data-tag-set='${tagSet}']`);
                 tagsInSameSet.forEach(otherTag => {
                     if (otherTag !== tag) {
                         otherTag.classList.remove("selected");
