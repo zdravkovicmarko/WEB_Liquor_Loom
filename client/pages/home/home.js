@@ -105,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // If no matches found, display a message
             const noResultsMessage = document.createElement("div");
             noResultsMessage.textContent = "No results found.";
+            noResultsMessage.classList.add("no-results-text");
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
             // Sort the filtered cocktails based on the selected order
@@ -195,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (filteredCocktails.length === 0) {
             const noResultsMessage = document.createElement("div");
             noResultsMessage.textContent = "No results found.";
+            noResultsMessage.classList.add("no-results-text");
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
             filteredCocktails.forEach(appendCocktail);
