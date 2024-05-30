@@ -1,3 +1,14 @@
+// Event listeners for navigation
+document.getElementById('logo-container').addEventListener('click', () => {
+    window.location.href = '/home';
+});
+document.getElementById('login-btn').addEventListener('click', () => {
+    window.location.href = '/login';
+});
+document.getElementById('profile-pic').addEventListener('click', () => {
+    window.location.href = '/profile';
+});
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // Function to fetch and display recipe data
@@ -10,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const recipeData = await response.json();
 
             // Update HTML elements with recipe data
-            document.getElementById('name').textContent = recipeData.name.replace(/\b\w/g, char => char.toUpperCase());
+            document.getElementById('name').textContent = recipeData.name.replace(/(^|\s)\w/g, char => char.toUpperCase());
             document.getElementById('rating').textContent = "★ " + (Math.random() * 50 / 10).toFixed(1);
             document.getElementById('img').src = recipeData.thumbnail;
 
@@ -47,17 +58,4 @@ document.addEventListener("DOMContentLoaded", () => {
     const cocktailID = window.location.pathname.split('/').pop();
     // Call displayRecipe function with the cocktailID
     displayRecipe(cocktailID);
-
-    // Add event listener to logo for navigation
-    document.getElementById('logo-container').addEventListener('click', () => {
-        window.location.href = '/home';
-    });
-    // Add event listener to login button for navigation
-    document.getElementById('login-btn').addEventListener('click', () => {
-        window.location.href = '/login';
-    });
-    // Add event listener to profile picture for navigation
-    document.getElementById('profile-pic').addEventListener('click', () => {
-        window.location.href = '/profile';
-    });
 });

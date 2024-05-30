@@ -6,9 +6,8 @@
     <title>Home - LiquorLoom</title>
     <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
-    <script type="module" src="/client/base.js"></script>
-    <script type="module" src="/client/pages/home/home.js"></script>
     <link rel="stylesheet" href="/client/pages/home/home.css">
+    <script type="module" src="/client/pages/home/home.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -90,21 +89,14 @@
 </aside>
 <main>
     <div class="element-border">
-        <div class="title-label">
-            <label>COCKTAILS</label>
+        <div class="subheader">
+            <label class="title-label">DRINKS</label>
+            <span class="tag" id="random-button">open random recipe</span>
         </div>
         <div class="cocktails-container">
             <!-- Cocktail items will be dynamically appended here -->
         </div>
     </div>
 </main>
-<script>
-    document.getElementById('login-btn').addEventListener('click', function() {
-        window.location.href = '/login';
-    });
-    document.getElementById('profile-pic').addEventListener('click', function() {
-        window.location.href = '/profile';
-    });
-</script>
 </body>
 </html>

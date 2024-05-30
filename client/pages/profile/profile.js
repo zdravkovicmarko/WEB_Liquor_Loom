@@ -1,3 +1,7 @@
+// Event listeners for navigation
+document.getElementById('logo-container').addEventListener('click', function() {
+     window.location.href = '/home';
+ });
 
 // Assuming you have a logout button with id "logout-btn"
 const logoutButton = document.getElementById('logout-btn');

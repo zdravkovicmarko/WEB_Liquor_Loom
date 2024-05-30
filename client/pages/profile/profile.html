@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
     <link rel="stylesheet" href="/client/pages/profile/profile.css">
-    <script type="module" src="/client/base.js"></script>
+    <script type="module" src="/client/pages/profile/profile.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -41,6 +41,12 @@
             </div>
         </div>
         <div class="element-container">
+            <label class="main-label" for="username">Email</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="email" name="email" required>
+            </div>
+        </div>
+        <div class="element-container">
             <label class="main-label" for="password">Password</label>
             <div class="element-inner-container">
                 <input class="element-input" type="password" id="password" name="password" required>
@@ -50,11 +56,5 @@
 </aside>
 <main>
 </main>
-<script>
-    document.getElementById('logo-container').addEventListener('click', function() {
-        window.location.href = '/home';
-    });
-</script>
-<script src="profile.js"></script>
 </body>
 </html>
