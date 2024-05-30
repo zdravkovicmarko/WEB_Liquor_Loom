@@ -60,6 +60,9 @@ body {
 .element-border {
     padding-top: 15px;
 }
+.tag {
+    border-radius: 35px;
+}
 
 .no-bullets {
     padding-left: 0;

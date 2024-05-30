@@ -6,11 +6,14 @@ body {
         "h h"
         "s m"
         "f f";
-    grid-template-columns: minmax(100px, 330px) minmax(300px, auto);
+    grid-template-columns: minmax(100px, 335px) minmax(300px, auto);
     grid-template-rows: 135px auto 35px;
     margin: 0;
 }
 
+.tags {
+    justify-content: space-evenly;
+}
 .tag:hover {
     color: black;
     text-shadow: none;
@@ -20,6 +23,19 @@ body {
     color: black;
     text-shadow: none;
     background-color: white;
+}
+
+.search-ingredients input {
+    font-size: 1em;
+    width: calc(100% - 10px);
+    height: 40px;
+    padding: 0 5% 0 15%;
+    border: 0.2em solid var(--white-33-opacity);
+    background-size: 16px;
+    margin: 5px;
+}
+.search-ingredients input:hover {
+    background-size: 16px;
 }
 
 .rating-bar input {
