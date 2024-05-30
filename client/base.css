@@ -36,7 +36,8 @@
             text-shadow 1s ease,
             filter 0.5s ease,
             box-shadow 0.5s ease,
-            height 1s ease,
+            width 0.5s ease,
+            height 0.5s ease,
             opacity 0.5s ease,
             background-color 0.5s ease,
             background 0.5s ease;
@@ -192,18 +193,18 @@ footer {
     padding: 5px 15px;
     margin-left: 5px;
 }
+.bullets li {
+    margin-bottom: 10px;
+}
 .tags {
     display: flex;
     flex-wrap: wrap;
+    text-align: center;
     justify-content: flex-start;
 }
-.tag-inner-container {
-    display: inline-flex;
-    flex-wrap: wrap;
-}
+.tag-inner-container,
 .btn-inner-container {
-    display: inline-flex; /* Display button set in a single row */
-    flex-wrap: wrap; /* Allow buttons to wrap if needed */
+    display: inline-flex;
 }
 .tag {
     font-size: 110%;
@@ -240,11 +241,13 @@ footer {
 }
 
 .cocktails-container {
+    color: white;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 10px;
 }
 .cocktail-container {
+    color: white;
     position: relative;
     margin: 10px;
     text-align: center;
@@ -262,7 +265,6 @@ footer {
 }
 .cocktail-title-label {
     font-size: 125%;
-    color: white;
     text-shadow: 0 0 5px black, 0 0 10px black, 0 0 15px black;
     text-align: center;
     display: block;
@@ -275,7 +277,6 @@ footer {
 }
 .cocktail-rating-label {
     font-size: 110%;
-    color: white;
     text-shadow: 0 0 5px var(--black-50-opacity), 0 0 10px black;
     position: absolute;
     top: 10px;
@@ -297,6 +298,10 @@ footer {
 .cocktail-container .cocktail-img {
     max-width: var(--cocktail-img-size);
     max-height: var(--cocktail-img-size);
+}
+
+.no-results-text {
+    padding: 5px 0 0 12px;
 }
 
 /* Responsive Layout */
@@ -337,11 +342,11 @@ footer {
         padding-right: 25px;
     }
 
-    .search-bar input {
+    .search-header input {
         width: 250px;
         background: transparent;
     }
-    .search-bar input:hover {
+    .search-header input:hover {
         background: transparent;
     }
 }

@@ -107,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (filteredCocktails.length === 0) {
             const noResultsMessage = document.createElement("div");
             noResultsMessage.textContent = "No results found.";
+            noResultsMessage.classList.add("no-results-text");
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
             if (sortOrder === 'asc') {
@@ -196,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (filteredCocktails.length === 0) {
             const noResultsMessage = document.createElement("div");
             noResultsMessage.textContent = "No results found.";
+            noResultsMessage.classList.add("no-results-text");
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
             filteredCocktails.forEach(appendCocktail);

@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const ingredientsList = document.getElementById('ingredients');
             ingredientsList.innerHTML = '';
-            ingredientsList.classList.add('no-bullets');
+            ingredientsList.classList.add('bullets');
 
             for (let i = 0; i < recipeData.ingredients.length; i++) {
                 const listItem = document.createElement('li');
@@ -29,6 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 ingredientsList.appendChild(listItem);
             }
             document.getElementById('instructions').textContent = recipeData.instructions;
+
+            // Adds columns for ingredients if exceeding 250px
+            const ingredientsDiv = document.querySelector('.ingredients');
+            const ingredientsContainer = ingredientsDiv.querySelector('.element-inner-container');
+            ingredientsContainer.scrollHeight > 250 ? ingredientsDiv.classList.add('exceeds-height') : ingredientsDiv.classList.remove('exceeds-height');
         } catch (error) {
             console.error('Error fetching recipe data:', error);
         }
