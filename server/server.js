@@ -63,7 +63,14 @@ import('node-fetch').then(module => {
     })
 
     app.get('/recipe/', async (req, res) => {
-        res.send('Enter a valid recipe ID');
+        try {
+            await addAllCocktailsFromAPIToDb();
+            console.log('Successful');
+            res.send('Enter a valid recipe ID');
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).send('Error occurred while adding cocktails to the database');
+        }
     });
 
     app.post('/login', (req, res) => {

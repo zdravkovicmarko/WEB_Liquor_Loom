@@ -30,7 +30,7 @@ db.serialize(() => {
         recommendations INTEGER DEFAULT 0,
         do_not_recommendations INTEGER DEFAULT 0,
         pinned INTEGER DEFAULT 0,
-        rating REAL DEFAULT 0,
+        rating REAL DEFAULT 0.0,
         amount_ratings INTEGER DEFAULT 0
     )`);
 });
@@ -184,6 +184,16 @@ function getAllCocktailsFromDb() {
         });
     });
 }
+
+function updateRecommendations(cocktailID, newValue){}
+
+function updateDoNotRecommendations (cocktailID, newValue){}
+
+function updatePinned (cocktailID, newValue) {}
+
+function updateRating (cocktailID, newValue) {}
+
+function updateAmountRatings (cocktailID, newValue){}
 
 module.exports = {
     db,
