@@ -1,14 +1,10 @@
-
-
-
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const { isValidUser } = require('../client/pages/authentication/login.js');
 const { processCocktailData } = require('./cocktail-utils');
 const { addCocktailToDb, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById } = require('./cocktail-database');
-const { insertUser, clearUserDatabase } = require('../client/pages/authentication/user-database.js');
+const { insertUser, clearUserDatabase, getUser } = require('../client/pages/authentication/user-database.js');
 const app = express();
 
 let fetch;
@@ -25,12 +21,11 @@ import('node-fetch').then(module => {
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
 
-    // Session setup
     app.use(session({
-        secret: 'secret-key',
+        secret: 'your_secret_key', // Replace with your own secret key
         resave: false,
-        saveUninitialized: false,
-        cookie: { maxAge: 60000 } // session timeout of 60 seconds
+        saveUninitialized: true,
+        cookie: { secure: false } // Use secure: true in production with HTTPS
     }));
 
     // Middleware to redirect from '/' to '/home'
@@ -60,7 +55,7 @@ import('node-fetch').then(module => {
 
     app.get('/recipe/:cocktailID', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
-    })
+    });
 
     app.get('/recipe/', async (req, res) => {
         try {
@@ -73,40 +68,8 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.post('/login', (req, res) => {
-        const { username, password } = req.body;
-        if (isValidUser(username, password)) {
-            req.session.isLoggedIn = true;
-            req.session.username = username;
-            res.redirect('/home');
-        } else {
-            res.redirect('/login');
-        }
-    });
-
-    app.post('/logout', (req, res) => {
-        req.session.destroy((err) => {
-            if (err) {
-                console.log(err);
-            } else {
-                res.redirect('/home');
-            }
-        });
-    });
-
-    app.post('/signup', async (req, res) => {
-        const { username, email, password } = req.body;
-
-        try {
-            const userId = await insertUser(username, email, password);
-            res.status(201).send(`User created with ID ${userId} with username ${username}`);
-        } catch(err) {
-            res.status(500).send('Failed creating user', );
-        }
-    });
-
     app.post('/add-cocktail', (req, res) => {
-        //If cocktail data is in the request body
+        // If cocktail data is in the request body
         const cocktailData = req.body;
 
         addCocktailToDb(cocktailData)
@@ -164,7 +127,7 @@ import('node-fetch').then(module => {
     function fetchCocktailData(endpoint, searchType, searchTerm) {
         const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
         // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
-        // possible searchtypes: s, f, i, iid, a, c, g,
+        // possible search types: s, f, i, iid, a, c, g,
         // visit https://www.thecocktaildb.com/api.php to see all endpoints, query, etc.
 
         return fetch(apiUrl)
@@ -189,7 +152,7 @@ import('node-fetch').then(module => {
     async function getAllCocktailsFromAPI(offset, limit, shouldSlice) {
         let allCocktails = [];
         const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
-        for (const letter of alphabet) { // fetchCocktailsByLetter is called with every letter and their results concatinated
+        for (const letter of alphabet) { // fetchCocktailsByLetter is called with every letter and their results concatenated
             const cocktails = await fetchCocktailsByLetter(letter);
             allCocktails = allCocktails.concat(cocktails);
         }
@@ -215,6 +178,85 @@ import('node-fetch').then(module => {
                 .catch(err => console.error(`Error adding cocktail: ${cocktail.name}`, err));
         });
     }
+
+    // Add the POST route for signup
+    app.post('/signup', (req, res) => {
+        const { username, email, password, verification } = req.body;
+
+        // Simple validation to check if passwords match
+        if (password !== verification) {
+            return res.status(400).send('Passwords do not match');
+        }
+
+        // Insert the user into the database
+        insertUser(username, email, password)
+            .then(userId => {
+                res.status(201).send(`User created with ID: ${userId}`);
+            })
+            .catch(error => {
+                res.status(500).send('Error creating user');
+            });
+    });
+
+    // Middleware to check if user is logged in
+    function checkLoggedIn(req, res, next) {
+        // Check if userId is present in the session
+        if (req.session && req.session.userId) {
+            // User is logged in, proceed to the next middleware
+            next();
+        } else {
+            // User is not logged in, send 401 Unauthorized status
+            res.status(401).send('User not logged in');
+        }
+    }
+
+    app.post('/login', async (req, res) => {
+        const { username, password } = req.body;
+
+        try {
+            // Check if user is already logged in
+            if (req.session && req.session.userId) {
+                // User is already logged in, send a success response
+                res.status(200).send('User already logged in');
+                return; // Exit the function to prevent further execution
+            }
+
+            // Authenticate the user
+            const user = await getUser(username, password);
+
+            if (user) {
+                // Create a session for the logged-in user
+                req.session.userId = user.id;
+                res.redirect('/profile')
+            } else {
+                // Send 401 status for authentication failure
+                res.status(401).send('Invalid username or password');
+            }
+        } catch (error) {
+            // Send 500 status for server error
+            console.error('Error logging in user:', error);
+            res.status(500).send('Error logging in user');
+        }
+    });
+
+    app.get('/logout', (req, res) => {
+        // Check if the user is logged in
+        if (req.session && req.session.userId) {
+            // Destroy the session
+            req.session.destroy(err => {
+                if (err) {
+                    console.error('Error destroying session:', err);
+                    res.status(500).send('Error logging out');
+                } else {
+                    // Redirect to the login page after logout
+                    res.redirect('/login');
+                }
+            });
+        } else {
+            // If the user is not logged in, send a 401 status
+            res.status(401).send('User is not logged in');
+        }
+    });
 
     app.listen(666, () => {
         console.log("Server now listening on http://localhost:666");

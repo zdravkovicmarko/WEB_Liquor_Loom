@@ -71,8 +71,23 @@ function clearUserDatabase() {
     });
 }
 
+function getUser(usernameOrEmail, password) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?';
+        db.get(query, [usernameOrEmail, usernameOrEmail, password], (err, row) => {
+            if (err) {
+                console.error('Error fetching user:', err);
+                reject(err);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+}
+
 module.exports = {
     insertUser,
     removeUserByUsername,
-    clearUserDatabase
+    clearUserDatabase,
+    getUser
 };
