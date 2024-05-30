@@ -3,20 +3,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const slideValue = document.querySelector(".slide-value");
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const filterButton = document.getElementById("filter-button");
-    const searchInput = document.getElementById("search"); // Added search input reference
-    let selectedTags = new Set(); // Store selected tags
+    const searchInput = document.getElementById("search");
+    const ingredientSearchInput = document.getElementById("search-ingredients");
+    const ingredientTagsContainer = document.querySelector(".element-inner-container.ingredients"); // Update this to match the correct container
+    let selectedTags = new Set();
+    let selectedIngredients = new Set();
     let allCocktails = [];
     let isLoading = false;
-    let sortOrder = 'asc'; // Default sort order
+    let sortOrder = 'asc';
+    let allIngredients = new Set();
 
     // Initialize the slide value display
     if (range && slideValue) {
         slideValue.innerText = "★ " + range.value + " - 5";
-        console.log("Initial slider value:", range.value);
 
         const updateSlideValue = (value) => {
             value === "5" ? slideValue.innerText = "★ " + value : slideValue.innerText = "★ " + value + " - 5";
-            console.log("Updated slider value:", value);
         };
 
         range.addEventListener("input", (event) => {
@@ -37,6 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const cocktails = await fetchCocktails(url);
             allCocktails.push(...cocktails);
         }
+        allCocktails.forEach(cocktail => {
+            for (let i = 1; i <= 15; i++) {
+                const ingredient = cocktail[`strIngredient${i}`];
+                if (ingredient) allIngredients.add(ingredient.toLowerCase());
+            }
+        });
     };
 
     const appendCocktail = (cocktail) => {
@@ -87,34 +95,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Function to filter cocktails based on search term
     const filterCocktailsByName = (searchTerm) => {
-        // Convert search term to lowercase for case-insensitive search
         const lowercaseSearchTerm = searchTerm.toLowerCase();
-
-        // Filter cocktails whose name contains the search term
         return allCocktails.filter(cocktail => cocktail.strDrink.toLowerCase().includes(lowercaseSearchTerm));
     };
 
     const updateDisplayedCocktails = (searchTerm) => {
-        // Clear current cocktails
         cocktailsContainer.innerHTML = '';
 
-        // Filter cocktails based on search term
         const filteredCocktails = filterCocktailsByName(searchTerm);
 
         if (filteredCocktails.length === 0) {
-            // If no matches found, display a message
             const noResultsMessage = document.createElement("div");
             noResultsMessage.textContent = "No results found.";
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
-            // Sort the filtered cocktails based on the selected order
             if (sortOrder === 'asc') {
                 filteredCocktails.sort((a, b) => a.strDrink.localeCompare(b.strDrink));
             } else if (sortOrder === 'desc') {
                 filteredCocktails.sort((a, b) => b.strDrink.localeCompare(a.strDrink));
             }
 
-            // If matches found, append cocktails
             filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
         }
     };
@@ -158,16 +158,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Filter cocktails (backend)
+    // Function to filter cocktails based on selected tags and ingredients
     const filterCocktails = () => {
-        // With no tags
-        if (selectedTags.size === 0) {
+        if (selectedTags.size === 0 && selectedIngredients.size === 0) {
             return allCocktails.sort((a, b) =>
                 sortOrder === 'asc' ? a.strDrink.localeCompare(b.strDrink) : b.strDrink.localeCompare(a.strDrink)
             );
         }
 
-        // With tags
         const selectedTagsArray = Array.from(selectedTags);
         const selectedAlcoholicTag = selectedTagsArray.includes('alcoholic');
         const selectedNonAlcoholicTag = selectedTagsArray.includes('non alcoholic');
@@ -178,17 +176,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const isNonAlcoholicMatch = !selectedNonAlcoholicTag || cocktail.strAlcoholic.toLowerCase() === 'non alcoholic';
             const isCategoryMatch = selectedCategoryTags.length === 0 || selectedCategoryTags.includes(cocktail.strCategory.toLowerCase());
 
-            return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch;
+            const isIngredientMatch = Array.from(selectedIngredients).every(ingredient =>
+                Object.keys(cocktail).some(key => cocktail[key] && cocktail[key].toLowerCase() === ingredient)
+            );
+
+            return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch && isIngredientMatch;
         }).sort((a, b) =>
             sortOrder === 'asc' ? a.strDrink.localeCompare(b.strDrink) : b.strDrink.localeCompare(a.strDrink)
         );
     };
 
-    // Apply filter (frontend)
     const applyFilter = () => {
         if (isLoading) return;
 
-        cocktailsContainer.innerHTML = ''; // Clear current cocktails
+        cocktailsContainer.innerHTML = '';
 
         const filteredCocktails = filterCocktails();
 
@@ -199,12 +200,55 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             filteredCocktails.forEach(appendCocktail);
         }
-
-        // For debugging
-        console.log("Selected tags:", selectedTags);
-        console.log("Sort order:", sortOrder);
-        console.log("FilteredCocktails: ", filteredCocktails);
     };
 
     if (filterButton) filterButton.addEventListener("click", applyFilter);
+
+    // Function to update ingredient tags based on search input
+    const updateIngredientTags = (searchTerm) => {
+        if (!ingredientTagsContainer) {
+            console.error("Ingredient tags container not found");
+            return;
+        }
+
+        ingredientTagsContainer.innerHTML = '';
+        const lowercaseSearchTerm = searchTerm.toLowerCase();
+
+        const matchingIngredients = Array.from(allIngredients).filter(ingredient =>
+            ingredient.includes(lowercaseSearchTerm)
+        );
+
+        matchingIngredients.forEach(ingredient => {
+            const ingredientTag = document.createElement("span");
+            ingredientTag.classList.add("tag");
+            ingredientTag.textContent = ingredient;
+            if (selectedIngredients.has(ingredient)) {
+                ingredientTag.classList.add("selected");
+            }
+
+            ingredientTag.addEventListener("click", () => {
+                if (selectedIngredients.has(ingredient)) {
+                    ingredientTag.classList.remove("selected");
+                    selectedIngredients.delete(ingredient);
+                } else {
+                    ingredientTag.classList.add("selected");
+                    selectedIngredients.add(ingredient);
+                }
+            });
+
+            ingredientTagsContainer.appendChild(ingredientTag);
+        });
+
+        if (matchingIngredients.length === 0) {
+            const noResultsMessage = document.createElement("div");
+            noResultsMessage.textContent = "No results found.";
+            ingredientTagsContainer.appendChild(noResultsMessage);
+        }
+    };
+
+    // Event listener for input events on the ingredient search input field
+    ingredientSearchInput.addEventListener('input', (event) => {
+        const searchTerm = event.target.value.trim();
+        updateIngredientTags(searchTerm);
+    });
 });
