@@ -61,6 +61,23 @@ import('node-fetch').then(module => {
         }
     });
 
+    app.get('/login-status', (req, res) => {
+        if (req.session && req.session.userId) {
+            res.json({ loggedIn: true });
+        } else {
+            res.json({ loggedIn: false });
+        }
+    });
+
+    app.get('/current-user', (req, res) => {
+        if (req.session && req.session.userId) {
+            const userId = req.session.userId;
+            res.json({ userId });
+        } else {
+            res.status(401).json({ error: 'User not logged in' });
+        }
+    });
+
     app.get('/signup/', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
     });
@@ -70,7 +87,7 @@ import('node-fetch').then(module => {
     });
 
     app.get('/profile/', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
+        res.send('Enter a valid profile ID');
     });
 
     app.get('/recipe/:cocktailID', function (req, res) {
@@ -126,7 +143,7 @@ import('node-fetch').then(module => {
             if (user) {
                 // Create a session for the logged-in user
                 req.session.userId = user.id;
-                res.redirect('/profile');
+                res.json({ success: true });
             } else {
                 res.status(401).json({ error: 'Invalid username or password' });
             }
@@ -358,18 +375,6 @@ import('node-fetch').then(module => {
                 .then(() => console.log(`Successfully added cocktail: ${cocktail.name}`))
                 .catch(err => console.error(`Error adding cocktail: ${cocktail.name}`, err));
         });
-    }
-
-    // Middleware to check if user is logged in
-    function checkLoggedIn(req, res, next) {
-        // Check if userId is present in the session
-        if (req.session && req.session.userId) {
-            // User is logged in, proceed to the next middleware
-            next();
-        } else {
-            // User is not logged in, send 401 Unauthorized status
-            res.status(401).send('User not logged in');
-        }
     }
 
     app.listen(666, () => {

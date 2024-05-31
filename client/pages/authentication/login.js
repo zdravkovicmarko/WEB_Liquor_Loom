@@ -26,7 +26,7 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         .then(data => {
             console.log('Success:', data);
             // Handle success (e.g., redirect to profile page)
-            window.location.href = '/profile';
+            window.location.href = '/home';
         })
         .catch(error => {
             console.error('Error:', error);
