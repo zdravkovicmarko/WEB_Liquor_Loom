@@ -51,8 +51,8 @@ import('node-fetch').then(module => {
                     console.error('Error destroying session:', err);
                     res.status(500).send('Error logging out');
                 } else {
-                    // Redirect to the login page after logout
-                    res.redirect('/login');
+                    // Redirect to login page after logout
+                    res.redirect('/home');
                 }
             });
         } else {
@@ -82,12 +82,14 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
     });
 
-    app.get('/profile/:userID', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
-    });
-
-    app.get('/profile/', function (req, res) {
-        res.send('Enter a valid profile ID');
+    app.get('/profile', async function (req, res) {
+        if (req.session && req.session.userId) {
+            // If logged in, send profile page
+            res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
+        } else {
+            // If not logged in, redirect to login page
+            res.redirect('/login');
+        }
     });
 
     app.get('/recipe/:cocktailID', function (req, res) {

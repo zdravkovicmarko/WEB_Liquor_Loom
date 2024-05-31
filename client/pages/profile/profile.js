@@ -9,16 +9,7 @@ document.getElementById('logo-container').addEventListener('click', function() {
 const logoutButton = document.getElementById('logout-btn');
 logoutButton.addEventListener('click', async function(event) {
     try {
-        const response = await fetch('/logout', {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-            // Redirect to login page upon successful logout
-            window.location.href = '/login';
-        } else {
-            console.error('Logout failed');
-        }
+        window.location.href='/logout'
     } catch (error) {
         console.error('Error:', error);
     }

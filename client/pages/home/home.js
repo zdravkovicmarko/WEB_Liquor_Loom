@@ -265,16 +265,7 @@ const logoutButton = document.getElementById('logout-btn');
 
 logoutButton.addEventListener('click', async function(event) {
     try {
-        const response = await fetch('/logout', {
-            method: 'GET'
-        });
-
-        if (response.ok) {
-            // Redirect to login page upon successful logout
-            window.location.href = '/login';
-        } else {
-            console.error('Logout failed');
-        }
+        window.location.href = '/logout';
     } catch (error) {
         console.error('Error:', error);
     }
@@ -315,22 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function handleProfileClick() {
     console.log('Profile picture clicked, checking login status...');
     try {
-        const response = await fetch('/login-status');
-        const data = await response.json();
-        console.log('Login status response:', data);
-
-        if (data.loggedIn) {
-            console.log('User is logged in, fetching user ID...');
-            const currentUserResponse = await fetch('/current-user');
-            const currentUserData = await currentUserResponse.json();
-            console.log('Current user ID:', currentUserData.userId);
-
-            // Redirect to profile page with actual user ID
-            window.location.href = '/profile/' + currentUserData.userId;
-        } else {
-            console.log('User is not logged in, redirecting to login page');
-            window.location.href = '/login';
-        }
+        window.location.href = '/profile';
     } catch (error) {
         console.error('Error checking login status:', error);
     }

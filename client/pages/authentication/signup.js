@@ -29,7 +29,7 @@ document.querySelector('form[action="/signup"]').addEventListener('submit', func
         })
         .then(data => {
             console.log('Success:', data);
-            // Handle success (e.g., redirect to login page)
+            window.location.href = '/home';
         })
         .catch(error => {
             console.error('Error:', error);
