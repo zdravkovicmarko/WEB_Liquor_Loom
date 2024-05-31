@@ -125,10 +125,42 @@ function getUser(usernameOrEmail, password) {
     });
 }
 
+// New function to check if email exists
+function checkEmailExists(email) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
+        db.get(query, [email], (err, row) => {
+            if (err) {
+                console.error('Error checking email existence:', err);
+                reject(err);
+            } else {
+                resolve(row.count > 0);
+            }
+        });
+    });
+}
+
+function checkUserExists(username) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT COUNT(*) AS count FROM users WHERE username = ?';
+        db.get(query, [username], (err, row) => {
+            if (err) {
+                console.error('Error checking user existence:', err);
+                reject(err);
+            } else {
+                resolve(row.count > 0);
+            }
+        });
+    });
+}
+
 module.exports = {
     insertUser,
+    updateUser,
     updateUser2,
     removeUserByUsername,
     clearUserDatabase,
-    getUser
+    getUser,
+    checkEmailExists,
+    checkUserExists
 };
