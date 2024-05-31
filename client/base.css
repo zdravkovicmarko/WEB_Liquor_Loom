@@ -25,6 +25,7 @@
     --black-gradient: linear-gradient(to bottom, transparent, transparent, var(--black-66-opacity));
 
     --cocktail-img-size: 200px;
+    --main-label-size: 1.15rem;
 }
 * {
     box-sizing: border-box;
@@ -47,9 +48,13 @@ body {
 }
 header {
     grid-area: h;
-    display: flex;
+    display: grid;
+    grid-template-areas:
+        "logo middle profile";
+    grid-template-columns: min-content auto min-content;
     align-items: center;
-    gap: 2%;
+    padding: 0 35px 0 50px;
+    column-gap: 2%;
 }
 #sidebar {
     grid-area: s;
@@ -62,23 +67,24 @@ main {
 footer {
     grid-area: f;
 }
-
 .logo-container {
-    display: flex;
-    align-items: center;
-    padding-left: 35px;
+    grid-area: logo;
 }
 .middle-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
+    grid-area: middle;
 }
+.profile-container {
+    grid-area: profile;
+}
+.logo-container,
+.middle-container,
 .profile-container {
     display: flex;
     align-items: center;
-    padding-right: 35px;
-    gap: 35px;
+    justify-content: center;
+}
+.profile-container > * {
+   margin-left: 30px;
 }
 
 .logo,
@@ -163,7 +169,7 @@ footer {
     padding: 20px 0 0 10px;
 }
 .main-label {
-    font-size: 115%;
+    font-size: var(--main-label-size);
     color: white;
     text-shadow: 0 0 3px black;
     padding-left: 10px;

@@ -1,5 +1,12 @@
 @import url(/client/base.css);
 
+:root {
+    --base-font-size: 1rem;
+    --main-label-size: 1.25rem;
+    --cocktail-img-size: 220px;
+    --btn-part-size: 40px;
+    --btn-img-size: 25px;
+}
 body {
     display: grid;
     grid-template-areas:
@@ -9,12 +16,7 @@ body {
     grid-template-columns: 335px auto;
     grid-template-rows: 135px auto 35px;
     margin: 0;
-}
-
-.header-profile-picture {
-    height: 75px;
-    border-radius: 50%;
-    box-shadow: 0 0 20px var(--grey-50-opacity);
+    font-size: var(--base-font-size);
 }
 
 #profile-border {
@@ -31,4 +33,92 @@ body {
     height: auto;
     border-radius: 50%;
     box-shadow: 0 3px 10px black;
+}
+.btn-container {
+    margin-top: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.btn-normal-grey {
+    font-size: 135%;
+    margin: 0 5px 0 5px;
+}
+.btn-normal-grey:hover {
+    color: var(--red);
+    text-shadow: 0 0 15px var(--red);
+}
+
+#stats-border {
+    display: grid;
+    grid-template-areas:
+        "fav stats";
+    grid-template-columns: calc(var(--cocktail-img-size) + 20px) auto;
+    column-gap: 2%;
+}
+#fav-cocktail {
+    grid-area: fav;
+}
+#stats {
+    grid-area: stats;
+}
+
+.stats-bar-container {
+    height: 30px;
+    width: calc(100% - 15px);
+    padding: 10px 0 10px 0;
+    margin: 10px 0 20px 7px;
+    border-radius: 15px;
+    background: linear-gradient(90deg, var(--green-50-opacity) 0%, var(--green-50-opacity) 60%, var(--red-50-opacity) 60%, var(--red-50-opacity) 80%, var(--yellow-50-opacity) 80%);
+    overflow: hidden;
+}
+.stats-bar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--green) 0%, var(--green) 60%, var(--red) 60%, var(--red) 80%, var(--yellow) 80%);
+    filter: drop-shadow(0 0 3px var(--black-66-opacity));
+}
+
+.stats-container {
+    display: grid;
+    grid-template-areas:
+        "s-r s-s";
+    font-size: 1.25em;
+    align-content: center;
+}
+.stats-container > * {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 100%;
+}
+.stats-ratings {
+    grid-area: s-r;
+}
+.stats-sum {
+    grid-area: s-s;
+}
+.stat-item {
+    display: grid;
+    grid-template-areas:
+        "s-img s-label s-value";
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5%;
+    margin-bottom: 10px;
+}
+.stat-label {
+    grid-area: s-label;
+    color: white;
+}
+.stat-value {
+    grid-area: s-value;
+    color: var(--orange);
+}
+
+/* Responsive Layout */
+@media (max-width: 930px) {
+    .btn-normal-grey {
+        display: flex;
+    }
 }
