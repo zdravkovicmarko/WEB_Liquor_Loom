@@ -1,13 +1,5 @@
 import { appendCocktail } from '/client/base.js';
 
-// Event listeners for navigation
-document.getElementById('login-btn').addEventListener('click', function() {
-    window.location.href = '/login';
-});
-document.getElementById('profile-pic').addEventListener('click', function() {
-    window.location.href = '/profile';
-});
-
 document.addEventListener("DOMContentLoaded", () => {
     const range = document.querySelector("#slide");
     const slideValue = document.querySelector(".slide-value");
@@ -287,3 +279,59 @@ logoutButton.addEventListener('click', async function(event) {
         console.error('Error:', error);
     }
 });
+
+// Event listeners for navigation
+document.getElementById('login-btn').addEventListener('click', function() {
+    window.location.href = '/login';
+});
+document.addEventListener('DOMContentLoaded', function() {
+    checkLoginStatus();
+});
+
+async function checkLoginStatus() {
+    try {
+        const response = await fetch('/login-status');
+        const data = await response.json();
+
+        if (data.loggedIn) {
+            document.getElementById('login-btn').classList.add('hidden');
+            document.getElementById('logout-btn').classList.remove('hidden');
+        } else {
+            document.getElementById('login-btn').classList.remove('hidden');
+            document.getElementById('logout-btn').classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Error checking login status:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    checkLoginStatus();
+
+    document.getElementById('profile-pic').addEventListener('click', handleProfileClick);
+});
+
+async function handleProfileClick() {
+    console.log('Profile picture clicked, checking login status...');
+    try {
+        const response = await fetch('/login-status');
+        const data = await response.json();
+        console.log('Login status response:', data);
+
+        if (data.loggedIn) {
+            console.log('User is logged in, fetching user ID...');
+            const currentUserResponse = await fetch('/current-user');
+            const currentUserData = await currentUserResponse.json();
+            console.log('Current user ID:', currentUserData.userId);
+
+            // Redirect to profile page with actual user ID
+            window.location.href = '/profile/' + currentUserData.userId;
+        } else {
+            console.log('User is not logged in, redirecting to login page');
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error('Error checking login status:', error);
+    }
+}

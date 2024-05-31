@@ -3,6 +3,12 @@
 
 #### Auf unseren Website können sich Feinschmecker (bald) austoben und die verschiedenen Cocktail-Rezepte durchprobieren.
 
+## Website Starten:
+#### 1. Terminal öffnen
+#### 2. 'npm install' eingeben und ausführen
+#### 3. 'npm run start-nodemon' eingeben und ausführen
+#### 4. Link zur Website ist im Terminal 'http://localhost:666/home'
+
 ## Geplante Features: 
 
 - Allgemeine Homepage

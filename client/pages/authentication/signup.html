@@ -13,7 +13,6 @@
     <script type="module" src="/client/pages/authentication/signup.js"></script>
 </head>
 <body>
-
 <header>
     <div class="logo-container" id="logo-container">
         <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
@@ -27,12 +26,14 @@
                 <label class="main-label" for="username">Username</label>
                 <div class="element-inner-container">
                     <input class="element-input" type="text" id="username" name="username" required>
+                    <span id="usernameError" style="display:none;color:red;"></span>
                 </div>
             </div>
             <div class="element-container">
                 <label class="main-label" for="email">Email</label>
                 <div class="element-inner-container">
-                    <input class="element-input"  type="text" id="email" name="email" required>
+                    <input class="element-input" type="text" id="email" name="email" required>
+                    <span id="emailError" style="display:none;color:red;"></span>
                 </div>
             </div>
             <div class="element-container">
@@ -44,12 +45,13 @@
             <div class="element-container">
                 <label class="main-label" for="verification">Password Verification</label>
                 <div class="element-inner-container">
-                    <input class="element-input" type="text" id="verification" name="verification" required>
+                    <input class="element-input" type="password" id="verification" name="verification" required>
+                    <span id="verificationError" style="display:none;color:red;"></span>
                 </div>
             </div>
             <div class="element-container btn-container">
                 <button class="btn-bold-orange" type="submit">CREATE ACCOUNT</button>
-                <button class="btn-normal-grey" id="login-btn">LOGIN</button>
+                <button class="btn-normal-grey" id="login-btn" type="button">LOGIN</button>
             </div>
         </form>
     </div>
