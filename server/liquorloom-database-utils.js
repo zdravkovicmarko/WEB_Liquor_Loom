@@ -320,6 +320,42 @@ function getUser(usernameOrEmail, password) {
     });
 }
 
+function getUsernameById(id) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT username FROM users WHERE id = ?', [id], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.username : null);
+            }
+        });
+    });
+}
+
+function getEmailById(id) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT email FROM users WHERE id = ?', [id], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.email : null);
+            }
+        });
+    });
+}
+
+function getPasswordById(id) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT password FROM users WHERE id = ?', [id], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.password : null);
+            }
+        });
+    });
+}
+
 // New function to check if email exists
 function checkEmailExists(email) {
     return new Promise((resolve, reject) => {
@@ -367,6 +403,9 @@ module.exports ={
     removeUserByUsername,
     clearUserDatabase,
     getUser,
+    getUsernameById,
+    getEmailById,
+    getPasswordById,
     checkEmailExists,
     checkUserExists
 }
