@@ -19,6 +19,16 @@ body {
     font-size: var(--base-font-size);
 }
 
+.element-inner-container {
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent line breaks */
+}
+
+.element-input.tags {
+    display: inline-block; /* Ensure label stays on one line */
+    max-width: 100%; /* Allow label to grow up to its container's width */
+}
+
 #profile-border {
     border-radius: 200px 200px 35px 35px;
 }

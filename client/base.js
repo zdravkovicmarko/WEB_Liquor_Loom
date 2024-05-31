@@ -28,3 +28,29 @@ export const appendCocktail = (cocktail) => {
         window.location.href = `/recipe/${cocktail.idDrink}`;
     });
 }
+
+export async function checkLoginStatus() {
+    try {
+        const response = await fetch('/login-status');
+        const data = await response.json();
+
+        if (data.loggedIn) {
+            document.getElementById('login-btn').classList.add('hidden');
+            document.getElementById('logout-btn').classList.remove('hidden');
+        } else {
+            document.getElementById('login-btn').classList.remove('hidden');
+            document.getElementById('logout-btn').classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Error checking login status:', error);
+    }
+}
+
+export async function handleProfileClick() {
+    console.log('Profile picture clicked, checking login status...');
+    try {
+        window.location.href = '/profile';
+    } catch (error) {
+        console.error('Error checking login status:', error);
+    }
+}

@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
 const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser  } = require('./liquorloom-database-utils.js');
 const app = express();
+const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
 let fetch;
 
@@ -349,6 +350,36 @@ import('node-fetch').then(module => {
                 throw error; // Re-throw the error to propagate it down the promise chain
             });
     }
+
+    app.get('/api/user/:id/username', async (req, res) => {
+        try {
+            const username = await getUsernameById(req.params.id);
+            res.json({ username });
+        } catch (error) {
+            console.error('Error fetching username:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/user/:id/email', async (req, res) => {
+        try {
+            const email = await getEmailById(req.params.id);
+            res.json({ email });
+        } catch (error) {
+            console.error('Error fetching email:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/user/:id/password', async (req, res) => {
+        try {
+            const password = await getPasswordById(req.params.id);
+            res.json({ password });
+        } catch (error) {
+            console.error('Error fetching password:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
 
     function fetchCocktailsByLetter(letter) {
         return fetchCocktailData('search.php', 'f', letter)

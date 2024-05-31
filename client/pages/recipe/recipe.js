@@ -1,3 +1,6 @@
+import { checkLoginStatus } from '/client/base.js';
+import { handleProfileClick } from "/client/base.js";
+
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', () => {
     window.location.href = '/home';
@@ -58,4 +61,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const cocktailID = window.location.pathname.split('/').pop();
     // Call displayRecipe function with the cocktailID
     displayRecipe(cocktailID);
+});
+
+// Assuming you have a logout button with id "logout-btn"
+const logoutButton = document.getElementById('logout-btn');
+
+logoutButton.addEventListener('click', async function(event) {
+    try {
+        window.location.href = '/logout';
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    checkLoginStatus();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    checkLoginStatus();
+
+    document.getElementById('profile-pic').addEventListener('click', handleProfileClick);
 });

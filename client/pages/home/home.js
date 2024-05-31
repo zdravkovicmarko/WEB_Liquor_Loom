@@ -1,4 +1,6 @@
 import { appendCocktail } from '/client/base.js';
+import { checkLoginStatus } from '/client/base.js';
+import { handleProfileClick } from '/client/base.js';
 
 document.addEventListener("DOMContentLoaded", () => {
     const range = document.querySelector("#slide");
@@ -279,35 +281,9 @@ document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
 });
 
-async function checkLoginStatus() {
-    try {
-        const response = await fetch('/login-status');
-        const data = await response.json();
-
-        if (data.loggedIn) {
-            document.getElementById('login-btn').classList.add('hidden');
-            document.getElementById('logout-btn').classList.remove('hidden');
-        } else {
-            document.getElementById('login-btn').classList.remove('hidden');
-            document.getElementById('logout-btn').classList.add('hidden');
-        }
-    } catch (error) {
-        console.error('Error checking login status:', error);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
     checkLoginStatus();
 
     document.getElementById('profile-pic').addEventListener('click', handleProfileClick);
 });
-
-async function handleProfileClick() {
-    console.log('Profile picture clicked, checking login status...');
-    try {
-        window.location.href = '/profile';
-    } catch (error) {
-        console.error('Error checking login status:', error);
-    }
-}

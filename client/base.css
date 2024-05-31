@@ -307,6 +307,9 @@ footer {
 .no-results-text {
     padding: 5px 0 0 12px;
 }
+.hidden {
+    display: none;
+}
 
 /* Responsive Layout */
 @media (max-width: 930px) {
