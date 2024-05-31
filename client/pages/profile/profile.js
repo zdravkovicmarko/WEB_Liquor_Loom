@@ -45,4 +45,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await response.json();
     const userID = data.userId;
     displayProfile(userID);
+
+    const profilePictures = {
+        1: 'client/images/schmirko-pb.jpg',
+        2: 'client/images/lisa-pb.jpg',
+        3: 'client/images/schmortn-pb.jpg',
+        4: 'client/images/masud-pb.png',
+        5: 'client/images/sabimami-pb.jpg',
+        6: 'client/images/sarma-pb.png'
+    };
+
+    const profilePictureSrc = profilePictures[userID];
+    if (profilePictureSrc) {
+        document.querySelector('.profile-picture').src = profilePictureSrc;
+    }
 });
+
