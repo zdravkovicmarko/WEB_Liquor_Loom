@@ -4,8 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById } = require('./cocktail-database');
-const { insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser } = require('../client/pages/authentication/user-database.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser  } = require('./liquorloom-database-utils.js');
 const app = express();
 
 let fetch;
@@ -356,7 +355,7 @@ import('node-fetch').then(module => {
             .then(data => data.drinks || []);
     }
 
-    async function getAllCocktailsFromAPI(offset, limit, shouldSlice) {
+    async function getAllCocktailsFromAPI() {
         let allCocktails = [];
         const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
         for (const letter of alphabet) { // fetchCocktailsByLetter is called with every letter and their results concatenated

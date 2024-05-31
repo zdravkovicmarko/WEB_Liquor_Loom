@@ -1,39 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('recipeDatabase.db'); // create or open databasefile
-
-db.serialize(() => {
-
-    db.run(`CREATE TABLE IF NOT EXISTS 
-    cocktails (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        category TEXT,
-        alcoholic TEXT,
-        glass TEXT,
-        instructions TEXT,
-        thumbnail TEXT
-    )`);
-
-    // seperate table for ingredients with reference to table cocktails table
-    db.run(`CREATE TABLE IF NOT EXISTS
-    ingredients (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cocktail_id INTEGER,
-        ingredient TEXT,
-        measure TEXT,
-        FOREIGN KEY(cocktail_id) REFERENCES cocktails(id)
-    )`);
-
-    db.run(`CREATE TABLE IF NOT EXISTS
-    cocktail_stats (
-        cocktail_id INTEGER PRIMARY KEY,
-        recommendations INTEGER DEFAULT 0,
-        do_not_recommendations INTEGER DEFAULT 0,
-        pinned INTEGER DEFAULT 0,
-        rating REAL DEFAULT 0.0,
-        amount_ratings INTEGER DEFAULT 0
-    )`);
-});
+const { db } = require('./liquorloom-database');
 
 function runQuery(query, params) { // SQL query on database, creates Promise that either resolved or rejected
     return new Promise((resolve, reject) => {
@@ -256,15 +221,152 @@ function updateCocktailStats(id, recommendations, do_not_recommendations, pinned
     });
 }
 
-module.exports = {
-    db,
+function insertUser(username, email, password) {
+    return new Promise((resolve, reject) => {
+        const query = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+        db.run(query, [username, email, password], function (err) {
+            if (err) {
+                console.log('Error inserting user:', err);
+                reject(err);
+            } else {
+                console.log(`${username}, inserted with ID:`, this.lastID);
+                resolve(this.lastID);
+            }
+        });
+    });
+}
+function updateUser(id, username, email, password) {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?`;
+        db.run(query, [username, email, password, id], function (err) {
+            if (err) {
+                console.error('Error updating user:', err);
+                reject(err);
+            } else {
+                console.log(`User with ID ${id} updated successfully`);
+                resolve();
+            }
+        });
+    });
+}
+
+function updateUser2(id, userData) {
+    return new Promise((resolve, reject) => {
+        // Construct the SET clause dynamically based on provided fields
+        const updateFields = Object.keys(userData).map(field => `${field} = ?`).join(', ');
+        const values = Object.values(userData);
+
+        const query = `UPDATE users SET ${updateFields} WHERE id = ?`;
+        // Add the user ID at the end of the values array
+        values.push(id);
+
+        db.run(query, values, function (err) {
+            if (err) {
+                console.error('Error updating user:', err);
+                reject(err);
+            } else {
+                console.log(`User with ID ${id} updated successfully`);
+                resolve();
+            }
+        });
+    });
+}
+
+function removeUserByUsername(username) {
+    return new Promise((resolve, reject) => {
+        const query = 'DELETE FROM users WHERE username = ?';
+        db.run(query, [username], function (err) {
+            // error function
+            if (err) {
+                console.error('Error removing user:', err);
+                reject(err);
+            } else {
+                if (this.changes === 0) {
+                    console.log('No user found with username:', username);
+                    resolve(null);
+                } else {
+                    console.log('User removed with username:', username);
+                }
+            }
+        });
+    });
+}
+
+function clearUserDatabase() {
+    return new Promise((resolve, reject) => {
+        db.run(`DELETE FROM users`, function (err) {
+            if (err) {
+                console.error('Error clearing database:', err);
+                reject(err);
+            } else {
+                console.log('Database cleared successfully');
+                resolve();
+            }
+        });
+    });
+}
+
+function getUser(usernameOrEmail, password) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?';
+        db.get(query, [usernameOrEmail, usernameOrEmail, password], (err, row) => {
+            if (err) {
+                console.error('Error fetching user:', err);
+                reject(err);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+}
+
+// New function to check if email exists
+function checkEmailExists(email) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
+        db.get(query, [email], (err, row) => {
+            if (err) {
+                console.error('Error checking email existence:', err);
+                reject(err);
+            } else {
+                resolve(row.count > 0);
+            }
+        });
+    });
+}
+
+function checkUserExists(username) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT COUNT(*) AS count FROM users WHERE username = ?';
+        db.get(query, [username], (err, row) => {
+            if (err) {
+                console.error('Error checking user existence:', err);
+                reject(err);
+            } else {
+                resolve(row.count > 0);
+            }
+        });
+    });
+}
+
+module.exports ={
+    runQuery,
+    insertIngredients,
     addCocktailToDb,
-    updateCocktailIngredients,
-    updateCocktailInDb,
-    updateCocktailStats,
+    removeCocktailFromDb,
+    clearCocktailDatabase,
     getCocktailById,
     getCocktailByName,
     getAllCocktailsFromDb,
-    removeCocktailFromDb,
-    clearCocktailDatabase
-};
+    updateCocktailInDb,
+    updateCocktailIngredients,
+    updateCocktailStats,
+    insertUser,
+    updateUser,
+    updateUser2,
+    removeUserByUsername,
+    clearUserDatabase,
+    getUser,
+    checkEmailExists,
+    checkUserExists
+}
