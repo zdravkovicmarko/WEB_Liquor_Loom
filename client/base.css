@@ -136,6 +136,11 @@ footer {
     font-weight: 600;
     text-shadow: 0 0 20px var(--grey-66-opacity);
 }
+.btn-normal-grey:hover#logout-btn,
+.btn-normal-grey:hover#delete-btn {
+    color: var(--red);
+    text-shadow: 0 0 15px var(--red);
+}
 .btn-bold-orange {
     font-size: 135%;
     font-weight: 500;
@@ -207,6 +212,9 @@ footer {
     flex-wrap: wrap;
     text-align: center;
     justify-content: flex-start;
+}
+.element-input.tags {
+    display: inline-block;
 }
 .tag-inner-container,
 .btn-inner-container {

@@ -20,13 +20,28 @@ body {
 }
 
 .element-inner-container {
-    overflow-x: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Prevent line breaks */
+    position: relative;
+    overflow: hidden;
+    width: 100%;
 }
-
 .element-input.tags {
-    display: inline-block; /* Ensure label stays on one line */
-    max-width: 100%; /* Allow label to grow up to its container's width */
+    display: inline-block;
+    white-space: nowrap;
+}
+.tags#email-tag {
+    background: none;
+    height: 38px;
+}
+.tags-content {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-radius: 35px;
+    background-color: var(--white-33-opacity);
+    padding: 5px 15px;
+    max-width: 100%;
 }
 
 #profile-border {
@@ -53,10 +68,6 @@ body {
 .btn-normal-grey {
     font-size: 135%;
     margin: 0 5px 0 5px;
-}
-.btn-normal-grey:hover {
-    color: var(--red);
-    text-shadow: 0 0 15px var(--red);
 }
 
 #stats-border {
