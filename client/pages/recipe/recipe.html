@@ -24,8 +24,8 @@
         <img class="header-profile-picture" id="profile-pic" src="/client/images/profile_picture_empty.png" alt="Profile Picture">
     </div>
 </header>
-<main>
-    <div class="element-border">
+<main class="normal-main" id="main">
+    <div class="element-border" id="recipe-container">
         <div class="cocktail-container">
             <label class="cocktail-title-label" id="name"></label>
             <label class="cocktail-rating-label" id="rating"></label>
@@ -63,6 +63,37 @@
                 <span id="instructions"></span>
             </div>
         </div>
+    </div>
+    <div class="element-border hidden" id="rate-container">
+        <div class="title-label"><label>RATE</label></div>
+        <div class="element-inner-container">
+            <label class="element-input tags" id="username"></label>
+        </div>
+        <div class="btn-inner-container">
+            <button class="btn-part btn-recommend">
+                <img class="btn-img" src="/client/images/symbol_recommend.png" alt="Recommend Button">
+            </button>
+            <button class="btn-part btn-recommend-no">
+                <img class="btn-img" src="/client/images/symbol_recommend_no.png" alt="Not Recommend Button">
+            </button>
+            <button class="btn-part btn-pin">
+                <img class="btn-img" src="/client/images/symbol_pin.png" alt="Pin Button">
+            </button>
+        </div>
+        <div class="element-container">
+            <span class="main-label slide-value"></span>
+            <div class="element-inner-container rating-container">
+                <label class="rating-bar" for="slide">
+                    <input id="slide" type="range" min="0.0" max="5.0" step="0.5">
+                </label>
+            </div>
+        </div>
+        <div class="element-container btn-container" id="save-btn">
+            <button class="btn-bold-orange">SAVE</button>
+        </div>
+    </div>
+    <div class="element-border" id="comments-container">
+        <div class="title-label"><label>COMMENTS</label></div>
     </div>
 </main>
 </body>

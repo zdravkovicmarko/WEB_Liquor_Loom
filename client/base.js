@@ -54,3 +54,21 @@ export async function handleProfileClick() {
         console.error('Error checking login status:', error);
     }
 }
+
+export function slideValue(delimiter) {
+    // Initialize slide value display
+    const range = document.querySelector("#slide");
+    const slideValue = document.querySelector(".slide-value");
+
+    if (range && slideValue) {
+        slideValue.innerText = `Rating ( ★ ${range.value} ${delimiter} 5 )`;
+
+        const updateSlideValue = (value) => {
+            value === "5" ? slideValue.innerText = `Rating ( ★ ${value} )` : slideValue.innerText = `Rating ( ★ ${value} ${delimiter} 5 )`;
+        };
+
+        range.addEventListener("input", (event) => {
+            updateSlideValue(event.target.value);
+        });
+    }
+}

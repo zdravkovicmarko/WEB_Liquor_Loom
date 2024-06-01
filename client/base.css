@@ -24,8 +24,9 @@
 
     --black-gradient: linear-gradient(to bottom, transparent, transparent, var(--black-66-opacity));
 
+    --title-font-size: 1.35rem;
+    --main-font-size: 1.15rem;
     --cocktail-img-size: 200px;
-    --main-label-size: 1.15rem;
 }
 * {
     box-sizing: border-box;
@@ -168,13 +169,13 @@ footer {
 }
 
 .title-label {
-    font-size: 135%;
+    font-size: var(--title-font-size);
     color: var(--orange);
     text-shadow: 0 0 3px black;
     padding: 20px 0 0 10px;
 }
 .main-label {
-    font-size: var(--main-label-size);
+    font-size: var(--main-font-size);
     color: white;
     text-shadow: 0 0 3px black;
     padding-left: 10px;
@@ -233,6 +234,7 @@ footer {
 .btn-part {
     height: var(--btn-part-size);
     width: var(--btn-part-size);
+    border: none;
     border-radius: 50%;
     margin: 5px;
     cursor: pointer;
@@ -252,6 +254,28 @@ footer {
 }
 .btn-pin {
     background-color: var(--yellow-50-opacity);
+}
+
+.rating-bar input {
+    overflow: hidden;
+    cursor: pointer;
+    appearance: none;
+    height: 15px;
+    width: calc(100% - 15px);
+    border-radius: 35px;
+    background-color: var(--white-50-opacity);
+    margin-left: 7px;
+}
+input::-webkit-slider-thumb {
+    appearance: none;
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 0 5px 2px var(--black-50-opacity), 208px 0 0 200px var(--orange);
+}
+.slide-value {
+    color: white;
 }
 
 .cocktails-container {

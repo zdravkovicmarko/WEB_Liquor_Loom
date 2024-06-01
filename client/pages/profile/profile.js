@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Fetch username
             const usernameResponse = await fetch(`/api/user/${userID}/username`);
             const usernameData = await usernameResponse.json();
-            document.getElementById('username').textContent = usernameData.username;
+            document.getElementById('username').textContent = "@" + usernameData.username;
 
             // Fetch email
             const emailResponse = await fetch(`/api/user/${userID}/email`);
@@ -47,12 +47,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     displayProfile(userID);
 
     const profilePictures = {
-        1: 'client/images/schmirko-pb.jpg',
-        2: 'client/images/lisa-pb.jpg',
-        3: 'client/images/schmortn-pb.jpg',
-        4: 'client/images/masud-pb.png',
-        5: 'client/images/sabimami-pb.jpg',
-        6: 'client/images/sarma-pb.png'
+        1: 'client/images/dummy-img/schmirko-pb.jpg',
+        2: 'client/images/dummy-img/lisa-pb.jpg',
+        3: 'client/images/dummy-img/schmortn-pb.jpg',
+        4: 'client/images/dummy-img/masud-pb.png',
+        5: 'client/images/dummy-img/sabimami-pb.jpg',
+        6: 'client/images/dummy-img/sarma-pb.png'
     };
 
     const profilePictureSrc = profilePictures[userID];

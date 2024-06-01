@@ -1,10 +1,9 @@
 import { appendCocktail } from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from '/client/base.js';
+import { slideValue } from '/client/base.js';
 
 document.addEventListener("DOMContentLoaded", () => {
-    const range = document.querySelector("#slide");
-    const slideValue = document.querySelector(".slide-value");
     const randomContainer = document.getElementById("random-button");
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const filterButton = document.getElementById("filter-button");
@@ -24,18 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
         this.value.trim() !== ''? searchBar.classList.add('input-hovered') : searchBar.classList.remove('input-hovered');
     });
 
-    // Initialize slide value display
-    if (range && slideValue) {
-        slideValue.innerText = "★ " + range.value + " - 5";
-
-        const updateSlideValue = (value) => {
-            value === "5" ? slideValue.innerText = "★ " + value : slideValue.innerText = "★ " + value + " - 5";
-        };
-
-        range.addEventListener("input", (event) => {
-            updateSlideValue(event.target.value);
-        });
-    }
+    // Handle slide value
+    slideValue("-");
 
     const fetchCocktails = async (url) => {
         const response = await fetch(url);

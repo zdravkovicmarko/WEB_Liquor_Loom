@@ -1,8 +1,9 @@
 @import url(/client/base.css);
 
 :root {
-    --base-font-size: 1rem;
     --title-font-size: 2rem;
+    --main-font-size: 1.5rem;
+    --base-font-size: 1rem;
     --cocktail-img-size: 300px;
     --btn-part-size: 40px;
     --btn-img-size: 25px;
@@ -17,8 +18,31 @@ body {
     margin: 0;
     font-size: var(--base-font-size);
 }
+.normal-main {
+    display: grid;
+    grid-template-areas:
+        "recipe"
+        "comments";
+    gap: 35px;
+}
+.account-main {
+    display: grid;
+    grid-template-areas:
+        "recipe recipe"
+        "rate comments";
+    grid-template-columns: 350px auto;
+    gap: 35px;
+}
 
-.element-border {
+#rate-container.element-border {
+    grid-area: rate;
+}
+
+input::-webkit-slider-thumb {
+    box-shadow: 0 0 5px 2px var(--black-50-opacity);
+}
+#recipe-container.element-border {
+    grid-area: recipe;
     display: grid;
     grid-template-areas:
         "img tags"
@@ -94,7 +118,7 @@ body {
         justify-items: center;
         text-align: center;
     }
-    .element-border {
+    #recipe-container.element-border {
         grid-template-areas:
         "img"
         "tags"
