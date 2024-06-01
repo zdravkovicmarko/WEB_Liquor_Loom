@@ -192,3 +192,26 @@ document.addEventListener('DOMContentLoaded', function() {
     checkLoginStatus();
     document.getElementById('profile-pic').addEventListener('click', handleProfileClick);
 });
+
+document.addEventListener('DOMContentLoaded', async function () {
+    const cocktailID = window.location.pathname.split('/').pop();
+
+    const actions = [
+        { id: 'value-recommended', action: 'recommend' },
+        { id: 'value-recommended-no', action: 'not_recommend' },
+        { id: 'value-planned', action: 'pin' }
+    ];
+
+    for (const { id, action } of actions) {
+        try {
+            const response = await fetch(`/api/cocktail/${cocktailID}/action/${action}/count`);
+            if (!response.ok) {
+                console.error(`Failed to fetch ${action} count: ${response.statusText}`);
+            }
+            const data = await response.json();
+            document.getElementById(id).textContent = data.count;
+        } catch (error) {
+            console.error(`Error fetching count for ${action}:`, error);
+        }
+    }
+});
