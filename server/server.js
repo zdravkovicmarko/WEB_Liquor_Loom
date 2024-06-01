@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser  } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -182,6 +182,21 @@ import('node-fetch').then(module => {
                     res.status(500).json({ error: 'Error creating user' });
                 }
             });
+    });
+
+    app.post('/updateInteraction', async (req, res) => {
+        const { userId, cocktailId, action, rating } = req.body;
+
+        try {
+            if (rating !== null) {
+                await rateCocktail(userId, cocktailId, rating);
+            }
+            await updateUserInteraction(userId, cocktailId, action, rating);
+            res.status(200).send({ message: 'User interaction updated successfully' });
+        } catch (err) {
+            console.error('Error updating user interaction:', err);
+            res.status(500).send({ error: 'Error updating user interaction' });
+        }
     });
 
 

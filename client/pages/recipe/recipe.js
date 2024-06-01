@@ -92,6 +92,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const btnParts = document.querySelectorAll(".btn-part");
     let selectedButtons = new Set();
+    let action = '';
+    let rating = null;
 
     btnParts.forEach(btnPart => {
         btnPart.addEventListener("click", () => {
@@ -118,10 +120,54 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btnPart.classList.remove("btn-grey");
                 selectedButtons.add(btnId);
             }
+
+            if (btnId === 'btn-recommend') {
+                action = 'recommend';
+            } else if (btnId === 'btn-recommend-no') {
+                action = 'not_recommend';
+            } else if (btnId === 'btn-pin') {
+                action = 'pin';
+            }
         });
     });
-});
 
+    const saveRatingButton = document.getElementById('save-btn');
+    saveRatingButton.addEventListener('click', async () => {
+        rating = document.querySelector('#slide').value;
+        const requestData = {
+            userId: userID,
+            cocktailId: cocktailID,
+            action,
+            rating
+        };
+
+        try {
+            const response = await fetch('/updateInteraction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                console.error('Failed to save rating');
+            }
+
+            const notificationContainer = document.getElementById('notification-container');
+            const notificationMessage = document.getElementById('notification-message');
+
+            notificationMessage.textContent = 'Rating saved successfully!';
+            notificationContainer.classList.remove('hidden');
+
+            setTimeout(() => {
+                notificationContainer.classList.add('hidden');
+            }, 5000);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
 
 // Assuming you have a logout button with id "logout-btn"
 const logoutButton = document.getElementById('logout-btn');
@@ -141,6 +187,5 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
     checkLoginStatus();
-
     document.getElementById('profile-pic').addEventListener('click', handleProfileClick);
 });
