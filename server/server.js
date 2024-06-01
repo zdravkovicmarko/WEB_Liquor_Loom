@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -107,6 +107,32 @@ import('node-fetch').then(module => {
         }
     });
 
+    app.get('/api/cocktail/:id/action/:action/count', async (req, res) => {
+        const cocktailID = req.params.id;
+        const action = req.params.action;
+
+        try {
+            const count = await getCounterByCocktailId(cocktailID, action);
+            res.json({ cocktailID, action, count });
+        } catch (error) {
+            console.error('Error fetching the count:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.get('/api/user/:userId/action/:action/count', async (req, res) => {
+        const userId = req.params.userId;
+        const action = req.params.action;
+
+        try {
+            const count = await getCounterByUserId(userId, action);
+            res.json({ userId, action, count });
+        } catch (error) {
+            console.error('Error fetching the count:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
     app.post('/add-cocktail', (req, res) => {
         // If cocktail data is in the request body
         const cocktailData = req.body;
@@ -191,7 +217,7 @@ import('node-fetch').then(module => {
             if (rating !== null) {
                 await rateCocktail(userId, cocktailId, rating);
             }
-            await updateUserInteraction(userId, cocktailId, action, rating);
+            await updateUserInteraction(userId, cocktailId, action);
             res.status(200).send({ message: 'User interaction updated successfully' });
         } catch (err) {
             console.error('Error updating user interaction:', err);
