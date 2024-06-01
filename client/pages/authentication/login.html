@@ -14,44 +14,44 @@
     <script type="module" src="/client/pages/authentication/login.js"></script>
 </head>
 <body>
-<header>
-    <div class="logo-container" id="logo-container">
-        <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
-        <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
-    </div>
-</header>
-<main>
-    <div class="element-border">
-        <div id="accountCreatedMessage" style="display: none; color: green;"></div>
-        <form action="/login" method="POST">
-            <div class="element-container">
-                <label class="main-label" for="username">Username / Email</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="username" name="username" required>
-                    <span id="usernameError" style="display:none;color:red;"></span>
+    <span class="alert error-alert hidden" id="usernameError"></span>
+    <span class="alert error-alert hidden" id="passwordError"></span>
+    <div class="alert success-alert hidden" id="accountCreatedMessage"></div>
+    <header>
+        <div class="logo-container" id="logo-container">
+            <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
+            <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
+        </div>
+    </header>
+    <main>
+        <div class="element-border">
+            <form action="/login" method="POST">
+                <div class="element-container">
+                    <label class="main-label" for="username">Username / Email</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="username" name="username" required>
+                    </div>
                 </div>
-            </div>
-            <div class="element-container">
-                <label class="main-label" for="password">Password</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="password" id="password" name="password" required>
-                    <span id="passwordError" style="display:none;color:red;"></span>
+                <div class="element-container">
+                    <label class="main-label" for="password">Password</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="password" id="password" name="password" required>
+                    </div>
                 </div>
-            </div>
-            <div class="element-container btn-container">
-                <button class="btn-bold-orange" type="submit">LOGIN</button>
-                <button class="btn-normal-grey" id="signup" type="button">SIGN UP</button>
-            </div>
-        </form>
-    </div>
-</main>
-<script>
-    document.getElementById('logo-container').addEventListener('click', function() {
-        window.location.href = '/home';
-    });
-    document.getElementById('signup').addEventListener('click', function() {
-        window.location.href = '/signup';
-    });
-</script>
+                <div class="element-container btn-container">
+                    <button class="btn-bold-orange" type="submit">LOGIN</button>
+                    <button class="btn-normal-grey" id="signup" type="button">SIGN UP</button>
+                </div>
+            </form>
+        </div>
+    </main>
+    <script>
+        document.getElementById('logo-container').addEventListener('click', function() {
+            window.location.href = '/home';
+        });
+        document.getElementById('signup').addEventListener('click', function() {
+            window.location.href = '/signup';
+        });
+    </script>
 </body>
 </html>

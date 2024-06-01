@@ -14,6 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="alert success-alert hidden" id="logoutSuccessMessage"></div>
+    <div class="alert success-alert hidden" id="deleteSuccessMessage"></div>
 <header>
     <div class="logo-container">
         <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
@@ -23,8 +25,6 @@
         <label class="search-bar search-header" for="search">
             <input id="search">
         </label>
-        <div id="logoutSuccessMessage" style="display: none; color: red;"></div>
-        <div id="deleteSuccessMessage" style="display: none; color: green;"></div>
     </div>
     <div class="profile-container">
         <button class="btn-normal-grey" id="login-btn">LOGIN</button>

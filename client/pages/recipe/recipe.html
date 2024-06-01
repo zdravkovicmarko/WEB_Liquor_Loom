@@ -13,104 +13,102 @@
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-<header>
-    <div class="logo-container" id="logo-container">
-        <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
-        <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
-    </div>
-    <div class="profile-container">
-        <button class="btn-normal-grey" id="login-btn">LOGIN</button>
-        <button class="btn-normal-grey hidden" id="logout-btn">LOGOUT</button>
-        <img class="header-profile-picture" id="profile-pic" src="/client/images/profile_picture_empty.png" alt="Profile Picture">
-    </div>
-</header>
-<main class="normal-main" id="main">
-    <div class="element-border" id="recipe-container">
-        <div class="cocktail-container">
-            <label class="cocktail-title-label" id="name"></label>
-            <label class="cocktail-rating-label" id="rating"></label>
-            <img class="cocktail-img" id="img" src="/client/images/placeholder.png" alt="Cocktail Thumbnail">
+    <div class="alert success-alert hidden" id="notification-message"></div>
+    <header>
+        <div class="logo-container" id="logo-container">
+            <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
+            <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
         </div>
-        <div class="btn-inner-container element-inner-container">
-            <button class="btn-part btn-grey hidden" id="btn-fav">
-                <img class="btn-img" data-tag-set="0" src="/client/images/symbol_fav_grey.png" alt="Favourite Button">
-            </button>
+        <div class="profile-container">
+            <button class="btn-normal-grey" id="login-btn">LOGIN</button>
+            <button class="btn-normal-grey hidden" id="logout-btn">LOGOUT</button>
+            <img class="header-profile-picture" id="profile-pic" src="/client/images/profile_picture_empty.png" alt="Profile Picture">
         </div>
-        <div class="tag-container">
-            <div class="element-inner-container tags">
-                <div class="tag-inner-container">
-                    <span class="tag" id="category">category</span>
-                    <span class="tag" id="alcoholic">alcoholic</span>
-                    <span class="tag" id="glass">glass</span>
-                </div>
-                <div class="btn-inner-container" id="display-stats">
-                    <div class="btn-item">
-                        <div class="btn-part btn-recommend">
-                            <img class="btn-img" src="/client/images/symbol_recommend.png" alt="Recommend Button">
-                        </div>
-                        <span class="stat-value" id="value-recommended">0</span>
+    </header>
+    <main class="normal-main" id="main">
+        <div class="element-border" id="recipe-container">
+            <div class="cocktail-container">
+                <label class="cocktail-title-label" id="name"></label>
+                <label class="cocktail-rating-label" id="rating"></label>
+                <img class="cocktail-img" id="img" src="/client/images/placeholder.png" alt="Cocktail Thumbnail">
+            </div>
+            <div class="btn-inner-container element-inner-container">
+                <button class="btn-part btn-grey hidden" id="btn-fav">
+                    <img class="btn-img" data-tag-set="0" src="/client/images/symbol_fav_grey.png" alt="Favourite Button">
+                </button>
+            </div>
+            <div class="tag-container">
+                <div class="element-inner-container tags">
+                    <div class="tag-inner-container">
+                        <span class="tag" id="category">category</span>
+                        <span class="tag" id="alcoholic">alcoholic</span>
+                        <span class="tag" id="glass">glass</span>
                     </div>
-                    <div class="btn-item">
-                        <div class="btn-part btn-recommend-no">
-                            <img class="btn-img" src="/client/images/symbol_recommend_no.png" alt="Not Recommend Button">
+                    <div class="btn-inner-container" id="display-stats">
+                        <div class="btn-item">
+                            <div class="btn-part btn-recommend">
+                                <img class="btn-img" src="/client/images/symbol_recommend.png" alt="Recommend Button">
+                            </div>
+                            <span class="stat-value" id="value-recommended">0</span>
                         </div>
-                        <span class="stat-value" id="value-recommended-no">0</span>
-                    </div>
-                    <div class="btn-item">
-                        <div class="btn-part btn-pin">
-                            <img class="btn-img" src="/client/images/symbol_pin.png" alt="Pin Button">
+                        <div class="btn-item">
+                            <div class="btn-part btn-recommend-no">
+                                <img class="btn-img" src="/client/images/symbol_recommend_no.png" alt="Not Recommend Button">
+                            </div>
+                            <span class="stat-value" id="value-recommended-no">0</span>
                         </div>
-                        <span class="stat-value" id="value-planned">0</span>
+                        <div class="btn-item">
+                            <div class="btn-part btn-pin">
+                                <img class="btn-img" src="/client/images/symbol_pin.png" alt="Pin Button">
+                            </div>
+                            <span class="stat-value" id="value-planned">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="ingredients">
+                <div class="title-label"><label>INGREDIENTS</label></div>
+                <div class="element-inner-container">
+                    <span id="ingredients"></span>
+                </div>
+            </div>
+            <div class="instructions">
+                <div class="title-label"><label>INSTRUCTIONS</label></div>
+                <div class="element-inner-container">
+                    <span id="instructions"></span>
+                </div>
+            </div>
         </div>
-        <div class="ingredients">
-            <div class="title-label"><label>INGREDIENTS</label></div>
+        <div class="element-border hidden" id="rate-container">
             <div class="element-inner-container">
-                <span id="ingredients"></span>
+                <label class="element-input tags" id="username"></label>
             </div>
-        </div>
-        <div class="instructions">
-            <div class="title-label"><label>INSTRUCTIONS</label></div>
-            <div class="element-inner-container">
-                <span id="instructions"></span>
-            </div>
-        </div>
-    </div>
-    <div class="element-border hidden" id="rate-container">
-        <div class="element-inner-container">
-            <label class="element-input tags" id="username"></label>
-        </div>
-        <div class="btn-inner-container" id="btn-rate-container">
-            <button class="btn-part btn-grey" id="btn-recommend">
-                <img class="btn-img" data-tag-set="1" src="/client/images/symbol_recommend_grey.png" alt="Recommend Button">
-            </button>
-            <button class="btn-part btn-grey" id="btn-recommend-no">
-                <img class="btn-img" data-tag-set="1" src="/client/images/symbol_recommend_no_grey.png" alt="Not Recommend Button">
-            </button>
-            <button class="btn-part btn-grey" id="btn-pin">
-                <img class="btn-img" data-tag-set="1" src="/client/images/symbol_pin_grey.png" alt="Pin Button">
-            </button>
-            <div id="rate-bar">
-                <span class="main-label slide-value"></span>
-                <div class="element-inner-container rating-container">
-                    <label class="rating-bar" for="slide">
-                        <input id="slide" type="range" min="0.0" max="5.0" step="0.5">
-                    </label>
+            <div class="btn-inner-container" id="btn-rate-container">
+                <button class="btn-part btn-grey" id="btn-recommend">
+                    <img class="btn-img" data-tag-set="1" src="/client/images/symbol_recommend_grey.png" alt="Recommend Button">
+                </button>
+                <button class="btn-part btn-grey" id="btn-recommend-no">
+                    <img class="btn-img" data-tag-set="1" src="/client/images/symbol_recommend_no_grey.png" alt="Not Recommend Button">
+                </button>
+                <button class="btn-part btn-grey" id="btn-pin">
+                    <img class="btn-img" data-tag-set="1" src="/client/images/symbol_pin_grey.png" alt="Pin Button">
+                </button>
+                <div id="rate-bar">
+                    <span class="main-label slide-value"></span>
+                    <div class="element-inner-container rating-container">
+                        <label class="rating-bar" for="slide">
+                            <input id="slide" type="range" min="0.0" max="5.0" step="0.5">
+                        </label>
+                    </div>
                 </div>
             </div>
+            <div class="element-container btn-container" id="save-btn">
+                <button class="btn-bold-orange">SAVE RATING</button>
+            </div>
         </div>
-        <div class="element-container btn-container" id="save-btn">
-            <button class="btn-bold-orange">SAVE RATING</button>
+        <div class="element-border" id="comments-container">
+            <div class="title-label"><label>COMMENTS</label></div>
         </div>
-    </div>
-    <div class="element-border" id="comments-container">
-        <div class="title-label"><label>COMMENTS</label></div>
-    </div>
-    <div id="notification-container" class="notification hidden">
-        <span id="notification-message"></span>
-    </div>
-</main>
+    </main>
 </body>
 </html>

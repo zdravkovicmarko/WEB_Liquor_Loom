@@ -1,3 +1,5 @@
+import { displayMessage } from '/client/base.js';
+
 document.querySelector('form[action="/login"]').addEventListener('submit', function (event) {
     event.preventDefault();
 
@@ -5,10 +7,6 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
     const password = document.getElementById('password').value;
     const usernameError = document.getElementById('usernameError');
     const passwordError = document.getElementById('passwordError');
-
-    // Clear previous error messages
-    usernameError.style.display = 'none';
-    passwordError.style.display = 'none';
 
     fetch('/login', {
         method: 'POST',
@@ -31,11 +29,9 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         .catch(error => {
             console.error('Error:', error);
             if (error.message === 'Account does not exist') {
-                usernameError.textContent = 'Account does not exist';
-                usernameError.style.display = 'block';
+                displayMessage(usernameError, 'Account does not exist');
             } else if (error.message === 'Invalid username or password') {
-                passwordError.textContent = 'Invalid password';
-                passwordError.style.display = 'block';
+                displayMessage(passwordError, 'Invalid password');
             } else {
                 // Handle other errors
                 console.error('Unhandled error:', error);
@@ -46,13 +42,11 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
 document.addEventListener('DOMContentLoaded', function () {
     const accountCreatedMessage = document.getElementById('accountCreatedMessage');
 
-    // Check if the accountCreated flag is set in localStorage
+    // Check if accountCreated flag is set in localStorage
     if (localStorage.getItem('accountCreated') === 'true') {
-        // Display the success message
-        accountCreatedMessage.textContent = 'Account successfully created. Please login now.';
-        accountCreatedMessage.style.display = 'block';
+        displayMessage(accountCreatedMessage, 'Account successfully created. Please login now.');
 
-        // Remove the flag from localStorage
+        // Remove flag from localStorage
         localStorage.removeItem('accountCreated');
     }
 });

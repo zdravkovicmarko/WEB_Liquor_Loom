@@ -1,3 +1,4 @@
+import { displayMessage } from '/client/base.js';
 import { appendCocktail } from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from '/client/base.js';
@@ -268,9 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Check if the logoutSuccess flag is set in localStorage
     if (localStorage.getItem('logoutSuccess') === 'true') {
-        // Display the success message
-        logoutSuccessMessage.textContent = 'You have successfully logged out.';
-        logoutSuccessMessage.style.display = 'block';
+        displayMessage(logoutSuccessMessage, 'Successful logout');
 
         // Remove the flag from localStorage
         localStorage.removeItem('logoutSuccess');
@@ -282,9 +281,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Check if the deleteSuccess flag is set in localStorage
     if (localStorage.getItem('deleteSuccess') === 'true') {
-        // Display the success message
-        deleteSuccessMessage.textContent = 'Your account has been successfully deleted.';
-        deleteSuccessMessage.style.display = 'block';
+        displayMessage(deleteSuccessMessage, 'Successful account deletion');
 
         // Remove the flag from localStorage
         localStorage.removeItem('deleteSuccess');

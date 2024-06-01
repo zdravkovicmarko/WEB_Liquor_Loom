@@ -1,3 +1,5 @@
+import { displayMessage } from '/client/base.js';
+
 document.querySelector('form[action="/signup"]').addEventListener('submit', function (event) {
     event.preventDefault();
 
@@ -36,14 +38,11 @@ document.querySelector('form[action="/signup"]').addEventListener('submit', func
         .catch(error => {
             console.error('Error:', error);
             if (error.message === 'Username already in use') {
-                usernameError.textContent = 'Username already exists';
-                usernameError.style.display = 'block';
+                displayMessage(usernameError, 'Username already exists');
             } else if (error.message === 'Email already in use') {
-                emailError.textContent = 'Email already exists';
-                emailError.style.display = 'block';
+                displayMessage(emailError, 'Email already exists');
             } else if (error.message === 'Passwords do not match') {
-                verificationError.textContent = 'Passwords do not match';
-                verificationError.style.display = 'block';
+                displayMessage(verificationError, 'Passwords do not match');
             } else {
                 // Handle other errors
                 console.error('Unhandled error:', error);

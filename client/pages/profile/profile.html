@@ -15,109 +15,109 @@
     <script type="module" src="/client/pages/profile/profile.js"></script>
 </head>
 <body>
-<header>
-    <div class="logo-container" id="logo-container">
-        <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
-        <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
-    </div>
-</header>
-<aside id="sidebar">
-    <div class="element-border" id="profile-border">
-        <div class="profile-picture-container">
-            <img class="profile-picture" src="/client/images/profile_picture_empty.png" alt="Profile Picture">
+    <header>
+        <div class="logo-container" id="logo-container">
+            <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
+            <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
         </div>
-        <div class="element-container">
-            <label class="main-label" for="username">Username</label>
-            <div class="element-inner-container">
-                <label class="element-input tags" id="username" name="username"></label>
+    </header>
+    <aside id="sidebar">
+        <div class="element-border" id="profile-border">
+            <div class="profile-picture-container">
+                <img class="profile-picture" src="/client/images/profile_picture_empty.png" alt="Profile Picture">
             </div>
-        </div>
-        <div class="element-container">
-            <label class="main-label" for="username">Email</label>
-            <div class="element-inner-container">
-                <label class="element-input tags scrollbox" id="email-tag">
-                    <div class="tags-content" id="email"></div>
-                </label>
-            </div>
-        </div>
-        <div class="element-container">
-            <label class="main-label" for="password">Password</label>
-            <div class="element-inner-container">
-                <label class="element-input tags" id="password"></label>
-            </div>
-        </div>
-        <div class="element-container btn-container">
-            <button class="btn-normal-grey" id="logout-btn">LOGOUT</button>
-            <button class="btn-normal-grey" id="delete-btn">DELETE</button>
-        </div>
-    </div>
-</aside>
-<main>
-    <div class="element-border" id="stats-border">
-        <div class="element-container" id="fav-cocktail">
-            <label class="title-label">FAVOURITE</label>
-            <div class="cocktail-container">
-                <label class="cocktail-title-label" id="name"></label>
-                <label class="cocktail-rating-label" id="rating"></label>
-                <img class="cocktail-img" id="img" src="/client/images/placeholder.png" alt="Cocktail Thumbnail">
-            </div>
-        </div>
-        <div class="element-container" id="stats">
-            <label class="title-label">STATISTICS</label>
-            <div class="stats-bar-container">
-                <div class="stats-bar"></div>
-            </div>
-            <div class="stats-container">
-                <div class="stats-ratings">
-                    <div class="stat-item">
-                        <div class="btn-part btn-recommend">
-                            <img class="btn-img" src="/client/images/symbol_recommend.png" alt="Recommended">
-                        </div>
-                        <span class="stat-label">Recommend</span>
-                        <span class="stat-value" id="value-recommended">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <div class="btn-part btn-recommend-no">
-                            <img class="btn-img" src="/client/images/symbol_recommend_no.png" alt="Not Recommended">
-                        </div>
-                        <span class="stat-label">Not Recommend</span>
-                        <span class="stat-value" id="value-recommended-no">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <div class="btn-part btn-pin">
-                            <img class="btn-img" src="/client/images/symbol_pin.png" alt="Pinned">
-                        </div>
-                        <span class="stat-label">Plan to Taste</span>
-                        <span class="stat-value" id="value-planned">0</span>
-                    </div>
-                </div>
-                <div class="stats-sum">
-                    <div class="stat-item">
-                        <span class="stat-label">Mean Rating</span>
-                        <span class="stat-value" id="value-mean-rating">0.0 / 5.0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Tasted</span>
-                        <span class="stat-value" id="value-tasted">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Comments</span>
-                        <span class="stat-value" id="comments">0</span>
-                    </div>
+            <div class="element-container">
+                <label class="main-label" for="username">Username</label>
+                <div class="element-inner-container">
+                    <label class="element-input tags" id="username" name="username"></label>
                 </div>
             </div>
-        </div>
-    </div>
-    <div >
-        <div class="element-container">
-            <label class="title-label">Recommended</label>
-            <div class="cocktail-container">
-                <label class="cocktail-title-label"></label>
-                <label class="cocktail-rating-label"></label>
-                <img class="cocktail-img" src="/client/images/placeholder.png" alt="Cocktail Thumbnail">
+            <div class="element-container">
+                <label class="main-label" for="username">Email</label>
+                <div class="element-inner-container">
+                    <label class="element-input tags scrollbox" id="email-tag">
+                        <div class="tags-content" id="email"></div>
+                    </label>
+                </div>
+            </div>
+            <div class="element-container">
+                <label class="main-label" for="password">Password</label>
+                <div class="element-inner-container">
+                    <label class="element-input tags" id="password"></label>
+                </div>
+            </div>
+            <div class="element-container btn-container">
+                <button class="btn-normal-grey" id="logout-btn">LOGOUT</button>
+                <button class="btn-normal-grey" id="delete-btn">DELETE</button>
             </div>
         </div>
-    </div>
-</main>
+    </aside>
+    <main>
+        <div class="element-border" id="stats-border">
+            <div class="element-container" id="fav-cocktail">
+                <label class="title-label">FAVOURITE</label>
+                <div class="cocktail-container">
+                    <label class="cocktail-title-label" id="name"></label>
+                    <label class="cocktail-rating-label" id="rating"></label>
+                    <img class="cocktail-img" id="img" src="/client/images/placeholder.png" alt="Cocktail Thumbnail">
+                </div>
+            </div>
+            <div class="element-container" id="stats">
+                <label class="title-label">STATISTICS</label>
+                <div class="stats-bar-container">
+                    <div class="stats-bar"></div>
+                </div>
+                <div class="stats-container">
+                    <div class="stats-ratings">
+                        <div class="stat-item">
+                            <div class="btn-part btn-recommend">
+                                <img class="btn-img" src="/client/images/symbol_recommend.png" alt="Recommended">
+                            </div>
+                            <span class="stat-label">Recommend</span>
+                            <span class="stat-value" id="value-recommended">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="btn-part btn-recommend-no">
+                                <img class="btn-img" src="/client/images/symbol_recommend_no.png" alt="Not Recommended">
+                            </div>
+                            <span class="stat-label">Not Recommend</span>
+                            <span class="stat-value" id="value-recommended-no">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="btn-part btn-pin">
+                                <img class="btn-img" src="/client/images/symbol_pin.png" alt="Pinned">
+                            </div>
+                            <span class="stat-label">Plan to Taste</span>
+                            <span class="stat-value" id="value-planned">0</span>
+                        </div>
+                    </div>
+                    <div class="stats-sum">
+                        <div class="stat-item">
+                            <span class="stat-label">Mean Rating</span>
+                            <span class="stat-value" id="value-mean-rating">0.0 / 5.0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Tasted</span>
+                            <span class="stat-value" id="value-tasted">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Comments</span>
+                            <span class="stat-value" id="comments">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div >
+            <div class="element-container">
+                <label class="title-label">Recommended</label>
+                <div class="cocktail-container">
+                    <label class="cocktail-title-label"></label>
+                    <label class="cocktail-rating-label"></label>
+                    <img class="cocktail-img" src="/client/images/placeholder.png" alt="Cocktail Thumbnail">
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
 </html>
