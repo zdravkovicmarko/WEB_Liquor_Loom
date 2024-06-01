@@ -388,28 +388,56 @@ function checkUserExists(username) {
 
 async function rateCocktail(userId, cocktailId, rating) {
     try {
-        // Überprüfen, ob der Benutzer existiert
+        // Check if the user exists
         const userExists = await checkUserExists(userId);
         if (!userExists) {
             console.error('User does not exist');
             return;
         }
 
-        // Überprüfen, ob der Cocktail existiert
+        // Check if the cocktail exists
         const cocktailExists = await getCocktailById(cocktailId);
         if (!cocktailExists) {
             console.error('Cocktail does not exist');
             return;
         }
 
-        // Bewertung für den Cocktail einfügen
-        const query = `INSERT INTO user_interaction (user_id, cocktail_id, action, rating) 
-                       VALUES (?, ?, 'rating', ?)`;
-        await runQuery(query, [userId, cocktailId, rating]);
-        console.log('Rating added successfully');
+        // Check if there's already a rating entry for this user and cocktail
+        db.get(`SELECT * FROM user_interaction 
+                WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], (err, row) => {
+            if (err) {
+                console.error('Error checking existing entry:', err);
+                return;
+            }
+
+            if (row) {
+                // If a rating entry exists, update the rating value
+                const updateQuery = `UPDATE user_interaction 
+                                     SET rating = ?
+                                     WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`;
+                db.run(updateQuery, [rating, userId, cocktailId], (err) => {
+                    if (err) {
+                        console.error('Error updating rating:', err);
+                    } else {
+                        console.log('Rating updated successfully');
+                    }
+                });
+            } else {
+                // If no rating entry exists, insert a new one
+                const insertQuery = `INSERT INTO user_interaction (user_id, cocktail_id, action, rating) 
+                                     VALUES (?, ?, 'rating', ?)`;
+                db.run(insertQuery, [userId, cocktailId, rating], (err) => {
+                    if (err) {
+                        console.error('Error adding rating:', err);
+                    } else {
+                        console.log('Rating added successfully');
+                    }
+                });
+            }
+        });
     } catch (err) {
         console.error('Error rating cocktail:', err.message);
-        // Hier können Sie eine Rückmeldung über das Fehlerhandling implementieren
+        // Handle the error as needed
     }
 }
 
@@ -425,7 +453,7 @@ function updateUserInteraction(userId, cocktailId, action, rating = null) {
 
             if (row) {
                 // An entry already exists for this user_id and cocktail_id
-                if (row.action === 'rating') {
+                if (row.action === 'rating'|| row.action === 'favourite') {
                     // If the existing action is 'rating', create a new entry
                     db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action, rating) VALUES (?, ?, ?, ?)`, [userId, cocktailId, action, rating], function (err) {
                         if (err) {
@@ -463,6 +491,51 @@ function updateUserInteraction(userId, cocktailId, action, rating = null) {
         });
     });
 }
+
+function updateUserFavourite(userId, newCocktailId) {
+    return new Promise((resolve, reject) => {
+        // Check if there's already an entry with action set to 'favourites' for this user
+        db.get(`SELECT * FROM user_interaction WHERE user_id = ? AND action = 'favourites'`, [userId], (err, row) => {
+            if (err) {
+                console.error('Error checking existing entry:', err);
+                reject(err);
+                return;
+            }
+
+            if (row) {
+                // If an entry with action set to 'favourites' already exists
+                if (row.cocktail_id !== newCocktailId) {
+                    // If the existing entry's cocktail_id is different from the new one, update it
+                    db.run(`UPDATE user_interaction SET cocktail_id = ? WHERE user_id = ? AND action = 'favourites'`, [newCocktailId, userId], function (err) {
+                        if (err) {
+                            console.error('Error updating favourites:', err);
+                            reject(err);
+                        } else {
+                            console.log(`Favourites updated successfully for user ${userId}`);
+                            resolve();
+                        }
+                    });
+                } else {
+                    // If the existing entry's cocktail_id is the same as the new one, do nothing
+                    console.log(`Favourites already set for user ${userId} and cocktail ${newCocktailId}`);
+                    resolve();
+                }
+            } else {
+                // No existing entry found, insert the new favourite entry
+                db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action) VALUES (?, ?, 'favourites')`, [userId, newCocktailId], function (err) {
+                    if (err) {
+                        console.error('Error inserting favourites:', err);
+                        reject(err);
+                    } else {
+                        console.log('Favourites inserted successfully');
+                        resolve();
+                    }
+                });
+            }
+        });
+    });
+}
+
 
 module.exports ={
     runQuery,
