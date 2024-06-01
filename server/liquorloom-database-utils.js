@@ -413,6 +413,57 @@ async function rateCocktail(userId, cocktailId, rating) {
     }
 }
 
+function updateUserInteraction(userId, cocktailId, action, rating = null) {
+    return new Promise((resolve, reject) => {
+        // Check if an entry with the same user_id and cocktail_id already exists
+        db.get(`SELECT * FROM user_interaction WHERE user_id = ? AND cocktail_id = ?`, [userId, cocktailId], (err, row) => {
+            if (err) {
+                console.error('Error checking existing entry:', err);
+                reject(err);
+                return;
+            }
+
+            if (row) {
+                // An entry already exists for this user_id and cocktail_id
+                if (row.action === 'rating') {
+                    // If the existing action is 'rating', create a new entry
+                    db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action, rating) VALUES (?, ?, ?, ?)`, [userId, cocktailId, action, rating], function (err) {
+                        if (err) {
+                            console.error('Error inserting user interaction:', err);
+                            reject(err);
+                        } else {
+                            console.log('User interaction inserted successfully');
+                            resolve();
+                        }
+                    });
+                } else {
+                    // If the existing action is not 'rating', update the existing entry with the new action
+                    db.run(`UPDATE user_interaction SET action = ?, rating = ? WHERE user_id = ? AND cocktail_id = ?`, [action, null, userId, cocktailId], function (err) {
+                        if (err) {
+                            console.error('Error updating action:', err);
+                            reject(err);
+                        } else {
+                            console.log(`Action updated successfully for user ${userId} and cocktail ${cocktailId}`);
+                            resolve();
+                        }
+                    });
+                }
+            } else {
+                // No existing entry found, insert the new interaction
+                db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action, rating) VALUES (?, ?, ?, ?)`, [userId, cocktailId, action, rating], function (err) {
+                    if (err) {
+                        console.error('Error inserting user interaction:', err);
+                        reject(err);
+                    } else {
+                        console.log('User interaction inserted successfully');
+                        resolve();
+                    }
+                });
+            }
+        });
+    });
+}
+
 module.exports ={
     runQuery,
     insertIngredients,
@@ -436,5 +487,6 @@ module.exports ={
     getPasswordById,
     checkEmailExists,
     checkUserExists,
-    rateCocktail
+    rateCocktail,
+    updateUserInteraction
 }
