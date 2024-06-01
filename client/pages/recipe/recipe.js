@@ -15,7 +15,7 @@ document.getElementById('profile-pic').addEventListener('click', () => {
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    // Function to fetch and display recipe data
+    // Fetch & display recipe (FE & BE)
     const displayRecipe = async (cocktailID) => {
         try {
             // Fetch cocktail data asynchronously
@@ -58,9 +58,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
-    // Get cocktail ID from URL
+    // Display recipe (FE)
     const cocktailID = window.location.pathname.split('/').pop();
-    // Call displayRecipe function with the cocktailID
     displayRecipe(cocktailID);
 
     const displayRate = async (userID) => {
@@ -74,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 rateContainer.classList.remove('hidden');
 
                 // Handle slide value
-                slideValue("/");
+                slideValue(false, "/");
 
                 // Fetch username
                 const usernameResponse = await fetch(`/api/user/${userID}/username`);
@@ -90,7 +89,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await response.json();
     const userID = data.userId;
     displayRate(userID);
+
+    const btnParts = document.querySelectorAll(".btn-part");
+    let selectedButtons = new Set();
+
+    btnParts.forEach(btnPart => {
+        btnPart.addEventListener("click", () => {
+            const btnId = btnPart.id;
+            const btnSet = btnPart.querySelector(".btn-img").getAttribute('data-tag-set');
+
+            // Deselect other buttons in the same set
+            btnParts.forEach(otherBtnPart => {
+                const otherBtnSet = otherBtnPart.querySelector(".btn-img").getAttribute('data-tag-set');
+                if (otherBtnSet === btnSet && otherBtnPart !== btnPart) {
+                    otherBtnPart.classList.remove("selected");
+                    otherBtnPart.classList.add("btn-grey");
+                    selectedButtons.delete(otherBtnPart.id);
+                }
+            });
+
+            // Handles (de-)selection of clicked button
+            if (selectedButtons.has(btnId)) {
+                btnPart.classList.remove("selected");
+                btnPart.classList.add("btn-grey");
+                selectedButtons.delete(btnId);
+            } else {
+                btnPart.classList.add("selected");
+                btnPart.classList.remove("btn-grey");
+                selectedButtons.add(btnId);
+            }
+        });
+    });
 });
+
 
 // Assuming you have a logout button with id "logout-btn"
 const logoutButton = document.getElementById('logout-btn');

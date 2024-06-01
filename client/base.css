@@ -41,6 +41,7 @@
             width 0.5s ease,
             height 0.5s ease,
             opacity 0.5s ease,
+            content 0.5s ease,
             background-color 0.5s ease,
             background 0.5s ease;
 }
@@ -246,14 +247,35 @@ footer {
     height: var(--btn-img-size);
     filter: drop-shadow(0 0 3px var(--black-66-opacity));
 }
-.btn-recommend {
+.btn-recommend,
+#btn-recommend:hover,
+#btn-recommend.selected {
     background-color: var(--green-50-opacity);
 }
-.btn-recommend-no {
+#btn-recommend.selected .btn-img,
+#btn-recommend:hover .btn-img {
+    content: url('images/symbol_recommend.png');
+}
+.btn-recommend-no,
+#btn-recommend-no:hover,
+#btn-recommend-no.selected {
     background-color: var(--red-50-opacity);
 }
-.btn-pin {
+#btn-recommend-no.selected .btn-img,
+#btn-recommend-no:hover .btn-img {
+    content: url('images/symbol_recommend_no.png');
+}
+.btn-pin,
+#btn-pin:hover,
+#btn-pin.selected{
     background-color: var(--yellow-50-opacity);
+}
+#btn-pin.selected .btn-img,
+#btn-pin:hover .btn-img {
+    content: url('images/symbol_pin.png');
+}
+.btn-grey {
+    background-color: var(--white-33-opacity);
 }
 
 .rating-bar input {

@@ -55,16 +55,20 @@ export async function handleProfileClick() {
     }
 }
 
-export function slideValue(delimiter) {
+export function slideValue(title, delimiter) {
     // Initialize slide value display
     const range = document.querySelector("#slide");
     const slideValue = document.querySelector(".slide-value");
 
     if (range && slideValue) {
-        slideValue.innerText = `Rating ( ★ ${range.value} ${delimiter} 5 )`;
+        title ? slideValue.innerText = `Rating ( ★ ${range.value} ${delimiter} 5 )`: slideValue.innerText = `★ ${range.value} ${delimiter} 5`;
 
         const updateSlideValue = (value) => {
-            value === "5" ? slideValue.innerText = `Rating ( ★ ${value} )` : slideValue.innerText = `Rating ( ★ ${value} ${delimiter} 5 )`;
+            if (title) {
+                value === "5" ? slideValue.innerText = `Rating ( ★ ${value} )` : slideValue.innerText = `Rating ( ★ ${value} ${delimiter} 5 )`;
+            } else {
+                value === "5" ? slideValue.innerText = `★ ${value}` : slideValue.innerText = `★ ${value} ${delimiter} 5`;
+            }
         };
 
         range.addEventListener("input", (event) => {

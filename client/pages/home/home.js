@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Handle slide value
-    slideValue("-");
+    slideValue(true,"-");
 
     const fetchCocktails = async (url) => {
         const response = await fetch(url);

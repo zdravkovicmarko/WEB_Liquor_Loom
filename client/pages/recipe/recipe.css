@@ -5,8 +5,8 @@
     --main-font-size: 1.5rem;
     --base-font-size: 1rem;
     --cocktail-img-size: 300px;
-    --btn-part-size: 40px;
-    --btn-img-size: 25px;
+    --btn-part-size: 42px;
+    --btn-img-size: 24px;
 }
 body {
     display: grid;
@@ -36,6 +36,24 @@ body {
 
 #rate-container.element-border {
     grid-area: rate;
+}
+
+#btn-rate-container.btn-inner-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    width: 100%;
+    --btn-part-size: 45px;
+    --btn-img-size: 26px;
+}
+
+#rate-bar {
+    display: block;
+    text-align: center;
+}
+#rate-bar > * {
+    padding: 0
 }
 
 input::-webkit-slider-thumb {
@@ -86,6 +104,7 @@ input::-webkit-slider-thumb {
 }
 .tag {
     border-radius: 35px;
+    padding: 2px 15px 2px 15px;
 }
 
 .ingredients .element-inner-container {
