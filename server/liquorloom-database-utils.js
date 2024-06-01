@@ -565,6 +565,24 @@ function getCounterByUserId(userId, action) {
     });
 }
 
+function getAverageRatingByCocktailId(cocktailID) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT AVG(rating) as averageRating 
+            FROM user_interaction
+            WHERE cocktail_id = ?
+        `;
+
+        db.get(query, [cocktailID], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.averageRating : 0);
+            }
+        });
+    });
+}
+
 module.exports ={
     runQuery,
     insertIngredients,
@@ -591,5 +609,6 @@ module.exports ={
     rateCocktail,
     updateUserInteraction,
     getCounterByCocktailId,
-    getCounterByUserId
+    getCounterByUserId,
+    getAverageRatingByCocktailId
 }
