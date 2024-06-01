@@ -71,6 +71,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 mainContainer.classList.add('account-main');
                 const rateContainer = document.getElementById('rate-container');
                 rateContainer.classList.remove('hidden');
+                const favContainer = document.getElementById('btn-fav');
+                favContainer.classList.remove('hidden');
 
                 // Handle slide value
                 slideValue(false, "/");

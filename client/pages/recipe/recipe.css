@@ -63,10 +63,10 @@ input::-webkit-slider-thumb {
     grid-area: recipe;
     display: grid;
     grid-template-areas:
-        "img tags"
-        "img ingredients"
-        "instructions instructions";
-    grid-template-columns: calc(var(--cocktail-img-size) + 20px) auto;
+        "img tags fav"
+        "img ingredients ingredients"
+        "instructions instructions instructions";
+    grid-template-columns: calc(var(--cocktail-img-size) + 20px) auto min-content;
     grid-template-rows: min-content auto auto;
     column-gap: 2%;
 }
@@ -83,6 +83,9 @@ input::-webkit-slider-thumb {
 .instructions {
     grid-area: instructions;
     margin-left: 7px;
+}
+#btn-fav {
+    grid-area: fav;
 }
 
 .title-label {
@@ -139,13 +142,31 @@ input::-webkit-slider-thumb {
     }
     #recipe-container.element-border {
         grid-template-areas:
-        "img"
-        "tags"
-        "ingredients"
-        "instructions";
+        "img fav"
+        "tags tags"
+        "ingredients ingredients"
+        "instructions instructions";
+        grid-template-columns: auto 48.5px;
+    }
+    .account-main {
+        display: grid;
+        grid-template-areas:
+        "recipe"
+        "rate"
+        "comments";
         grid-template-columns: auto;
+        gap: 35px;
+    }
+    .element-border {
+        width: 100%;
+    }
+    #btn-rate-container.btn-inner-container {
+        justify-content: center;
     }
 
+    .cocktail-container {
+        margin-left: 97px;
+    }
     .ingredients .element-inner-container {
         max-height: none;
     }

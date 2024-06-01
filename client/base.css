@@ -274,6 +274,15 @@ footer {
 #btn-pin:hover .btn-img {
     content: url('images/symbol_pin.png');
 }
+.btn-fav,
+#btn-fav:hover,
+#btn-fav.selected{
+    background-color: var(--orange-50-opacity);
+}
+#btn-fav.selected .btn-img,
+#btn-fav:hover .btn-img {
+    content: url('images/symbol_fav.png');
+}
 .btn-grey {
     background-color: var(--white-33-opacity);
 }
