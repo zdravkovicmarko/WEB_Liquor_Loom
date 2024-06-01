@@ -6,6 +6,7 @@
     --cocktail-img-size: 220px;
     --btn-part-size: 40px;
     --btn-img-size: 25px;
+    --profile-picture-size: 270px;
 }
 body {
     display: grid;
@@ -20,27 +21,43 @@ body {
 }
 
 .element-inner-container {
-    overflow-x: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Prevent line breaks */
+    position: relative;
+    overflow: hidden;
+    width: 100%;
 }
-
 .element-input.tags {
-    display: inline-block; /* Ensure label stays on one line */
-    max-width: 100%; /* Allow label to grow up to its container's width */
+    display: inline-block;
+    white-space: nowrap;
+}
+.tags#email-tag {
+    background: none;
+    height: 38px;
+}
+.tags-content {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-radius: 35px;
+    background-color: var(--white-33-opacity);
+    padding: 5px 15px;
+    max-width: 100%;
 }
 
 #profile-border {
     border-radius: 200px 200px 35px 35px;
 }
 .profile-picture-container {
-    width: 100%;
+    width: var(--profile-picture-size);
+    height: var(--profile-picture-size);
     padding-top: 15px;
     display: flex;
     justify-content: center;
 }
 .profile-picture {
     width: 100%;
-    height: auto;
+    height: 100%;
     border-radius: 50%;
     box-shadow: 0 3px 10px black;
 }
@@ -53,10 +70,6 @@ body {
 .btn-normal-grey {
     font-size: 135%;
     margin: 0 5px 0 5px;
-}
-.btn-normal-grey:hover {
-    color: var(--red);
-    text-shadow: 0 0 15px var(--red);
 }
 
 #stats-border {

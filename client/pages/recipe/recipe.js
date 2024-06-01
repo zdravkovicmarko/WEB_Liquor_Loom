@@ -1,5 +1,6 @@
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from "/client/base.js";
+import { slideValue } from '/client/base.js';
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', () => {
@@ -12,7 +13,7 @@ document.getElementById('profile-pic').addEventListener('click', () => {
     window.location.href = '/profile';
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
     // Function to fetch and display recipe data
     const displayRecipe = async (cocktailID) => {
@@ -61,6 +62,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const cocktailID = window.location.pathname.split('/').pop();
     // Call displayRecipe function with the cocktailID
     displayRecipe(cocktailID);
+
+    const displayRate = async (userID) => {
+        if (userID) {
+            try {
+                // Display rate container
+                const mainContainer = document.getElementById('main');
+                mainContainer.classList.remove('normal-main');
+                mainContainer.classList.add('account-main');
+                const rateContainer = document.getElementById('rate-container');
+                rateContainer.classList.remove('hidden');
+
+                // Handle slide value
+                slideValue("/");
+
+                // Fetch username
+                const usernameResponse = await fetch(`/api/user/${userID}/username`);
+                const usernameData = await usernameResponse.json();
+                document.getElementById('username').textContent = "@" + usernameData.username;
+            } catch (error) {
+                console.error('Error fetching profile data:', error);
+            }
+        }
+    }
+
+    const response = await fetch(`/current-user`);
+    const data = await response.json();
+    const userID = data.userId;
+    displayRate(userID);
 });
 
 // Assuming you have a logout button with id "logout-btn"
