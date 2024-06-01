@@ -42,3 +42,17 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
             }
         });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const accountCreatedMessage = document.getElementById('accountCreatedMessage');
+
+    // Check if the accountCreated flag is set in localStorage
+    if (localStorage.getItem('accountCreated') === 'true') {
+        // Display the success message
+        accountCreatedMessage.textContent = 'Account successfully created. Please login now.';
+        accountCreatedMessage.style.display = 'block';
+
+        // Remove the flag from localStorage
+        localStorage.removeItem('accountCreated');
+    }
+});

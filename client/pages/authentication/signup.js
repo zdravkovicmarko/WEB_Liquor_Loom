@@ -29,6 +29,8 @@ document.querySelector('form[action="/signup"]').addEventListener('submit', func
         })
         .then(data => {
             console.log('Success:', data);
+            // Store a flag in localStorage
+            localStorage.setItem('accountCreated', 'true');
             window.location.href = '/login';
         })
         .catch(error => {

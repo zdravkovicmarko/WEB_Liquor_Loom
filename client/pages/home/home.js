@@ -256,11 +256,41 @@ const logoutButton = document.getElementById('logout-btn');
 
 logoutButton.addEventListener('click', async function(event) {
     try {
+        localStorage.setItem('logoutSuccess', 'true');
         window.location.href = '/logout';
     } catch (error) {
         console.error('Error:', error);
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutSuccessMessage = document.getElementById('logoutSuccessMessage');
+
+    // Check if the logoutSuccess flag is set in localStorage
+    if (localStorage.getItem('logoutSuccess') === 'true') {
+        // Display the success message
+        logoutSuccessMessage.textContent = 'You have successfully logged out.';
+        logoutSuccessMessage.style.display = 'block';
+
+        // Remove the flag from localStorage
+        localStorage.removeItem('logoutSuccess');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteSuccessMessage = document.getElementById('deleteSuccessMessage');
+
+    // Check if the deleteSuccess flag is set in localStorage
+    if (localStorage.getItem('deleteSuccess') === 'true') {
+        // Display the success message
+        deleteSuccessMessage.textContent = 'Your account has been successfully deleted.';
+        deleteSuccessMessage.style.display = 'block';
+
+        // Remove the flag from localStorage
+        localStorage.removeItem('deleteSuccess');
+    }
+});
+
 
 // Event listeners for navigation
 document.getElementById('login-btn').addEventListener('click', function() {
