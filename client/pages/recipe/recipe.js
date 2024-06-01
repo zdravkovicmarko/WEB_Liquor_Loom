@@ -117,18 +117,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btnPart.classList.remove("selected");
                 btnPart.classList.add("btn-grey");
                 selectedButtons.delete(btnId);
+                action = null;
             } else {
                 btnPart.classList.add("selected");
                 btnPart.classList.remove("btn-grey");
                 selectedButtons.add(btnId);
-            }
 
-            if (btnId === 'btn-recommend') {
-                action = 'recommend';
-            } else if (btnId === 'btn-recommend-no') {
-                action = 'not_recommend';
-            } else if (btnId === 'btn-pin') {
-                action = 'pin';
+                if (btnId === 'btn-recommend') {
+                    action = 'recommend';
+                } else if (btnId === 'btn-recommend-no') {
+                    action = 'not_recommend';
+                } else if (btnId === 'btn-pin') {
+                    action = 'pin';
+                }
             }
         });
     });

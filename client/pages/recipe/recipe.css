@@ -1,3 +1,4 @@
+
 @import url(/client/base.css);
 
 :root {
@@ -34,28 +35,6 @@ body {
     gap: 35px;
 }
 
-#rate-container.element-border {
-    grid-area: rate;
-}
-
-#btn-rate-container.btn-inner-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 15px;
-    width: 100%;
-    --btn-part-size: 45px;
-    --btn-img-size: 26px;
-}
-
-#rate-bar {
-    display: block;
-    text-align: center;
-}
-#rate-bar > * {
-    padding: 0
-}
-
 input::-webkit-slider-thumb {
     box-shadow: 0 0 5px 2px var(--black-50-opacity);
 }
@@ -75,6 +54,9 @@ input::-webkit-slider-thumb {
 }
 .tag-container {
     grid-area: tags;
+}
+.tags > * {
+    padding-right: 15px;
 }
 .ingredients {
     grid-area: ingredients;
@@ -110,6 +92,24 @@ input::-webkit-slider-thumb {
     padding: 2px 15px 2px 15px;
 }
 
+.btn-item {
+    display: grid;
+    grid-template-areas:
+        "s-img s-value";
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5%;
+}
+.stat-value {
+    grid-area: s-value;
+}
+#display-stats.btn-inner-container > * {
+    margin-right: 20px;
+}
+#display-stats.btn-inner-container {
+    padding: 0;
+}
+
 .ingredients .element-inner-container {
     max-height: 250px;
 }
@@ -122,6 +122,26 @@ input::-webkit-slider-thumb {
 }
 .bullets {
     display: contents;
+}
+
+#rate-container.element-border {
+    grid-area: rate;
+}
+#btn-rate-container.btn-inner-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    width: 100%;
+    --btn-part-size: 45px;
+    --btn-img-size: 26px;
+}
+#rate-bar {
+    display: block;
+    text-align: center;
+}
+#rate-bar > * {
+    padding: 0
 }
 
 /* Responsive Layout */
