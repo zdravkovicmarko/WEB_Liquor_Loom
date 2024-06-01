@@ -1,3 +1,4 @@
+import { displayMessage } from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from "/client/base.js";
 import { slideValue } from '/client/base.js';
@@ -157,15 +158,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 console.error('Failed to save rating');
             }
 
-            const notificationContainer = document.getElementById('notification-container');
             const notificationMessage = document.getElementById('notification-message');
-
-            notificationMessage.textContent = 'Rating saved successfully!';
-            notificationContainer.classList.remove('hidden');
-
-            setTimeout(() => {
-                notificationContainer.classList.add('hidden');
-            }, 5000);
+            displayMessage(notificationMessage, 'Rating saved successfully!');
         } catch (error) {
             console.error('Error:', error);
         }
