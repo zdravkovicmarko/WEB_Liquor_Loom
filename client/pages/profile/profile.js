@@ -118,3 +118,33 @@ document.getElementById('delete-btn').addEventListener('click', async function (
         console.error('Error during delete operation:', error);
     }
 });
+
+document.addEventListener('DOMContentLoaded', async function () {
+    // Fetch current user ID
+    const userResponse = await fetch('/current-user');
+    if (!userResponse.ok) {
+        console.error(`Failed to fetch current user: ${userResponse.statusText}`);
+        return;
+    }
+    const { userId } = await userResponse.json();
+
+    const actions = [
+        { id: 'value-recommended', action: 'recommend' },
+        { id: 'value-recommended-no', action: 'not_recommend' },
+        { id: 'value-planned', action: 'pin' }
+    ];
+
+    for (const { id, action } of actions) {
+        try {
+            const response = await fetch(`/api/user/${userId}/action/${action}/count`);
+            if (!response.ok) {
+                console.error(`Failed to fetch ${action} count: ${response.statusText}`);
+            }
+            const data = await response.json();
+            document.getElementById(id).textContent = data.count;
+            console.log(data.count)
+        } catch (error) {
+            console.error(`Error fetching count for ${action}:`, error);
+        }
+    }
+});

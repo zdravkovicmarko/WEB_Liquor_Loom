@@ -536,6 +536,41 @@ function updateUserFavourite(userId, newCocktailId) {
     });
 }
 
+function getCounterByCocktailId(cocktailID, action) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT COUNT(*) as count 
+            FROM user_interaction 
+            WHERE cocktail_id = ? AND action = ?
+        `;
+
+        db.get(query, [cocktailID, action], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.count : 0);
+            }
+        });
+    });
+}
+
+function getCounterByUserId(userId, action) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT COUNT(*) as count 
+            FROM user_interaction 
+            WHERE user_id = ? AND action = ?
+        `;
+
+        db.get(query, [userId, action], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.count : 0);
+            }
+        });
+    });
+}
 
 module.exports ={
     runQuery,
@@ -561,5 +596,7 @@ module.exports ={
     checkEmailExists,
     checkUserExists,
     rateCocktail,
-    updateUserInteraction
+    updateUserInteraction,
+    getCounterByCocktailId,
+    getCounterByUserId
 }
