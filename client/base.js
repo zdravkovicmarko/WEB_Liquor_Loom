@@ -1,3 +1,13 @@
+export function displayMessage(element, text) {
+    element.textContent = text;
+    element.style.display = 'block';
+
+    // Add the hidden class again after 5 seconds
+    setTimeout(() => {
+        element.style.display = 'none';
+    }, 3000); // 5000 milliseconds = 5 seconds
+}
+
 export const appendCocktail = (cocktail) => {
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const cocktailContainer = document.createElement("div");

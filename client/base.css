@@ -374,6 +374,26 @@ input::-webkit-slider-thumb {
     display: none;
 }
 
+.alert {
+    font-size: 115%;
+    color: white;
+    text-shadow: 0 0 5px var(--black-50-opacity), 0 0 10px black;
+    position: fixed;
+    top: 51px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 3px 20px 3px 20px;
+    border-radius: 100px;
+    z-index: 1000;
+    text-align: center;
+}
+.error-alert {
+    background-color: var(--red);
+}
+.success-alert {
+    background-color: var(--green);
+}
+
 /* Responsive Layout */
 @media (max-width: 930px) {
     .logo-container,
