@@ -9,9 +9,24 @@ document.getElementById('logo-container').addEventListener('click', function() {
 const logoutButton = document.getElementById('logout-btn');
 logoutButton.addEventListener('click', async function(event) {
     try {
+        localStorage.setItem('logoutSuccess', 'true');
         window.location.href='/logout'
     } catch (error) {
         console.error('Error:', error);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutSuccessMessage = document.getElementById('logoutSuccessMessage');
+
+    // Check if the logoutSuccess flag is set in localStorage
+    if (localStorage.getItem('logoutSuccess') === 'true') {
+        // Display the success message
+        logoutSuccessMessage.textContent = 'You have successfully logged out.';
+        logoutSuccessMessage.style.display = 'block';
+
+        // Remove the flag from localStorage
+        localStorage.removeItem('logoutSuccess');
     }
 });
 
@@ -67,19 +82,34 @@ document.getElementById('delete-btn').addEventListener('click', async function (
 
         // Fetch current user ID
         const userResponse = await fetch('/current-user');
-        if (!userResponse.ok) console.error(`Failed to fetch current user: ${userResponse.statusText}`);
+        if (!userResponse.ok) {
+            console.error(`Failed to fetch current user: ${userResponse.statusText}`);
+            return;
+        }
         const { userId } = await userResponse.json();
 
         // Fetch username for the user ID
         const usernameResponse = await fetch(`/api/user/${userId}/username`);
-        if (!usernameResponse.ok) console.error(`Failed to fetch username: ${usernameResponse.statusText}`);
+        if (!usernameResponse.ok) {
+            console.error(`Failed to fetch username: ${usernameResponse.statusText}`);
+            return;
+        }
         const { username } = await usernameResponse.json();
 
-        if (!username) console.error('Username is null or undefined');
+        if (!username) {
+            console.error('Username is null or undefined');
+            return;
+        }
 
         // Call the delete user endpoint
         const deleteResponse = await fetch(`/users/${username}`, { method: 'DELETE' });
-        if (!deleteResponse.ok) console.error(`Failed to delete user: ${deleteResponse.statusText}`);
+        if (!deleteResponse.ok) {
+            console.error(`Failed to delete user: ${deleteResponse.statusText}`);
+            return;
+        }
+
+        // Set the flag indicating the user was deleted
+        localStorage.setItem('deleteSuccess', 'true');
 
         // Redirect to home immediately after session destruction
         console.log('Session destroyed successfully. Redirecting to home.');
