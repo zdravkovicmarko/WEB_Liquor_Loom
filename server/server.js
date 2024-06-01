@@ -156,7 +156,6 @@ import('node-fetch').then(module => {
     });
 
     app.post('/signup', (req, res) => {
-        console.log('Signup Request Body:', req.body);
         const { username, email, password, verification } = req.body;
 
         if (password !== verification) {
@@ -246,18 +245,27 @@ import('node-fetch').then(module => {
             });
     });
 
-    app.delete('/users/:userId', (req, res) => {
-        const userId = req.params.userId;
+    app.delete('/users/:username', (req, res) => {
+        const username = req.params.username;
 
-        // Delete user from the database using the userId
-        removeUserByUsername(userId)
-            .then(() => {
-                res.status(200).send(`User with ID ${userId} deleted successfully`);
-            })
-            .catch((error) => {
-                console.error('Error deleting user:', error);
-                res.status(500).send('Failed to delete user');
-            });
+        // Destroy the session first
+        req.session.destroy(err => {
+            if (err) {
+                console.error('Error destroying session:', err);
+                res.status(500).send('Failed to delete user and logout');
+            } else {
+                // Respond to the client indicating the session was destroyed
+                res.status(200).send('Session destroyed, proceeding with user deletion.');
+
+                // Delete user from the database using the username
+                removeUserByUsername(username)
+                    .then(() => {
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting user:', error);
+                    });
+            }
+        });
     });
 
     // returns all recipe data as JSON or XML
