@@ -191,7 +191,7 @@ import('node-fetch').then(module => {
             if (rating !== null) {
                 await rateCocktail(userId, cocktailId, rating);
             }
-            await updateUserInteraction(userId, cocktailId, action, rating);
+            await updateUserInteraction(userId, cocktailId, action);
             res.status(200).send({ message: 'User interaction updated successfully' });
         } catch (err) {
             console.error('Error updating user interaction:', err);
