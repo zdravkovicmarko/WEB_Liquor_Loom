@@ -3,7 +3,7 @@ const path = require("path");
 
 const dbPath = path.resolve(__dirname, 'liquorloom-database.db');
 
-// Connect to the combined database
+// Connect to the database
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Could not connect to combined database', err);
@@ -59,6 +59,7 @@ db.serialize(() => {
         user_id INTEGER,
         cocktail_id TEXT,
         action TEXT NOT NULL,
+        rating REAL,
         FOREIGN KEY(user_id) REFERENCES users(id),
         FOREIGN KEY(cocktail_id) REFERENCES cocktails(id)
     )`);

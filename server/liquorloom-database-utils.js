@@ -235,6 +235,7 @@ function insertUser(username, email, password) {
         });
     });
 }
+
 function updateUser(id, username, email, password) {
     return new Promise((resolve, reject) => {
         const query = `UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?`;
@@ -385,6 +386,33 @@ function checkUserExists(username) {
     });
 }
 
+async function rateCocktail(userId, cocktailId, rating) {
+    try {
+        // Überprüfen, ob der Benutzer existiert
+        const userExists = await checkUserExists(userId);
+        if (!userExists) {
+            console.error('User does not exist');
+            return;
+        }
+
+        // Überprüfen, ob der Cocktail existiert
+        const cocktailExists = await getCocktailById(cocktailId);
+        if (!cocktailExists) {
+            console.error('Cocktail does not exist');
+            return;
+        }
+
+        // Bewertung für den Cocktail einfügen
+        const query = `INSERT INTO user_interaction (user_id, cocktail_id, action, rating) 
+                       VALUES (?, ?, 'rating', ?)`;
+        await runQuery(query, [userId, cocktailId, rating]);
+        console.log('Rating added successfully');
+    } catch (err) {
+        console.error('Error rating cocktail:', err.message);
+        // Hier können Sie eine Rückmeldung über das Fehlerhandling implementieren
+    }
+}
+
 module.exports ={
     runQuery,
     insertIngredients,
@@ -407,5 +435,6 @@ module.exports ={
     getEmailById,
     getPasswordById,
     checkEmailExists,
-    checkUserExists
+    checkUserExists,
+    rateCocktail
 }
