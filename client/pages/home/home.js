@@ -1,5 +1,5 @@
 import { displayMessage } from '/client/base.js';
-import { appendCocktail } from '/client/base.js';
+import { appendCocktailFromAPI, appendCocktailFromDb } from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from '/client/base.js';
 import { slideValue } from '/client/base.js';
@@ -28,46 +28,68 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Handle slide value
-    slideValue(true,"-");
+    slideValue(true, "-");
 
-    const fetchCocktails = async (url) => {
-        const response = await fetch(url);
-        const data = await response.json();
-        return data.drinks || [];
+    const fetchCocktailsFromBackend = async () => {
+        try {
+            const response = await fetch('/cocktails');
+            const data = await response.json();
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching cocktails:', error);
+            return [];
+        }
     };
 
-    const fetchAllCocktails = async () => {
-        const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
-        for (const letter of alphabet) {
-            const url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${letter}`;
-            const cocktails = await fetchCocktails(url);
-            allCocktails.push(...cocktails);
+    const fetchCocktailsFromAPI = async () => {
+        try {
+            const response = await fetch('https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Alcoholic');
+            const data = await response.json();
+            return data.drinks || [];
+        } catch (error) {
+            console.error('Error fetching cocktails from API:', error);
+            return [];
         }
-        allCocktails.forEach(cocktail => {
-            for (let i = 1; i <= 15; i++) {
-                const ingredient = cocktail[`strIngredient${i}`];
-                if (ingredient) allIngredients.add(ingredient.toLowerCase());
-            }
-        });
     };
 
     const displayInitialCocktails = async () => {
         isLoading = true;
         const alertFetch = document.getElementById('alert-fetch-data');
         displayMessage(alertFetch, 'Currently fetching cocktails...', 1000000);
+
         try {
-            await fetchAllCocktails();
-            allCocktails.forEach(cocktail => appendCocktail(cocktail));
+            // Fetch and display cocktails from the backend (DB)
+            allCocktails = await fetchCocktailsFromBackend();
+            for (let cocktail of allCocktails) {
+                await appendCocktailFromDb(cocktail);
+            }
+
+            // Fetch and display cocktails from the API
+            const apiCocktails = await fetchCocktailsFromAPI();
+            for (let cocktail of apiCocktails) {
+                await appendCocktailFromAPI(cocktail);
+            }
+
+            // Combine both sources of cocktails
+            allCocktails = [...allCocktails, ...apiCocktails];
+
+            // Extract ingredients from all cocktails
+            allCocktails.forEach(cocktail => {
+                for (let i = 1; i <= 15; i++) {
+                    const ingredient = cocktail[`strIngredient${i}`];
+                    if (ingredient) allIngredients.add(ingredient.toLowerCase());
+                }
+            });
         } catch (error) {
-            console.error('Error fetching initial cocktails:', error);
+            console.error('Error displaying initial cocktails:', error);
             const alertFetchError = document.getElementById('alert-fetch-error');
             if (error.message === 'Failed to fetch') {
                 displayMessage(alertFetchError, 'Too many requests. Please wait a few seconds and refresh the page!', 10000);
             } else {
-                displayMessage(alertFetchError, 'Error fetching initial cocktails.', 6000);
+                displayMessage(alertFetchError, 'Error displaying initial cocktails.', 6000);
             }
         } finally {
-            displayMessage(alertFetch, 'Currently fetching cocktails...', 0);
+            displayMessage(alertFetch, '', 0);
             isLoading = false;
         }
     };
@@ -292,6 +314,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('login-btn').addEventListener('click', function() {
     window.location.href = '/login';
 });
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
     checkLoginStatus();

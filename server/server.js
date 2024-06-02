@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -96,14 +96,20 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
     });
 
-    app.get('/recipe/', async (req, res) => {
+    app.get('/cocktails', async (req, res) => {
         try {
-            await addAllCocktailsFromAPIToDb();
-            console.log('Successful');
-            res.send('Enter a valid recipe ID');
+            let cocktails = await getAllCocktailsFromDb();
+
+            if (cocktails.length === 0) {
+                // If no cocktails in DB, fetch from API and add to DB
+                await addAllCocktailsFromAPIToDb();
+                cocktails = await getAllCocktailsFromDb(); // Fetch the cocktails again after adding
+            }
+
+            res.json(cocktails);
         } catch (error) {
-            console.error('Error:', error);
-            res.status(500).send('Error occurred while adding cocktails to the database');
+            console.error('Error fetching cocktails:', error);
+            res.status(500).send('Error occurred while fetching cocktails');
         }
     });
 
@@ -129,6 +135,18 @@ import('node-fetch').then(module => {
             res.json({ userId, action, count });
         } catch (error) {
             console.error('Error fetching the count:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.get('/api/cocktail/:id/rating', async (req, res) => {
+        const cocktailID = req.params.id;
+
+        try {
+            const averageRating = await getAverageRatingByCocktailId(cocktailID);
+            res.json({ cocktailID, averageRating });
+        } catch (error) {
+            console.error('Error fetching the average rating:', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });

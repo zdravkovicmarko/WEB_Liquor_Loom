@@ -1,7 +1,8 @@
-import {appendCocktail, displayMessage} from '/client/base.js';
+import { displayMessage } from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from "/client/base.js";
 import { slideValue } from '/client/base.js';
+import { updateCocktailRating } from "/client/base.js";
 import { logoutBtnHandling } from '/client/base.js';
 
 // Event listeners for navigation
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Update HTML elements with recipe data
             document.getElementById('name').textContent = recipeData.name.replace(/(^|\s)\w/g, char => char.toUpperCase());
-            document.getElementById('rating').textContent = "★ " + (Math.random() * 50 / 10).toFixed(1);
+            document.getElementById('rating').textContent = "★ " + (await updateCocktailRating());
             document.getElementById('img').src = recipeData.thumbnail;
 
             document.getElementById('category').textContent = `${recipeData.category.toLowerCase()}`;
