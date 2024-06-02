@@ -730,18 +730,23 @@ function getAllUniqueIngredients(callback) {
     });
 }
 
-async function getIngredientsByCocktailIDs(cocktailIDs) {
-    const placeholders = cocktailIDs.map(() => '?').join(',');
-    const query = `
-        SELECT ingredient, id
-        FROM ingredients
-        WHERE id IN (${placeholders})
-    `;
-
+function getCocktailsByIngredients(ingredients) {
     return new Promise((resolve, reject) => {
-        db.all(query, cocktailIDs, (err, rows) => {
+        const placeholders = ingredients.map(() => '?').join(', ');
+        const query = `
+            SELECT c.id, c.name, c.category, c.alcoholic, c.glass, c.instructions, c.thumbnail
+            FROM cocktails c
+            JOIN ingredients i ON c.id = i.cocktail_id
+            WHERE i.ingredient IN (${placeholders})
+            GROUP BY c.id
+            HAVING COUNT(DISTINCT i.ingredient) = ?
+        `;
+
+        const params = [...ingredients, ingredients.length];
+
+        db.all(query, params, function(err, rows) {
             if (err) {
-                console.error('Error fetching ingredients:', err);
+                console.error('Error retrieving cocktails by ingredients:', err.message);
                 reject(err);
             } else {
                 resolve(rows);
@@ -750,28 +755,6 @@ async function getIngredientsByCocktailIDs(cocktailIDs) {
     });
 }
 
-function getCocktailsByIngredient(ingredient) {
-
-    // Prepare the SQL query to retrieve cocktails with the specified ingredient
-    const query = `
-        SELECT c.id, c.name, c.category, c.alcoholic, c.glass, c.instructions, c.thumbnail
-        FROM cocktails c
-        JOIN ingredients i ON c.id = i.cocktail_id
-        WHERE i.ingredient = ?
-    `;
-
-    // Execute the SQL query with the specified ingredient
-    db.all(query, [ingredient], function(err, rows) {
-        if (err) {
-            console.error('Error retrieving cocktails by ingredient:', err.message);
-        } else {
-            console.log(`Cocktails with ${ingredient}:`);
-            rows.forEach(row => {
-                console.log(row);
-            });
-        }
-    });
-}
 
 module.exports ={
     runQuery,
@@ -808,8 +791,7 @@ module.exports ={
     getCounterByUserId,
     getAverageRatingByCocktailId,
     getAllUniqueIngredients,
-    getIngredientsByCocktailIDs,
-    getCocktailsByIngredient,
+    getCocktailsByIngredients,
     getCocktailIdsByUserId,
     getAverageRatingByUserId
 }

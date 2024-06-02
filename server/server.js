@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, deleteUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -593,6 +593,25 @@ import('node-fetch').then(module => {
             res.json({ password });
         } catch (error) {
             console.error('Error fetching password:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/cocktail', async (req, res) => {
+        try {
+            const ingredients = req.query.ingredients ? req.query.ingredients.split(',') : [];
+            if (ingredients.length === 0) {
+                return res.status(400).json({ error: 'No ingredients provided' });
+            }
+            const response = await getCocktailsByIngredients(ingredients);
+            if (response.length > 0) {
+                res.json(response);
+            } else {
+                console.log('No cocktails found for ingredients:', ingredients);
+                res.status(404).json({ error: 'Cocktail not found' });
+            }
+        } catch (error) {
+            console.error('Error getting filtered cocktails:', error);
             res.status(500).send('Internal Server Error');
         }
     });
