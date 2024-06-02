@@ -102,7 +102,13 @@ import('node-fetch').then(module => {
 
             if (cocktails.length === 0) {
                 // If no cocktails in DB, fetch from API and add to DB
-                await addAllCocktailsFromAPIToDb();
+                const allCocktailsData = await getAllCocktailsFromAPI();
+
+                for (const apiCocktail of allCocktailsData) {
+                    const cocktail = transformCocktailData(apiCocktail);
+                    await addCocktailToDb(cocktail);
+                }
+
                 cocktails = await getAllCocktailsFromDb(); // Fetch the cocktails again after adding
             }
 
@@ -517,6 +523,52 @@ import('node-fetch').then(module => {
                 console.error('Fetch error:', error);
                 throw error; // Re-throw the error to propagate it down the promise chain
             });
+    }
+
+    function transformCocktailData(apiCocktail) {
+        return {
+            id: apiCocktail.idDrink,
+            name: apiCocktail.strDrink,
+            category: apiCocktail.strCategory,
+            alcoholic: apiCocktail.strAlcoholic,
+            glass: apiCocktail.strGlass,
+            instructions: apiCocktail.strInstructions,
+            thumbnail: apiCocktail.strDrinkThumb,
+            ingredients: [
+                apiCocktail.strIngredient1,
+                apiCocktail.strIngredient2,
+                apiCocktail.strIngredient3,
+                apiCocktail.strIngredient4,
+                apiCocktail.strIngredient5,
+                apiCocktail.strIngredient6,
+                apiCocktail.strIngredient7,
+                apiCocktail.strIngredient8,
+                apiCocktail.strIngredient9,
+                apiCocktail.strIngredient10,
+                apiCocktail.strIngredient11,
+                apiCocktail.strIngredient12,
+                apiCocktail.strIngredient13,
+                apiCocktail.strIngredient14,
+                apiCocktail.strIngredient15,
+            ].filter(ingredient => ingredient), // Filter out null/undefined ingredients
+            measures: [
+                apiCocktail.strMeasure1,
+                apiCocktail.strMeasure2,
+                apiCocktail.strMeasure3,
+                apiCocktail.strMeasure4,
+                apiCocktail.strMeasure5,
+                apiCocktail.strMeasure6,
+                apiCocktail.strMeasure7,
+                apiCocktail.strMeasure8,
+                apiCocktail.strMeasure9,
+                apiCocktail.strMeasure10,
+                apiCocktail.strMeasure11,
+                apiCocktail.strMeasure12,
+                apiCocktail.strMeasure13,
+                apiCocktail.strMeasure14,
+                apiCocktail.strMeasure15,
+            ].filter(measure => measure), // Filter out null/undefined measures
+        };
     }
 
     app.listen(666, () => {
