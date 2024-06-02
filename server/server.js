@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -240,6 +240,36 @@ import('node-fetch').then(module => {
         } catch (err) {
             console.error('Error updating user interaction:', err);
             res.status(500).send({ error: 'Error updating user interaction' });
+        }
+    });
+
+    app.post('/ingredients', async (req, res) => {
+        try {
+            const { cocktailIDs } = req.body;
+            if (!cocktailIDs || cocktailIDs.length === 0) {
+                return res.status(400).send('No cocktail IDs provided');
+            }
+
+            const ingredients = await getIngredientsByCocktailIDs(cocktailIDs);
+            res.json(ingredients);
+        } catch (error) {
+            console.error('Error fetching ingredients:', error);
+            res.status(500).send('Error occurred while fetching ingredients');
+        }
+    });
+
+    app.post('/cocktails-by-ingredient', async (req, res) => {
+        try {
+            const { ingredient } = req.body;
+            if (!ingredient) {
+                return res.status(400).send('No ingredient provided');
+            }
+
+            const cocktails = await getCocktailsByIngredient(ingredient);
+            res.json(cocktails);
+        } catch (error) {
+            console.error('Error fetching cocktails:', error);
+            res.status(500).send('Error occurred while fetching cocktails');
         }
     });
 

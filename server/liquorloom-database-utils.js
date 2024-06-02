@@ -149,6 +149,7 @@ function getAllCocktailsFromDb() {
         });
     });
 }
+
 function updateCocktailInDb(id, name, category, alcoholic, glass, instructions, thumbnail) {
     return new Promise((resolve, reject) => {
         const query = `UPDATE cocktails SET 
@@ -583,6 +584,46 @@ function getAverageRatingByCocktailId(cocktailID) {
     });
 }
 
+async function getIngredientsByCocktailIDs(cocktailIDs) {
+    const placeholders = cocktailIDs.map(() => '?').join(',');
+    const query = `
+        SELECT ingredient, id
+        FROM ingredients
+        WHERE id IN (${placeholders})
+    `;
+
+    return new Promise((resolve, reject) => {
+        db.all(query, cocktailIDs, (err, rows) => {
+            if (err) {
+                console.error('Error fetching ingredients:', err);
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+async function getCocktailsByIngredient(ingredient) {
+    const query = `
+        SELECT c.*
+        FROM cocktails c
+        JOIN ingredients i ON c.id = i.id
+        WHERE i.ingredient = ?
+    `;
+
+    return new Promise((resolve, reject) => {
+        db.all(query, [ingredient], (err, rows) => {
+            if (err) {
+                console.error('Error fetching cocktails:', err);
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
 module.exports ={
     runQuery,
     insertIngredients,
@@ -610,5 +651,7 @@ module.exports ={
     updateUserInteraction,
     getCounterByCocktailId,
     getCounterByUserId,
-    getAverageRatingByCocktailId
+    getAverageRatingByCocktailId,
+    getIngredientsByCocktailIDs,
+    getCocktailsByIngredient
 }
