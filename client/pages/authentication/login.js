@@ -22,17 +22,17 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         })
         .then(data => {
             console.log('Success:', data);
-            // Handle success (e.g., redirect to profile page)
             window.location.href = '/home';
         })
         .catch(error => {
-            console.error('Error:', error);
             if (error.message === 'Account does not exist') {
                 displayMessage(alertError, 'Account does not exist!', 3000);
+                console.error('Handled Error:', error);
             } else if (error.message === 'Invalid username or password') {
                 displayMessage(alertError, 'Invalid password!', 3000);
+            } else if (error.message === 'Unexpected token \'U\', "User alrea"... is not valid JSON') {
+                displayMessage(alertError, 'You are already logged in!', 3000);
             } else {
-                // Handle other errors
                 console.error('Unhandled error:', error);
             }
         });

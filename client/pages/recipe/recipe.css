@@ -34,6 +34,9 @@ body {
     grid-template-columns: 350px auto;
     gap: 35px;
 }
+#main {
+    display: none;
+}
 
 input::-webkit-slider-thumb {
     box-shadow: 0 0 5px 2px var(--black-50-opacity);

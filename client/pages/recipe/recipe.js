@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const displayRecipe = async (cocktailID) => {
         const alertFetch = document.getElementById('alert-fetch-data');
         const mainContainer = document.getElementById('main');
-        mainContainer.style.display = 'none';
         displayMessage(alertFetch, 'Currently fetching recipe...', 1000000);
         try {
             // Fetch cocktail data asynchronously

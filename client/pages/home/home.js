@@ -308,6 +308,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // Event listeners for navigation
+document.getElementById('logo-container').addEventListener('click', function() {
+    window.location.href = '/home';
+});
 document.getElementById('login-btn').addEventListener('click', function() {
     window.location.href = '/login';
 });
