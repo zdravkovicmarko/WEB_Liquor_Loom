@@ -260,8 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const lowercaseSearchTerm = searchTerm.toLowerCase().trim();
         const matchingIngredients = Array.from(allIngredients).filter(ingredient => {
             const lowerCaseIngredient = ingredient.toLowerCase();
-            const words = lowerCaseIngredient.split(' ');
-            return words.includes(lowercaseSearchTerm) || lowerCaseIngredient.includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient);
+            return lowerCaseIngredient.includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient);
         });
 
         console.log(matchingIngredients)
