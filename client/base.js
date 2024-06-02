@@ -97,13 +97,12 @@ export async function updateCocktailRating() {
             return 0; // Return 0 on fetch failure
         }
         let data = await response.json();
-        console.log(data);
 
         // Handle null data
         if (data === null || data.averageRating === null) {
-            return 0; // Return 0 if data or averageRating is null
+            return "0.0"; // Return 0 if data or averageRating is null
         } else {
-            return data.averageRating; // Return the rating value
+            return data.averageRating.toFixed(1); // Return the rating value
         }
     } catch (error) {
         console.error('Error fetching rating:', error);
