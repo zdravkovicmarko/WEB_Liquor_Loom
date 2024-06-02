@@ -42,36 +42,33 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const fetchCocktailsFromAPI = async () => {
-        try {
-            const response = await fetch('https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Alcoholic');
-            const data = await response.json();
-            return data.drinks || [];
-        } catch (error) {
-            console.error('Error fetching cocktails from API:', error);
-            return [];
+        const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
+        for (const letter of alphabet) {
+            const url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${letter}`;
+            const cocktails = await fetchCocktails(url);
+            allCocktails.push(...cocktails);
         }
-    };
+    }
 
     const displayInitialCocktails = async () => {
         isLoading = true;
         const alertFetch = document.getElementById('alert-fetch-data');
         displayMessage(alertFetch, 'Currently fetching cocktails...', 1000000);
-
         try {
-            // Fetch and display cocktails from the backend (DB)
+            // Fetch / display cocktails from BE-DB
             allCocktails = await fetchCocktailsFromBackend();
-            for (let cocktail of allCocktails) {
-                await appendCocktailFromDb(cocktail);
-            }
+            if (allCocktails.length > 0) {
+                displayMessage(alertFetch, '', 0);
+                for (let cocktail of allCocktails) {
+                    await appendCocktailFromDb(cocktail);
+                }
+            } else { // Fetch / display cocktails from API
+                const apiCocktails = await fetchCocktailsFromAPI();
+                for (let cocktail of apiCocktails) { await appendCocktailFromAPI(cocktail); }
 
-            // Fetch and display cocktails from the API
-            const apiCocktails = await fetchCocktailsFromAPI();
-            for (let cocktail of apiCocktails) {
-                await appendCocktailFromAPI(cocktail);
+                // Combine both
+                allCocktails = [...allCocktails, ...apiCocktails];
             }
-
-            // Combine both sources of cocktails
-            allCocktails = [...allCocktails, ...apiCocktails];
 
             // Extract ingredients from all cocktails
             allCocktails.forEach(cocktail => {
@@ -89,8 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 displayMessage(alertFetchError, 'Error displaying initial cocktails.', 6000);
             }
         } finally {
-            displayMessage(alertFetch, '', 0);
             isLoading = false;
+            displayMessage(alertFetch, '', 0);
         }
     };
 
