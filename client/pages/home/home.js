@@ -46,13 +46,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const alertFetch = document.getElementById('alert-fetch-data');
         displayMessage(alertFetch, 'Currently fetching cocktails...', 1000000);
         try {
-            // Fetch / display cocktails from BE-DB
+            // Fetch cocktails from BE-DB
             allCocktails = await fetchCocktailsFromBackend();
+            const cocktailsWithRatings = [];
+
             if (allCocktails.length > 0) {
                 displayMessage(alertFetch, '', 0);
                 for (let cocktail of allCocktails) {
-                    await appendCocktailFromDb(cocktail);
+                    const rating = await appendCocktailFromDb(cocktail, 'cocktails-container');
+                    cocktailsWithRatings.push({ ...cocktail, rating });
                 }
+                allCocktails = cocktailsWithRatings; // Store cocktails with ratings
             }
 
             // Extract ingredients from all cocktails
@@ -117,9 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 filteredCocktails.sort((a, b) => a.name.localeCompare(b.name));
             } else if (sortOrder === 'desc') {
                 filteredCocktails.sort((a, b) => b.name.localeCompare(a.name));
+            } else if (sortOrder === 'rating') {
+                filteredCocktails.sort((a, b) => b.rating - a.rating); // Sort by rating
             }
 
-            filteredCocktails.forEach(cocktail => appendCocktailFromDb(cocktail));
+            filteredCocktails.forEach(cocktail => appendCocktailFromDb(cocktail, 'cocktails-container'));
         }
     };
 
@@ -137,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const tagSet = tag.getAttribute('data-tag-set');
 
             // Sets order type for filter method
-            if (tagSet === '2') sortOrder = tagText;
+            if (tagSet === '2') sortOrder = tagText;// Sets order type for filter method
 
             // Handles deselection of tags in same set
             if (tagSet !== '0') {
@@ -174,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedAlcoholicTag = selectedTagsArray.includes('alcoholic');
         const selectedNonAlcoholicTag = selectedTagsArray.includes('non alcoholic');
         const selectedCategoryTags = selectedTagsArray
-            .filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc');
+            .filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'top rated');
 
         return allCocktails.filter(cocktail => {
             const isAlcoholicMatch = !selectedAlcoholicTag || cocktail.alcoholic.toLowerCase() === 'alcoholic';
@@ -187,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch && isIngredientMatch;
         }).sort((a, b) =>
-            sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+            sortOrder === 'asc' ? a.name.localeCompare(b.name) : sortOrder === 'desc' ? b.name.localeCompare(a.name) : b.rating - a.rating
         );
     };
 
