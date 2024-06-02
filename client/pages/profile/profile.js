@@ -153,6 +153,18 @@ document.addEventListener('DOMContentLoaded', async function () {
             var(--red) ${ratios['recommend'] * 100}%, var(--red) ${(ratios['recommend'] + ratios['not_recommend']) * 100}%, 
             var(--yellow) ${(ratios['recommend'] + ratios['not_recommend']) * 100}%)`;
     }
+
+    // Fetch average rating of user
+    try {
+        const ratingResponse = await fetch(`/api/user/${userId}/average-rating`);
+        if (!ratingResponse.ok) {
+            console.error(`Failed to fetch average rating: ${ratingResponse.statusText}`);
+        }
+        const { averageRating } = await ratingResponse.json();
+        document.getElementById('value-mean-rating').textContent = "★ " + averageRating.toFixed(1) + " / 5.0";
+    } catch (error) {
+        console.error('Error fetching average rating:', error);
+    }
 });
 
 document.addEventListener('DOMContentLoaded', async function () {

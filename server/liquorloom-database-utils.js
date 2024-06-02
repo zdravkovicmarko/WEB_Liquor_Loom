@@ -528,7 +528,19 @@ async function deleteUserInteraction(userId, cocktailId) {
     });
 }
 
-function updateUserFavourite(userId, newCocktailId) {
+function getUserFavCocktailId(userId) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT cocktail_id FROM user_interaction WHERE user_id = ? AND action = "fav"', [userId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.cocktail_id : null);
+            }
+        });
+    });
+}
+
+function updateUserFav(userId, newCocktailId) {
     return new Promise((resolve, reject) => {
         // Check if there's already an entry with action set to 'favourites' for this user
         db.get(`SELECT * FROM user_interaction WHERE user_id = ? AND action = 'fav'`, [userId], (err, row) => {
@@ -572,7 +584,7 @@ function updateUserFavourite(userId, newCocktailId) {
     });
 }
 
-function deleteFavoriteEntry(userId) {
+function deleteUserFav(userId) {
     const query = `DELETE FROM user_interaction WHERE user_id = ? AND action = 'fav'`;
 
     // Execute the DELETE statement
@@ -582,9 +594,6 @@ function deleteFavoriteEntry(userId) {
         } else {
             console.log(`Deleted favorite entry for user ${userId}`);
         }
-
-        // Close the database connection
-        db.close();
     });
 }
 
@@ -746,6 +755,9 @@ module.exports ={
     rateCocktail,
     updateUserInteraction,
     deleteUserInteraction,
+    getUserFavCocktailId,
+    updateUserFav,
+    deleteUserFav,
     getCounterByCocktailId,
     getCounterByUserId,
     getAverageRatingByCocktailId,

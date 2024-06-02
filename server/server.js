@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, getUserFavCocktailId, updateUserFav, deleteUserFav, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -195,6 +195,46 @@ import('node-fetch').then(module => {
             res.json({ cocktailID, averageRating });
         } catch (error) {
             console.error('Error fetching the average rating:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    // Endpoint to get user's favorite cocktail ID
+    app.get('/api/user/:userId/fav', async (req, res) => {
+        const userId = req.params.userId;
+
+        try {
+            const favCocktailId = await getUserFavCocktailId(userId);
+            res.status(200).json({ userId, favoriteCocktailId: favCocktailId });
+        } catch (error) {
+            console.error('Error fetching user favorite cocktail ID:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    // Update user favorite endpoint
+    app.post('/api/user/:userId/fav/:id', async (req, res) => {
+        const userId = req.params.userId;
+        const cocktailId = req.params.id;
+
+        try {
+            await updateUserFav(userId, cocktailId);
+            res.status(200).json({ message: 'Favorite updated successfully' });
+        } catch (error) {
+            console.error('Error updating user favorite:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    // Delete user favorite endpoint
+    app.delete('/api/user/:userId/fav/delete', async (req, res) => {
+        const userId = req.params.userId;
+
+        try {
+            await deleteUserFav(userId);
+            res.status(200).json({ message: 'Favorite deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting user favorite:', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });

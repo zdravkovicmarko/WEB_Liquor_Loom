@@ -113,9 +113,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     let selectedButtons = new Set();
     let action = '';
     let rating = null;
+    let isFavorite = false;
+
+    // Function to fetch user's favorite cocktail ID
+    async function fetchUserFavoriteCocktailId() {
+        try {
+            const response = await fetch(`/api/user/${userID}/fav`);
+            if (response.ok) {
+                const data = await response.json();
+                return data.favoriteCocktailId;
+            } else {
+                console.error('Failed to fetch user favorite cocktail ID');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            return null;
+        }
+    }
+
+    // Update isFavorite based on fetched favorite cocktail ID
+    async function updateIsFavorite() {
+        const favCocktailId = await fetchUserFavoriteCocktailId();
+        isFavorite = favCocktailId === cocktailID;
+    }
 
     btnParts.forEach(btnPart => {
-        btnPart.addEventListener("click", () => {
+        btnPart.addEventListener("click", async () => {
             const btnId = btnPart.id;
             const btnSet = btnPart.querySelector(".btn-img").getAttribute('data-tag-set');
 
@@ -146,9 +170,59 @@ document.addEventListener("DOMContentLoaded", async () => {
                     action = 'not_recommend';
                 } else if (btnId === 'btn-pin') {
                     action = 'pin';
+                } else if (btnId === 'btn-fav') {
+                    action = 'fav';
                 }
             }
+            // Check if the 'btn-fav' is clicked and update isFavorite
+            if (btnId === 'btn-fav') {
+                isFavorite = !isFavorite; // Toggle isFavorite state
+                await updateOrDeleteFavorite(); // Update or delete the favorite
+            }
         });
+    });
+
+    async function updateOrDeleteFavorite() {
+        if (isFavorite) {
+            // If not a favorite, add it
+            try {
+                const response = await fetch(`/api/user/${userID}/fav/${cocktailID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    console.log('Favorite added successfully');
+                } else {
+                    console.error('Failed to add favorite');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        } else {
+            // If already a favorite, delete it
+            try {
+                const response = await fetch(`/api/user/${userID}/fav/delete`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    console.log('Favorite deleted successfully');
+                } else {
+                    console.error('Failed to delete favorite');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Update the isFavorite state after performing the action
+        await updateIsFavorite();
+    }
+
+    // Initial load to set the correct state of the button
+    document.addEventListener("DOMContentLoaded", async () => {
+        await updateIsFavorite();
     });
 
     const saveRatingButton = document.getElementById('save-btn');
