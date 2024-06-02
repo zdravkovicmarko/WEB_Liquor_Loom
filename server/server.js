@@ -96,14 +96,20 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
     });
 
-    app.get('/recipe/', async (req, res) => {
+    app.get('/cocktails', async (req, res) => {
         try {
-            await addAllCocktailsFromAPIToDb();
-            console.log('Successful');
-            res.send('Enter a valid recipe ID');
+            let cocktails = await getAllCocktailsFromDb();
+
+            if (cocktails.length === 0) {
+                // If no cocktails in DB, fetch from API and add to DB
+                await addAllCocktailsFromAPIToDb();
+                cocktails = await getAllCocktailsFromDb(); // Fetch the cocktails again after adding
+            }
+
+            res.json(cocktails);
         } catch (error) {
-            console.error('Error:', error);
-            res.status(500).send('Error occurred while adding cocktails to the database');
+            console.error('Error fetching cocktails:', error);
+            res.status(500).send('Error occurred while fetching cocktails');
         }
     });
 

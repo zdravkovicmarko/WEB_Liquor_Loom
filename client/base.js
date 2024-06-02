@@ -8,7 +8,7 @@ export function displayMessage(element, text) {
     }, 3000); // 5000 milliseconds = 5 seconds
 }
 
-export const appendCocktail = (cocktail) => {
+export const appendCocktailFromAPI = (cocktail) => {
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const cocktailContainer = document.createElement("div");
     cocktailContainer.classList.add("cocktail-container");
@@ -22,12 +22,7 @@ export const appendCocktail = (cocktail) => {
     cocktailImg.src = cocktail.strDrinkThumb;
     cocktailImg.alt = cocktail.strDrink;
 
-    const cocktailRatingLabel = document.createElement("label");
-    cocktailRatingLabel.classList.add("cocktail-rating-label");
-    cocktailRatingLabel.textContent = "★ " + (Math.random() * 50 / 10).toFixed(1);
-
     cocktailContainer.appendChild(cocktailTitleLabel);
-    cocktailContainer.appendChild(cocktailRatingLabel);
     cocktailContainer.appendChild(cocktailImg);
 
     cocktailsContainer.appendChild(cocktailContainer);
@@ -37,6 +32,51 @@ export const appendCocktail = (cocktail) => {
         // Redirect to recipe page with the appropriate recipe ID
         window.location.href = `/recipe/${cocktail.idDrink}`;
     });
+}
+
+
+export const appendCocktailFromDb = async (cocktail) => {
+    const cocktailsContainer = document.querySelector(".cocktails-container");
+    const cocktailContainer = document.createElement("div");
+    cocktailContainer.classList.add("cocktail-container");
+
+    // Check if the cocktail object has the expected properties
+    if (cocktail.name && cocktail.thumbnail && cocktail.id) {
+        const cocktailTitleLabel = document.createElement("label");
+        cocktailTitleLabel.classList.add("cocktail-title-label");
+        cocktailTitleLabel.textContent = cocktail.name.replace(/(^|\s)\w/g, char => char.toUpperCase());
+
+        const cocktailImg = document.createElement("img");
+        cocktailImg.classList.add("cocktail-img");
+        cocktailImg.src = cocktail.thumbnail;  // Use 'thumbnail' instead of 'image'
+        cocktailImg.alt = cocktail.name;
+
+        const cocktailRatingLabel = document.createElement("label");
+        cocktailRatingLabel.classList.add("cocktail-rating-label");
+
+        // Fetch the rating asynchronously and update the label
+        try {
+            const rating = await updateCocktailRating(cocktail.id); // Pass cocktail id to fetch the rating
+            cocktailRatingLabel.textContent = `★ ${rating}`;
+        } catch (error) {
+            console.error('Error fetching rating:', error);
+            cocktailRatingLabel.textContent = "★ 0.0"; // Fallback rating on error
+        }
+
+        cocktailContainer.appendChild(cocktailTitleLabel);
+        cocktailContainer.appendChild(cocktailRatingLabel);
+        cocktailContainer.appendChild(cocktailImg);
+
+        cocktailsContainer.appendChild(cocktailContainer);
+
+        // Add event listener to each cocktail element
+        cocktailContainer.addEventListener("click", () => {
+            // Redirect to recipe page with the appropriate recipe ID
+            window.location.href = `/recipe/${cocktail.id}`;
+        });
+    } else {
+        console.error('Incomplete cocktail data:', cocktail);
+    }
 }
 
 export async function checkLoginStatus() {
@@ -87,14 +127,12 @@ export function slideValue(title, delimiter) {
     }
 }
 
-export async function updateCocktailRating() {
-    const cocktailID = window.location.pathname.split('/').pop();
-
+export async function updateCocktailRating(cocktailID) {
     try {
         const response = await fetch(`/api/cocktail/${cocktailID}/rating`);
         if (!response.ok) {
             console.error(`Failed to fetch rating: ${response.statusText}`);
-            return 0; // Return 0 on fetch failure
+            return "0.0"; // Return 0 on fetch failure
         }
         let data = await response.json();
 
@@ -106,6 +144,6 @@ export async function updateCocktailRating() {
         }
     } catch (error) {
         console.error('Error fetching rating:', error);
-        return 0; // Return 0 on error
+        return "0.0"; // Return 0 on error
     }
 }
