@@ -41,24 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const fetchCocktailsFromAPI = async () => {
-        try {
-            const response = await fetch('/api/allrecipes', {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                console.error(`HTTP error! Status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching all recipes (JSON):', error);
-        }
-    }
-
-
     const displayInitialCocktails = async () => {
         isLoading = true;
         const alertFetch = document.getElementById('alert-fetch-data');
@@ -71,12 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 for (let cocktail of allCocktails) {
                     await appendCocktailFromDb(cocktail);
                 }
-            } else { // Fetch / display cocktails from API
-                const apiCocktails = await fetchCocktailsFromAPI();
-                for (let cocktail of apiCocktails) { await appendCocktailFromAPI(cocktail); }
-
-                // Combine both
-                allCocktails = [...allCocktails, ...apiCocktails];
             }
 
             // Extract ingredients from all cocktails
@@ -99,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
             displayMessage(alertFetch, '', 0);
         }
     };
+
 
     // Display all cocktails initially
     displayInitialCocktails();
