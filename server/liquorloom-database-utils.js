@@ -465,7 +465,21 @@ function updateUserInteraction(userId, cocktailId, action) {
                             reject(err);
                         } else {
                             console.log(`Action updated successfully for user ${userId} and cocktail ${cocktailId}`);
-                            resolve();
+
+                            // If the action is now 'pin', delete any rating entry for this user and cocktail
+                            if (action === 'pin') {
+                                db.run(`DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], function (err) {
+                                    if (err) {
+                                        console.error('Error deleting rating entry:', err);
+                                        reject(err);
+                                    } else {
+                                        console.log('Rating entry deleted successfully');
+                                        resolve();
+                                    }
+                                });
+                            } else {
+                                resolve();
+                            }
                         }
                     });
                 }
@@ -477,7 +491,21 @@ function updateUserInteraction(userId, cocktailId, action) {
                         reject(err);
                     } else {
                         console.log('User interaction inserted successfully');
-                        resolve();
+
+                        // If the action is 'pin', delete any rating entry for this user and cocktail
+                        if (action === 'pin') {
+                            db.run(`DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], function (err) {
+                                if (err) {
+                                    console.error('Error deleting rating entry:', err);
+                                    reject(err);
+                                } else {
+                                    console.log('Rating entry deleted successfully');
+                                    resolve();
+                                }
+                            });
+                        } else {
+                            resolve();
+                        }
                     }
                 });
             }
@@ -485,11 +513,25 @@ function updateUserInteraction(userId, cocktailId, action) {
     });
 }
 
+async function deleteUserInteraction(userId, cocktailId) {
+    return new Promise((resolve, reject) => {
+        const deleteQuery = `DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ?`;
+        db.run(deleteQuery, [userId, cocktailId], function (err) {
+            if (err) {
+                console.error('Error deleting user interactions:', err);
+                reject(err);
+            } else {
+                console.log(`User interactions for user ${userId} and cocktail ${cocktailId} deleted successfully`);
+                resolve();
+            }
+        });
+    });
+}
 
 function updateUserFavourite(userId, newCocktailId) {
     return new Promise((resolve, reject) => {
         // Check if there's already an entry with action set to 'favourites' for this user
-        db.get(`SELECT * FROM user_interaction WHERE user_id = ? AND action = 'favourites'`, [userId], (err, row) => {
+        db.get(`SELECT * FROM user_interaction WHERE user_id = ? AND action = 'fav'`, [userId], (err, row) => {
             if (err) {
                 console.error('Error checking existing entry:', err);
                 reject(err);
@@ -500,7 +542,7 @@ function updateUserFavourite(userId, newCocktailId) {
                 // If an entry with action set to 'favourites' already exists
                 if (row.cocktail_id !== newCocktailId) {
                     // If the existing entry's cocktail_id is different from the new one, update it
-                    db.run(`UPDATE user_interaction SET cocktail_id = ? WHERE user_id = ? AND action = 'favourites'`, [newCocktailId, userId], function (err) {
+                    db.run(`UPDATE user_interaction SET cocktail_id = ? WHERE user_id = ? AND action = 'fav'`, [newCocktailId, userId], function (err) {
                         if (err) {
                             console.error('Error updating favourites:', err);
                             reject(err);
@@ -516,7 +558,7 @@ function updateUserFavourite(userId, newCocktailId) {
                 }
             } else {
                 // No existing entry found, insert the new favourite entry
-                db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action) VALUES (?, ?, 'favourites')`, [userId, newCocktailId], function (err) {
+                db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action) VALUES (?, ?, 'fav')`, [userId, newCocktailId], function (err) {
                     if (err) {
                         console.error('Error inserting favourites:', err);
                         reject(err);
@@ -527,6 +569,22 @@ function updateUserFavourite(userId, newCocktailId) {
                 });
             }
         });
+    });
+}
+
+function deleteFavoriteEntry(userId) {
+    const query = `DELETE FROM user_interaction WHERE user_id = ? AND action = 'fav'`;
+
+    // Execute the DELETE statement
+    db.run(query, [userId], function(err) {
+        if (err) {
+            console.error('Error deleting favorite entry:', err.message);
+        } else {
+            console.log(`Deleted favorite entry for user ${userId}`);
+        }
+
+        // Close the database connection
+        db.close();
     });
 }
 
@@ -687,6 +745,7 @@ module.exports ={
     checkUserExists,
     rateCocktail,
     updateUserInteraction,
+    deleteUserInteraction,
     getCounterByCocktailId,
     getCounterByUserId,
     getAverageRatingByCocktailId,
