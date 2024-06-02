@@ -2,6 +2,7 @@ import { displayMessage } from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from "/client/base.js";
 import { slideValue } from '/client/base.js';
+import { updateCocktailRating } from "/client/base.js";
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', () => {
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Update HTML elements with recipe data
             document.getElementById('name').textContent = recipeData.name.replace(/(^|\s)\w/g, char => char.toUpperCase());
-            document.getElementById('rating').textContent = "★ " + (await updateCocktailRating()).toFixed(1);
+            document.getElementById('rating').textContent = "★ " + (await updateCocktailRating());
             document.getElementById('img').src = recipeData.thumbnail;
 
             document.getElementById('category').textContent = `${recipeData.category.toLowerCase()}`;
@@ -207,29 +208,5 @@ document.addEventListener('DOMContentLoaded', async function () {
         } catch (error) {
             console.error(`Error fetching count for ${action}:`, error);
         }
-    }
-});
-
-async function updateCocktailRating() {
-    const cocktailID = window.location.pathname.split('/').pop();
-
-    try {
-        const response = await fetch(`/api/cocktail/${cocktailID}/rating`);
-        if (!response.ok) {
-            console.error(`Failed to fetch rating: ${response.statusText}`);
-            return null;
-        }
-        const data = await response.json();
-        return data.averageRating; // Return the rating value
-    } catch (error) {
-        console.error('Error fetching rating:', error);
-        return null;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const rating = await updateCocktailRating();
-    if (rating !== null) {
-        document.getElementById('rating').textContent = `★ ${rating.toFixed(1)}`;
     }
 });

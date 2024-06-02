@@ -86,3 +86,27 @@ export function slideValue(title, delimiter) {
         });
     }
 }
+
+export async function updateCocktailRating() {
+    const cocktailID = window.location.pathname.split('/').pop();
+
+    try {
+        const response = await fetch(`/api/cocktail/${cocktailID}/rating`);
+        if (!response.ok) {
+            console.error(`Failed to fetch rating: ${response.statusText}`);
+            return 0; // Return 0 on fetch failure
+        }
+        let data = await response.json();
+        console.log(data);
+
+        // Handle null data
+        if (data === null || data.averageRating === null) {
+            return 0; // Return 0 if data or averageRating is null
+        } else {
+            return data.averageRating; // Return the rating value
+        }
+    } catch (error) {
+        console.error('Error fetching rating:', error);
+        return 0; // Return 0 on error
+    }
+}
