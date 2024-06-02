@@ -582,9 +582,6 @@ function deleteFavoriteEntry(userId) {
         } else {
             console.log(`Deleted favorite entry for user ${userId}`);
         }
-
-        // Close the database connection
-        db.close();
     });
 }
 
@@ -680,6 +677,23 @@ function getAverageRatingByUserId(userId) {
     });
 }
 
+function getAllUniqueIngredients(callback) {
+    const query = `
+        SELECT DISTINCT ingredient FROM ingredients
+    `;
+
+    // Execute the SQL query
+    db.all(query, function(err, rows) {
+        if (err) {
+            console.error('Error retrieving unique ingredients:', err.message);
+            callback(err, null);
+        } else {
+            const uniqueIngredients = rows.map(row => row.ingredient);
+            callback(null, uniqueIngredients);
+        }
+    });
+}
+
 async function getIngredientsByCocktailIDs(cocktailIDs) {
     const placeholders = cocktailIDs.map(() => '?').join(',');
     const query = `
@@ -700,23 +714,26 @@ async function getIngredientsByCocktailIDs(cocktailIDs) {
     });
 }
 
-async function getCocktailsByIngredient(ingredient) {
+function getCocktailsByIngredient(ingredient) {
+
+    // Prepare the SQL query to retrieve cocktails with the specified ingredient
     const query = `
-        SELECT c.*
+        SELECT c.id, c.name, c.category, c.alcoholic, c.glass, c.instructions, c.thumbnail
         FROM cocktails c
-        JOIN ingredients i ON c.id = i.id
+        JOIN ingredients i ON c.id = i.cocktail_id
         WHERE i.ingredient = ?
     `;
 
-    return new Promise((resolve, reject) => {
-        db.all(query, [ingredient], (err, rows) => {
-            if (err) {
-                console.error('Error fetching cocktails:', err);
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
+    // Execute the SQL query with the specified ingredient
+    db.all(query, [ingredient], function(err, rows) {
+        if (err) {
+            console.error('Error retrieving cocktails by ingredient:', err.message);
+        } else {
+            console.log(`Cocktails with ${ingredient}:`);
+            rows.forEach(row => {
+                console.log(row);
+            });
+        }
     });
 }
 
@@ -749,6 +766,7 @@ module.exports ={
     getCounterByCocktailId,
     getCounterByUserId,
     getAverageRatingByCocktailId,
+    getAllUniqueIngredients,
     getIngredientsByCocktailIDs,
     getCocktailsByIngredient,
     getCocktailIdsByUserId,
