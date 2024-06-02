@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Filter cocktails based on search term
     const filterCocktailsByName = (searchTerm) => {
         const lowercaseSearchTerm = searchTerm.toLowerCase();
-        return allCocktails.filter(cocktail => cocktail.strDrink.toLowerCase().includes(lowercaseSearchTerm));
+        return allCocktails.filter(cocktail => cocktail.name.toLowerCase().includes(lowercaseSearchTerm));
     };
 
     const updateDisplayedCocktails = (searchTerm) => {
@@ -137,12 +137,12 @@ document.addEventListener("DOMContentLoaded", () => {
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
             if (sortOrder === 'asc') {
-                filteredCocktails.sort((a, b) => a.strDrink.localeCompare(b.strDrink));
+                filteredCocktails.sort((a, b) => a.name.localeCompare(b.name));
             } else if (sortOrder === 'desc') {
-                filteredCocktails.sort((a, b) => b.strDrink.localeCompare(a.strDrink));
+                filteredCocktails.sort((a, b) => b.name.localeCompare(a.name));
             }
 
-            filteredCocktails.forEach(cocktail => appendCocktail(cocktail));
+            filteredCocktails.forEach(cocktail => appendCocktailFromDb(cocktail));
         }
     };
 
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterCocktails = () => {
         if (selectedTags.size === 0 && selectedIngredients.size === 0) {
             return allCocktails.sort((a, b) =>
-                sortOrder === 'asc' ? a.strDrink.localeCompare(b.strDrink) : b.strDrink.localeCompare(a.strDrink)
+                sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
             );
         }
 
@@ -200,9 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc');
 
         return allCocktails.filter(cocktail => {
-            const isAlcoholicMatch = !selectedAlcoholicTag || cocktail.strAlcoholic.toLowerCase() === 'alcoholic';
-            const isNonAlcoholicMatch = !selectedNonAlcoholicTag || cocktail.strAlcoholic.toLowerCase() === 'non alcoholic';
-            const isCategoryMatch = selectedCategoryTags.length === 0 || selectedCategoryTags.includes(cocktail.strCategory.toLowerCase());
+            const isAlcoholicMatch = !selectedAlcoholicTag || cocktail.alcoholic.toLowerCase() === 'alcoholic';
+            const isNonAlcoholicMatch = !selectedNonAlcoholicTag || cocktail.alcoholic.toLowerCase() === 'non alcoholic';
+            const isCategoryMatch = selectedCategoryTags.length === 0 || selectedCategoryTags.includes(cocktail.category.toLowerCase());
 
             const isIngredientMatch = Array.from(selectedIngredients).every(ingredient =>
                 Object.keys(cocktail).some(key => cocktail[key] && cocktail[key].toLowerCase() === ingredient)
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch && isIngredientMatch;
         }).sort((a, b) =>
-            sortOrder === 'asc' ? a.strDrink.localeCompare(b.strDrink) : b.strDrink.localeCompare(a.strDrink)
+            sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
         );
     };
 
@@ -228,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
             noResultsMessage.classList.add("no-results-text");
             cocktailsContainer.appendChild(noResultsMessage);
         } else {
-            filteredCocktails.forEach(appendCocktail);
+            filteredCocktails.forEach(appendCocktailFromDb);
         }
     };
 
