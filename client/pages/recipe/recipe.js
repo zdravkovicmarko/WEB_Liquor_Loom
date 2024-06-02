@@ -268,11 +268,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Update the interaction and rating based on fetched data
     async function updateInteractionAndRating(userId, cocktailId) {
         // Fetch user interaction
-        let action = await fetchUserInteraction(userId, cocktailId);
-        if (action !== null) {
+        let fetchedAction = await fetchUserInteraction(userId, cocktailId);  // Store fetched action in a different variable
+        if (fetchedAction !== null) {
             // Set action to the fetched value
             let selectedButtonId = '';
-            switch (action) {
+            switch (fetchedAction) {  // Use fetchedAction instead of action to avoid overwriting
                 case 'recommend':
                     selectedButtonId = 'btn-recommend';
                     break;
@@ -292,7 +292,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (selectedButton) {
                     selectedButton.classList.add("selected");
                     selectedButton.classList.remove("btn-grey");
-                    selectedButtons.add(selectedButtonId);
+                    selectedButtons.add(selectedButtonId);  // Add to selectedButtons set
+                    action = fetchedAction;  // Update the action variable
                 }
             }
         }

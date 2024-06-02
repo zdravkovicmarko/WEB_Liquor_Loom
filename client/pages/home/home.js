@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     };
 
-// Apply filter (FE)
+    // Apply filter (FE)
     const applyFilter = async () => {
         if (isLoading) return;
 
@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const ingredientTag = document.createElement("span");
             ingredientTag.classList.add("tag");
             if (isSelected) ingredientTag.classList.add("selected");
-            ingredientTag.textContent = ingredient;
+            ingredientTag.textContent = ingredient.toLowerCase();
 
             // Handle (de-)selection
             ingredientTag.addEventListener("click", () => {
@@ -293,7 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const lowerCaseIngredient = ingredient.toLowerCase();
             return lowerCaseIngredient.includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient);
         });
-
 
         matchingIngredients.forEach(ingredient => createIngredientTag(ingredient, false));
 
