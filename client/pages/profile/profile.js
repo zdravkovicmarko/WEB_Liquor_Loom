@@ -1,4 +1,5 @@
 import { logoutBtnHandling } from '/client/base.js';
+import { appendCocktailById } from '/client/base.js';
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', function() {
@@ -111,6 +112,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         { id: 'value-planned', action: 'pin' }
     ];
 
+    let totalTasted = 0; // Initialize totalTasted counter
+    let totalSum = 0;
+    const counts = {}; // Object to store counts for each action
+
     for (const { id, action } of actions) {
         try {
             const response = await fetch(`/api/user/${userId}/action/${action}/count`);
@@ -119,9 +124,64 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             const data = await response.json();
             document.getElementById(id).textContent = data.count;
-            console.log(data.count)
+            counts[action] = data.count;
+            if (action !== 'pin') { totalTasted += data.count; }
+            totalSum += data.count;
         } catch (error) {
             console.error(`Error fetching count for ${action}:`, error);
+        }
+    }
+
+    // Update value-tasted span with the sum of all counts
+    document.getElementById('value-tasted').textContent = totalTasted.toString();
+
+    // Calculate ratios for each action
+    const ratios = {};
+    for (const { action } of actions) { ratios[action] = counts[action] / totalSum; }
+
+    if (totalSum !== 0) {
+        // Set linear gradients dynamically based on ratios
+        const container = document.querySelector('.stats-bar-container');
+        container.style.background = `linear-gradient(90deg, 
+            var(--green-50-opacity) 0%, var(--green-50-opacity) ${ratios['recommend'] * 100}%, 
+            var(--red-50-opacity) ${ratios['recommend'] * 100}%, var(--red-50-opacity) ${(ratios['recommend'] + ratios['not_recommend']) * 100}%, 
+            var(--yellow-50-opacity) ${(ratios['recommend'] + ratios['not_recommend']) * 100}%)`;
+
+        const bar = document.querySelector('.stats-bar');
+        bar.style.background = `linear-gradient(90deg, 
+            var(--green) 0%, var(--green) ${ratios['recommend'] * 100}%, 
+            var(--red) ${ratios['recommend'] * 100}%, var(--red) ${(ratios['recommend'] + ratios['not_recommend']) * 100}%, 
+            var(--yellow) ${(ratios['recommend'] + ratios['not_recommend']) * 100}%)`;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', async function () {
+    // Fetch current user ID
+    const userResponse = await fetch('/current-user');
+    if (!userResponse.ok) {
+        console.error(`Failed to fetch current user: ${userResponse.statusText}`);
+        return;
+    }
+    const { userId } = await userResponse.json();
+
+    const actions = [
+        { containerId: 'recommended-cocktails', action: 'recommend' },
+        { containerId: 'not-recommended-cocktails', action: 'not_recommend' },
+        { containerId: 'planned-cocktails', action: 'pin' }
+    ];
+
+    for (const { containerId, action } of actions) {
+        try {
+            const response = await fetch(`/api/user/${userId}/action/${action}/ids`);
+            if (!response.ok) {
+                console.error(`Failed to fetch ${action} IDs: ${response.statusText}`);
+            }
+            const data = await response.json();
+            for (const cocktailId of data.cocktailIds) {
+                await appendCocktailById(cocktailId, containerId);
+            }
+        } catch (error) {
+            console.error(`Error fetching cocktail IDs for ${action}:`, error);
         }
     }
 });

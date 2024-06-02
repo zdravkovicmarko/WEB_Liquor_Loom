@@ -87,34 +87,40 @@
                             <div class="btn-part btn-pin">
                                 <img class="btn-img" src="/client/images/symbol_pin.png" alt="Pinned">
                             </div>
-                            <span class="stat-label">Plan to Taste</span>
+                            <span class="stat-label">Plan To Taste</span>
                             <span class="stat-value" id="value-planned">0</span>
                         </div>
                     </div>
                     <div class="stats-sum">
                         <div class="stat-item">
                             <span class="stat-label">Mean Rating</span>
-                            <span class="stat-value" id="value-mean-rating">0.0 / 5.0</span>
+                            <span class="stat-value" id="value-mean-rating">★ 0.0 / 5.0</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Tasted</span>
                             <span class="stat-value" id="value-tasted">0</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Comments</span>
-                            <span class="stat-value" id="comments">0</span>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div >
+        <div class="element-border" id="recommendation-border">
             <div class="element-container">
-                <label class="title-label">Recommended</label>
-                <div class="cocktail-container">
-                    <label class="cocktail-title-label"></label>
-                    <label class="cocktail-rating-label"></label>
-                    <img class="cocktail-img" src="/client/images/placeholder.png" alt="Cocktail Thumbnail">
+                <label class="title-label">Recommends</label>
+                <div id="recommended-cocktails" class="cocktails-container">
+                    <!-- Recommended cocktail items will be dynamically appended here -->
+                </div>
+            </div>
+            <div class="element-container">
+                <label class="title-label">Does Not Recommend</label>
+                <div id="not-recommended-cocktails" class="cocktails-container">
+                    <!-- Not recommended cocktail items will be dynamically appended here -->
+                </div>
+            </div>
+            <div class="element-container">
+                <label class="title-label">Plans To Taste</label>
+                <div id="planned-cocktails" class="cocktails-container">
+                    <!-- Planned cocktail items will be dynamically appended here -->
                 </div>
             </div>
         </div>

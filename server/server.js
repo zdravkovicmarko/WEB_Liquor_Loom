@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -102,7 +102,13 @@ import('node-fetch').then(module => {
 
             if (cocktails.length === 0) {
                 // If no cocktails in DB, fetch from API and add to DB
-                await addAllCocktailsFromAPIToDb();
+                const allCocktailsData = await getAllCocktailsFromAPI();
+
+                for (const apiCocktail of allCocktailsData) {
+                    const cocktail = transformCocktailData(apiCocktail);
+                    await addCocktailToDb(cocktail);
+                }
+
                 cocktails = await getAllCocktailsFromDb(); // Fetch the cocktails again after adding
             }
 
@@ -110,6 +116,22 @@ import('node-fetch').then(module => {
         } catch (error) {
             console.error('Error fetching cocktails:', error);
             res.status(500).send('Error occurred while fetching cocktails');
+        }
+    });
+
+    app.get('/api/cocktail/:id', async (req, res) => {
+        const cocktailId = req.params.id;
+
+        try {
+            const cocktail = await getCocktailById(cocktailId);
+            if (!cocktail) {
+                res.status(404).json({ error: 'Cocktail not found' });
+            } else {
+                res.json(cocktail);
+            }
+        } catch (error) {
+            console.error('Error fetching cocktail:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     });
 
@@ -138,6 +160,32 @@ import('node-fetch').then(module => {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
+
+    app.get('/api/user/:userId/action/:action/ids', async (req, res) => {
+        const userId = req.params.userId;
+        const action = req.params.action;
+
+        try {
+            const cocktailIds = await getCocktailIdsByUserId(userId, action);
+            res.json({ userId, action, cocktailIds });
+        } catch (error) {
+            console.error('Error fetching the cocktail IDs:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.get('/api/user/:userId/average-rating', async (req, res) => {
+        const userId = req.params.userId;
+
+        try {
+            const averageRating = await getAverageRatingByUserId(userId);
+            res.json({ userId, averageRating });
+        } catch (error) {
+            console.error('Error fetching the average rating:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
 
     app.get('/api/cocktail/:id/rating', async (req, res) => {
         const cocktailID = req.params.id;
@@ -505,6 +553,52 @@ import('node-fetch').then(module => {
                 console.error('Fetch error:', error);
                 throw error; // Re-throw the error to propagate it down the promise chain
             });
+    }
+
+    function transformCocktailData(apiCocktail) {
+        return {
+            id: apiCocktail.idDrink,
+            name: apiCocktail.strDrink,
+            category: apiCocktail.strCategory,
+            alcoholic: apiCocktail.strAlcoholic,
+            glass: apiCocktail.strGlass,
+            instructions: apiCocktail.strInstructions,
+            thumbnail: apiCocktail.strDrinkThumb,
+            ingredients: [
+                apiCocktail.strIngredient1,
+                apiCocktail.strIngredient2,
+                apiCocktail.strIngredient3,
+                apiCocktail.strIngredient4,
+                apiCocktail.strIngredient5,
+                apiCocktail.strIngredient6,
+                apiCocktail.strIngredient7,
+                apiCocktail.strIngredient8,
+                apiCocktail.strIngredient9,
+                apiCocktail.strIngredient10,
+                apiCocktail.strIngredient11,
+                apiCocktail.strIngredient12,
+                apiCocktail.strIngredient13,
+                apiCocktail.strIngredient14,
+                apiCocktail.strIngredient15,
+            ].filter(ingredient => ingredient), // Filter out null/undefined ingredients
+            measures: [
+                apiCocktail.strMeasure1,
+                apiCocktail.strMeasure2,
+                apiCocktail.strMeasure3,
+                apiCocktail.strMeasure4,
+                apiCocktail.strMeasure5,
+                apiCocktail.strMeasure6,
+                apiCocktail.strMeasure7,
+                apiCocktail.strMeasure8,
+                apiCocktail.strMeasure9,
+                apiCocktail.strMeasure10,
+                apiCocktail.strMeasure11,
+                apiCocktail.strMeasure12,
+                apiCocktail.strMeasure13,
+                apiCocktail.strMeasure14,
+                apiCocktail.strMeasure15,
+            ].filter(measure => measure), // Filter out null/undefined measures
+        };
     }
 
     app.listen(666, () => {

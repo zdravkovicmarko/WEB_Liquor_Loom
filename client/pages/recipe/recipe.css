@@ -146,6 +146,11 @@ input::-webkit-slider-thumb {
 #rate-bar > * {
     padding: 0
 }
+.btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
 /* Responsive Layout */
 @media (max-width: 1100px) {
@@ -185,6 +190,13 @@ input::-webkit-slider-thumb {
     }
     #btn-rate-container.btn-inner-container {
         justify-content: center;
+    }
+    .btn-container {
+        gap: 35px;
+        justify-content: center;
+    }
+    #delete-btn.btn-normal-grey {
+        display: flex;
     }
 
     .cocktail-container {

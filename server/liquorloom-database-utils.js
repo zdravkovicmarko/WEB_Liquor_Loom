@@ -566,6 +566,26 @@ function getCounterByUserId(userId, action) {
     });
 }
 
+function getCocktailIdsByUserId(userId, action) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT cocktail_id 
+            FROM user_interaction 
+            WHERE user_id = ? AND action = ?
+        `;
+
+        db.all(query, [userId, action], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                const cocktailIds = rows.map(row => row.cocktail_id);
+                resolve(cocktailIds);
+            }
+        });
+    });
+}
+
+
 function getAverageRatingByCocktailId(cocktailID) {
     return new Promise((resolve, reject) => {
         const query = `
@@ -575,6 +595,24 @@ function getAverageRatingByCocktailId(cocktailID) {
         `;
 
         db.get(query, [cocktailID], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.averageRating : 0);
+            }
+        });
+    });
+}
+
+function getAverageRatingByUserId(userId) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT AVG(rating) as averageRating 
+            FROM user_interaction
+            WHERE user_id = ?
+        `;
+
+        db.get(query, [userId], (err, row) => {
             if (err) {
                 reject(err);
             } else {
@@ -653,5 +691,7 @@ module.exports ={
     getCounterByUserId,
     getAverageRatingByCocktailId,
     getIngredientsByCocktailIDs,
-    getCocktailsByIngredient
+    getCocktailsByIngredient,
+    getCocktailIdsByUserId,
+    getAverageRatingByUserId
 }

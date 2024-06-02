@@ -8,8 +8,11 @@ export function displayMessage(element, text, timeout) {
     }, timeout); // e.g.: 5000 ms = 5 s
 }
 
-export const appendCocktailFromAPI = (cocktail) => {
-    const cocktailsContainer = document.querySelector(".cocktails-container");
+export const appendCocktailFromAPI = (cocktail, containerId) => {
+    let cocktailsContainer = document.getElementById(containerId);
+    if (!cocktailsContainer) {
+        cocktailsContainer = document.querySelector(".cocktails-container");
+    }
     const cocktailContainer = document.createElement("div");
     cocktailContainer.classList.add("cocktail-container");
 
@@ -35,12 +38,14 @@ export const appendCocktailFromAPI = (cocktail) => {
 }
 
 
-export const appendCocktailFromDb = async (cocktail) => {
-    const cocktailsContainer = document.querySelector(".cocktails-container");
+export const appendCocktailFromDb = async (cocktail, containerId) => {
+    let cocktailsContainer = document.getElementById(containerId);
+    if (!cocktailsContainer) {
+        cocktailsContainer = document.querySelector(".cocktails-container");
+    }
     const cocktailContainer = document.createElement("div");
     cocktailContainer.classList.add("cocktail-container");
 
-    // Check if the cocktail object has the expected properties
     if (cocktail.name && cocktail.thumbnail && cocktail.id) {
         const cocktailTitleLabel = document.createElement("label");
         cocktailTitleLabel.classList.add("cocktail-title-label");
@@ -48,19 +53,18 @@ export const appendCocktailFromDb = async (cocktail) => {
 
         const cocktailImg = document.createElement("img");
         cocktailImg.classList.add("cocktail-img");
-        cocktailImg.src = cocktail.thumbnail;  // Use 'thumbnail' instead of 'image'
+        cocktailImg.src = cocktail.thumbnail;
         cocktailImg.alt = cocktail.name;
 
         const cocktailRatingLabel = document.createElement("label");
         cocktailRatingLabel.classList.add("cocktail-rating-label");
 
-        // Fetch the rating asynchronously and update the label
         try {
-            const rating = await updateCocktailRating(cocktail.id); // Pass cocktail id to fetch the rating
+            const rating = await updateCocktailRating(cocktail.id);
             cocktailRatingLabel.textContent = `★ ${rating}`;
         } catch (error) {
             console.error('Error fetching rating:', error);
-            cocktailRatingLabel.textContent = "★ 0.0"; // Fallback rating on error
+            cocktailRatingLabel.textContent = "★ 0.0";
         }
 
         cocktailContainer.appendChild(cocktailTitleLabel);
@@ -69,13 +73,29 @@ export const appendCocktailFromDb = async (cocktail) => {
 
         cocktailsContainer.appendChild(cocktailContainer);
 
-        // Add event listener to each cocktail element
         cocktailContainer.addEventListener("click", () => {
-            // Redirect to recipe page with the appropriate recipe ID
             window.location.href = `/recipe/${cocktail.id}`;
         });
     } else {
         console.error('Incomplete cocktail data:', cocktail);
+    }
+}
+
+export async function appendCocktailById(cocktailId, containerId) {
+    try {
+        const response = await fetch(`/api/cocktail/${cocktailId}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch cocktail with ID ${cocktailId}`);
+        }
+        const cocktail = await response.json();
+        try {
+            appendCocktailFromDb(cocktail, containerId);
+        } catch (dbError) {
+            console.error('Error appending cocktail from DB, falling back to API:', dbError);
+            appendCocktailFromAPI(cocktail, containerId);
+        }
+    } catch (error) {
+        console.error('Error fetching and appending cocktail:', error);
     }
 }
 

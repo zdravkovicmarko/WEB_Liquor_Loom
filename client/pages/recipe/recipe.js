@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Update HTML elements with recipe data
             document.getElementById('name').textContent = recipeData.name.replace(/(^|\s)\w/g, char => char.toUpperCase());
-            document.getElementById('rating').textContent = "★ " + (await updateCocktailRating());
+            document.getElementById('rating').textContent = "★ " + (await updateCocktailRating(cocktailID));
             document.getElementById('img').src = recipeData.thumbnail;
 
             document.getElementById('category').textContent = `${recipeData.category.toLowerCase()}`;
