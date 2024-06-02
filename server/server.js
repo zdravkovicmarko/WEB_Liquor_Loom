@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, getCocktailsByIngredients, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -520,6 +520,7 @@ import('node-fetch').then(module => {
         getAllUniqueIngredients((err, ingredients) => {
             if (err) {
                 console.error('Fehler beim Abrufen der eindeutigen Zutaten:', err);
+                res.send('Error getting ingredients');
             } else {
                 console.log('Eindeutige Zutaten:', ingredients);
                 res.send(ingredients);
@@ -553,6 +554,17 @@ import('node-fetch').then(module => {
             res.json({ password });
         } catch (error) {
             console.error('Error fetching password:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/cocktail/:ingredients', async (req, res) => {
+        try {
+            const ingredients = req.params.ingredients.split(',');
+            const response = await getCocktailsByIngredients(ingredients);
+            res.json(response);
+        } catch (error) {
+            console.error('Error getting filtered cocktails:', error);
             res.status(500).send('Internal Server Error');
         }
     });
