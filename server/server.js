@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -113,6 +113,22 @@ import('node-fetch').then(module => {
         }
     });
 
+    app.get('/api/cocktail/:id', async (req, res) => {
+        const cocktailId = req.params.id;
+
+        try {
+            const cocktail = await getCocktailById(cocktailId);
+            if (!cocktail) {
+                res.status(404).json({ error: 'Cocktail not found' });
+            } else {
+                res.json(cocktail);
+            }
+        } catch (error) {
+            console.error('Error fetching cocktail:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
     app.get('/api/cocktail/:id/action/:action/count', async (req, res) => {
         const cocktailID = req.params.id;
         const action = req.params.action;
@@ -138,6 +154,32 @@ import('node-fetch').then(module => {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
+
+    app.get('/api/user/:userId/action/:action/ids', async (req, res) => {
+        const userId = req.params.userId;
+        const action = req.params.action;
+
+        try {
+            const cocktailIds = await getCocktailIdsByUserId(userId, action);
+            res.json({ userId, action, cocktailIds });
+        } catch (error) {
+            console.error('Error fetching the cocktail IDs:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.get('/api/user/:userId/average-rating', async (req, res) => {
+        const userId = req.params.userId;
+
+        try {
+            const averageRating = await getAverageRatingByUserId(userId);
+            res.json({ userId, averageRating });
+        } catch (error) {
+            console.error('Error fetching the average rating:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
 
     app.get('/api/cocktail/:id/rating', async (req, res) => {
         const cocktailID = req.params.id;

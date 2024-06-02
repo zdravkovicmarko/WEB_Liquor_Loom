@@ -19,6 +19,20 @@ body {
     margin: 0;
     font-size: var(--base-font-size);
 }
+main {
+    display: grid;
+    grid-template-areas:
+        "stats"
+        "recommendations";
+    grid-template-rows: auto auto;
+    row-gap: 35px;
+}
+#stats-border {
+    grid-area: stats;
+}
+#recommendation-border {
+    grid-area: recommendations;
+}
 
 .element-inner-container {
     position: relative;
@@ -92,13 +106,13 @@ body {
     padding: 10px 0 10px 0;
     margin: 10px 0 20px 7px;
     border-radius: 15px;
-    background: linear-gradient(90deg, var(--green-50-opacity) 0%, var(--green-50-opacity) 60%, var(--red-50-opacity) 60%, var(--red-50-opacity) 80%, var(--yellow-50-opacity) 80%);
+    background: var(--grey-50-opacity);
     overflow: hidden;
 }
 .stats-bar {
     height: 100%;
     width: 100%;
-    background: linear-gradient(90deg, var(--green) 0%, var(--green) 60%, var(--red) 60%, var(--red) 80%, var(--yellow) 80%);
+    background: var(--grey);
     filter: drop-shadow(0 0 3px var(--black-66-opacity));
 }
 
