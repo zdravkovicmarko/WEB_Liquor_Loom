@@ -386,6 +386,13 @@ input::-webkit-slider-thumb {
     border-radius: 100px;
     z-index: 1000;
     text-align: center;
+    background-color: var(--white-33-opacity);
+}
+.alert-not-fixed {
+    margin: 0 5px 0 5px;
+    position: revert;
+    left: 0;
+    transform: none;
 }
 .error-alert {
     background-color: var(--red);

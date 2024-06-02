@@ -1,11 +1,11 @@
-export function displayMessage(element, text) {
+export function displayMessage(element, text, timeout) {
     element.textContent = text;
     element.style.display = 'block';
 
-    // Add the hidden class again after 5 seconds
+    // Add hidden class again after defined time
     setTimeout(() => {
         element.style.display = 'none';
-    }, 3000); // 5000 milliseconds = 5 seconds
+    }, timeout); // e.g.: 5000 ms = 5 s
 }
 
 export const appendCocktail = (cocktail) => {
@@ -85,4 +85,16 @@ export function slideValue(title, delimiter) {
             updateSlideValue(event.target.value);
         });
     }
+}
+export function logoutBtnHandling() {
+    const logoutButton = document.getElementById('logout-btn');
+
+    logoutButton.addEventListener('click', async function(event) {
+        try {
+            localStorage.setItem('logoutSuccess', 'true');
+            window.location.href = '/logout';
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
 }

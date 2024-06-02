@@ -5,8 +5,7 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
 
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const usernameError = document.getElementById('usernameError');
-    const passwordError = document.getElementById('passwordError');
+    const alertError = document.getElementById('alert-error');
 
     fetch('/login', {
         method: 'POST',
@@ -29,9 +28,9 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         .catch(error => {
             console.error('Error:', error);
             if (error.message === 'Account does not exist') {
-                displayMessage(usernameError, 'Account does not exist');
+                displayMessage(alertError, 'Account does not exist!', 3000);
             } else if (error.message === 'Invalid username or password') {
-                displayMessage(passwordError, 'Invalid password');
+                displayMessage(alertError, 'Invalid password!', 3000);
             } else {
                 // Handle other errors
                 console.error('Unhandled error:', error);
@@ -40,11 +39,11 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    const accountCreatedMessage = document.getElementById('accountCreatedMessage');
+    const alertSuccess = document.getElementById('alert-success');
 
     // Check if accountCreated flag is set in localStorage
     if (localStorage.getItem('accountCreated') === 'true') {
-        displayMessage(accountCreatedMessage, 'Account successfully created. Please login now.');
+        displayMessage(alertSuccess, 'Account successfully created! Please login now.', 3000);
 
         // Remove flag from localStorage
         localStorage.removeItem('accountCreated');

@@ -7,14 +7,7 @@ document.querySelector('form[action="/signup"]').addEventListener('submit', func
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const verification = document.getElementById('verification').value;
-    const usernameError = document.getElementById('usernameError');
-    const emailError = document.getElementById('emailError');
-    const verificationError = document.getElementById('verificationError');
-
-    // Clear previous error messages
-    usernameError.style.display = 'none';
-    emailError.style.display = 'none';
-    verificationError.style.display = 'none';
+    const alertError = document.getElementById('alert-error');
 
     fetch('/signup', {
         method: 'POST',
@@ -38,11 +31,11 @@ document.querySelector('form[action="/signup"]').addEventListener('submit', func
         .catch(error => {
             console.error('Error:', error);
             if (error.message === 'Username already in use') {
-                displayMessage(usernameError, 'Username already exists');
+                displayMessage(alertError, 'Username already exists!', 3000);
             } else if (error.message === 'Email already in use') {
-                displayMessage(emailError, 'Email already exists');
+                displayMessage(alertError, 'Email already exists!', 3000);
             } else if (error.message === 'Passwords do not match') {
-                displayMessage(verificationError, 'Passwords do not match');
+                displayMessage(alertError, 'Passwords do not match!', 3000);
             } else {
                 // Handle other errors
                 console.error('Unhandled error:', error);

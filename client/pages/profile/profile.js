@@ -1,34 +1,11 @@
-import { appendCocktail } from '/client/base.js';
+import { logoutBtnHandling } from '/client/base.js';
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', function() {
      window.location.href = '/home';
  });
 
-// Assuming you have a logout button with id "logout-btn"
-const logoutButton = document.getElementById('logout-btn');
-logoutButton.addEventListener('click', async function(event) {
-    try {
-        localStorage.setItem('logoutSuccess', 'true');
-        window.location.href='/logout'
-    } catch (error) {
-        console.error('Error:', error);
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const logoutSuccessMessage = document.getElementById('logoutSuccessMessage');
-
-    // Check if the logoutSuccess flag is set in localStorage
-    if (localStorage.getItem('logoutSuccess') === 'true') {
-        // Display the success message
-        logoutSuccessMessage.textContent = 'You have successfully logged out.';
-        logoutSuccessMessage.style.display = 'block';
-
-        // Remove the flag from localStorage
-        localStorage.removeItem('logoutSuccess');
-    }
-});
+logoutBtnHandling();
 
 document.addEventListener("DOMContentLoaded", async () => {
 

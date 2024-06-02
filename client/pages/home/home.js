@@ -3,6 +3,9 @@ import { appendCocktail } from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from '/client/base.js';
 import { slideValue } from '/client/base.js';
+import { logoutBtnHandling } from '/client/base.js';
+
+logoutBtnHandling();
 
 document.addEventListener("DOMContentLoaded", () => {
     const randomContainer = document.getElementById("random-button");
@@ -50,13 +53,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const displayInitialCocktails = async () => {
         isLoading = true;
-
+        const alertFetch = document.getElementById('alert-fetch-data');
+        displayMessage(alertFetch, 'Currently fetching cocktails...', 1000000);
         try {
             await fetchAllCocktails();
             allCocktails.forEach(cocktail => appendCocktail(cocktail));
         } catch (error) {
             console.error('Error fetching initial cocktails:', error);
+            const alertFetchError = document.getElementById('alert-fetch-error');
+            if (error.message === 'Failed to fetch') {
+                displayMessage(alertFetchError, 'Too many requests. Please wait a few seconds and refresh the page!', 10000);
+            } else {
+                displayMessage(alertFetchError, 'Error fetching initial cocktails.', 6000);
+            }
         } finally {
+            displayMessage(alertFetch, 'Currently fetching cocktails...', 0);
             isLoading = false;
         }
     };
@@ -252,24 +263,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Assuming you have a logout button with id "logout-btn"
-const logoutButton = document.getElementById('logout-btn');
-
-logoutButton.addEventListener('click', async function(event) {
-    try {
-        localStorage.setItem('logoutSuccess', 'true');
-        window.location.href = '/logout';
-    } catch (error) {
-        console.error('Error:', error);
-    }
-});
-
 document.addEventListener('DOMContentLoaded', function () {
-    const logoutSuccessMessage = document.getElementById('logoutSuccessMessage');
+    const SuccessMessage = document.getElementById('alert-success');
 
     // Check if the logoutSuccess flag is set in localStorage
     if (localStorage.getItem('logoutSuccess') === 'true') {
-        displayMessage(logoutSuccessMessage, 'Successful logout');
+        displayMessage(SuccessMessage, 'Successfully logged out!', 3000);
 
         // Remove the flag from localStorage
         localStorage.removeItem('logoutSuccess');
@@ -277,11 +276,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    const deleteSuccessMessage = document.getElementById('deleteSuccessMessage');
+    const SuccessMessage = document.getElementById('alert-success');
 
     // Check if the deleteSuccess flag is set in localStorage
     if (localStorage.getItem('deleteSuccess') === 'true') {
-        displayMessage(deleteSuccessMessage, 'Successful account deletion');
+        displayMessage(SuccessMessage, 'Account successfully deleted!', 3000);
 
         // Remove the flag from localStorage
         localStorage.removeItem('deleteSuccess');
@@ -293,10 +292,6 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('login-btn').addEventListener('click', function() {
     window.location.href = '/login';
 });
-document.addEventListener('DOMContentLoaded', function() {
-    checkLoginStatus();
-});
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
     checkLoginStatus();

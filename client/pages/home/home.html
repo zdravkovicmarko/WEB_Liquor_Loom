@@ -14,8 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="alert success-alert hidden" id="logoutSuccessMessage"></div>
-    <div class="alert success-alert hidden" id="deleteSuccessMessage"></div>
+    <div class="alert error-alert hidden" id="alert-error"></div>
+    <div class="alert success-alert hidden" id="alert-success"></div>
 <header>
     <div class="logo-container">
         <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
@@ -95,6 +95,8 @@
             <label class="title-label">DRINKS</label>
             <span class="tag" id="random-button">Open Random Recipe</span>
         </div>
+        <div class="alert alert-not-fixed hidden" id="alert-fetch-data"></div>
+        <div class="alert alert-not-fixed error-alert hidden" id="alert-fetch-error"></div>
         <div class="cocktails-container">
             <!-- Cocktail items will be dynamically appended here -->
         </div>

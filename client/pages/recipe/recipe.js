@@ -1,7 +1,8 @@
-import { displayMessage } from '/client/base.js';
+import {appendCocktail, displayMessage} from '/client/base.js';
 import { checkLoginStatus } from '/client/base.js';
 import { handleProfileClick } from "/client/base.js";
 import { slideValue } from '/client/base.js';
+import { logoutBtnHandling } from '/client/base.js';
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', () => {
@@ -14,10 +15,16 @@ document.getElementById('profile-pic').addEventListener('click', () => {
     window.location.href = '/profile';
 });
 
+logoutBtnHandling();
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     // Fetch & display recipe (FE & BE)
     const displayRecipe = async (cocktailID) => {
+        const alertFetch = document.getElementById('alert-fetch-data');
+        const mainContainer = document.getElementById('main');
+        mainContainer.style.display = 'none';
+        displayMessage(alertFetch, 'Currently fetching recipe...', 1000000);
         try {
             // Fetch cocktail data asynchronously
             const response = await fetch(`/api/recipe/${cocktailID}`);
@@ -49,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ingredientsList.appendChild(listItem);
             }
             document.getElementById('instructions').textContent = recipeData.instructions;
+            mainContainer.style.display = 'grid';
 
             // Adds columns for ingredients if exceeding 250px
             const ingredientsDiv = document.querySelector('.ingredients');
@@ -56,6 +64,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             ingredientsContainer.scrollHeight > 250 ? ingredientsDiv.classList.add('exceeds-height') : ingredientsDiv.classList.remove('exceeds-height');
         } catch (error) {
             console.error('Error fetching recipe data:', error);
+            const alertFetchError = document.getElementById('alert-fetch-error');
+            if (error.message === 'Failed to fetch') {
+                displayMessage(alertFetchError, 'Too many requests. Please wait a few seconds and refresh the page!', 10000);
+            } else {
+                displayMessage(alertFetchError, 'Error fetching initial cocktails.', 6000);
+            }
+        } finally {
+            displayMessage(alertFetch, '', 0);
         }
     };
 
@@ -158,23 +174,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 console.error('Failed to save rating');
             }
 
-            const notificationMessage = document.getElementById('notification-message');
-            displayMessage(notificationMessage, 'Rating saved successfully!');
+            const alertSuccess = document.getElementById('alert-success');
+            displayMessage(alertSuccess, 'Rating successfully saved!', 3000);
         } catch (error) {
             console.error('Error:', error);
         }
     });
-});
-
-// Assuming you have a logout button with id "logout-btn"
-const logoutButton = document.getElementById('logout-btn');
-
-logoutButton.addEventListener('click', async function(event) {
-    try {
-        window.location.href = '/logout';
-    } catch (error) {
-        console.error('Error:', error);
-    }
 });
 
 document.addEventListener('DOMContentLoaded', function() {
