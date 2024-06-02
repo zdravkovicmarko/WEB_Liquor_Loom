@@ -99,6 +99,11 @@ main {
 #stats {
     grid-area: stats;
 }
+#placeholder-fav {
+    width: var(--cocktail-img-size);
+    height: var(--cocktail-img-size);
+    border-radius: 10px;
+}
 
 .stats-bar-container {
     height: 30px;

@@ -136,6 +136,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function updateIsFavorite() {
         const favCocktailId = await fetchUserFavoriteCocktailId();
         isFavorite = favCocktailId === cocktailID;
+        const btnFav = document.getElementById('btn-fav');
+        if (isFavorite) {
+            btnFav.classList.add("selected");
+            btnFav.classList.remove("btn-grey");
+        } else {
+            btnFav.classList.remove("selected");
+            btnFav.classList.add("btn-grey");
+        }
     }
 
     btnParts.forEach(btnPart => {
@@ -220,44 +228,143 @@ document.addEventListener("DOMContentLoaded", async () => {
         await updateIsFavorite();
     }
 
-    // Initial load to set the correct state of the button
-    document.addEventListener("DOMContentLoaded", async () => {
-        await updateIsFavorite();
-    });
+    updateIsFavorite();
+
+    // Function to fetch user's interaction for the cocktail
+    async function fetchUserInteraction(userId, cocktailId) {
+        try {
+            const response = await fetch(`/api/user/${userId}/interaction/${cocktailId}`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                return data.action;
+            } else {
+                console.error('Failed to fetch user interaction for the cocktail');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            return null;
+        }
+    }
+
+    // Function to fetch user's rating for the cocktail
+    async function fetchUserRatingForCocktail(userId, cocktailId) {
+        try {
+            const response = await fetch(`/api/user/${userId}/rating/${cocktailId}`);
+            if (response.ok) {
+                const data = await response.json();
+                return data.rating;
+            } else {
+                console.error('Failed to fetch user rating for the cocktail');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            return null;
+        }
+    }
+
+    // Update the interaction and rating based on fetched data
+    async function updateInteractionAndRating(userId, cocktailId) {
+        // Fetch user interaction
+        let action = await fetchUserInteraction(userId, cocktailId);
+        if (action !== null) {
+            // Set action to the fetched value
+            let selectedButtonId = '';
+            switch (action) {
+                case 'recommend':
+                    selectedButtonId = 'btn-recommend';
+                    break;
+                case 'not_recommend':
+                    selectedButtonId = 'btn-recommend-no';
+                    break;
+                case 'pin':
+                    selectedButtonId = 'btn-pin';
+                    break;
+                default:
+                    break;
+            }
+
+            // Select button if found
+            if (selectedButtonId) {
+                const selectedButton = document.getElementById(selectedButtonId);
+                if (selectedButton) {
+                    selectedButton.classList.add("selected");
+                    selectedButton.classList.remove("btn-grey");
+                    selectedButtons.add(selectedButtonId);
+                }
+            }
+        }
+
+        // Fetch user rating
+        const rating = await fetchUserRatingForCocktail(userId, cocktailId);
+        if (rating !== null) {
+            document.getElementById('slide').value = rating;
+        }
+    }
+
+    updateInteractionAndRating(userID, cocktailID);
 
     const saveRatingButton = document.getElementById('save-btn');
     saveRatingButton.addEventListener('click', async () => {
-        rating = document.querySelector('#slide').value;
-        const requestData = {
-            userId: userID,
-            cocktailId: cocktailID,
-            action,
-            rating
-        };
+        // Check if either "btn-recommend", "btn-recommend-no", or "btn-pin" has been selected
+        if (selectedButtons.has('btn-recommend') || selectedButtons.has('btn-recommend-no') || selectedButtons.has('btn-pin')) {
+            rating = document.querySelector('#slide').value;
+            const requestData = {
+                userId: userID,
+                cocktailId: cocktailID,
+                action,
+                rating
+            };
 
+            try {
+                const response = await fetch('/updateInteraction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to save rating');
+                }
+
+                const alertSuccess = document.getElementById('alert-success');
+                displayMessage(alertSuccess, 'Rating successfully saved!', 3000);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        } else {
+            console.log('Please select an action before saving the rating.');
+        }
+    });
+
+    const deleteButton = document.getElementById('delete-btn');
+    deleteButton.addEventListener('click', async () => {
         try {
-            const response = await fetch('/updateInteraction', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
+            const response = await fetch(`/api/user/${userID}/interaction/${cocktailID}`, {
+                method: 'DELETE'
             });
 
-            if (!response.ok) {
-                console.error('Failed to save rating');
+            if (response.ok) {
+                console.log('User interaction deleted successfully');
+                // Deselect all buttons
+                btnParts.forEach(btnPart => {
+                    if (btnPart.tagName.toLowerCase() === 'button') {
+                        btnPart.classList.remove("selected");
+                        btnPart.classList.add("btn-grey");
+                        updateIsFavorite()
+                    }
+                });
+            } else {
+                console.error('Failed to delete user interaction');
             }
-
-            const alertSuccess = document.getElementById('alert-success');
-            displayMessage(alertSuccess, 'Rating successfully saved!', 3000);
         } catch (error) {
             console.error('Error:', error);
         }
     });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    checkLoginStatus();
 });
 
 document.addEventListener('DOMContentLoaded', function() {

@@ -3,14 +3,33 @@ import { appendCocktailById } from '/client/base.js';
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', function() {
-     window.location.href = '/home';
- });
+    window.location.href = '/home';
+});
 
 logoutBtnHandling();
 
-document.addEventListener("DOMContentLoaded", async () => {
+// Function to fetch and display the user's favorite cocktail
+async function displayFavoriteCocktail(userID) {
+    try {
+        const response = await fetch(`/api/user/${userID}/fav`);
+        if (!response.ok) {
+            console.error('Failed to fetch favorite cocktail');
+            return;
+        }
+        const favData = await response.json();
+        if (favData && favData.favoriteCocktailId) {
+            const cocktailID = favData.favoriteCocktailId;
+            await appendCocktailById(cocktailID, 'fav-cocktail-container');
+            const placeholderIMG = document.getElementById('placeholder-fav');
+            placeholderIMG.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error fetching favorite cocktail:', error);
+    }
+}
 
-    // Function to fetch and display recipe data
+document.addEventListener("DOMContentLoaded", async () => {
+    // Function to fetch and display profile data
     const displayProfile = async (userID) => {
         try {
             // Fetch username
@@ -38,6 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await response.json();
     const userID = data.userId;
     displayProfile(userID);
+    displayFavoriteCocktail(userID);
 
     const profilePictures = {
         1: 'client/images/dummy-img/schmirko-pb.jpg',

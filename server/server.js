@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, deleteUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 
@@ -199,6 +199,32 @@ import('node-fetch').then(module => {
         }
     });
 
+    app.get('/api/user/:userId/rating/:cocktailId', async (req, res) => {
+        const userId = req.params.userId;
+        const cocktailId = req.params.cocktailId;
+
+        try {
+            const rating = await getUserRatingById(userId, cocktailId);
+            res.json({ userId, cocktailId, rating });
+        } catch (error) {
+            console.error('Error fetching the rating:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.get('/api/user/:userId/interaction/:cocktailId', async (req, res) => {
+        const userId = req.params.userId;
+        const cocktailId = req.params.cocktailId;
+
+        try {
+            const action = await getUserInteractionById(userId, cocktailId);
+            res.json({ userId, cocktailId, action });
+        } catch (error) {
+            console.error('Error fetching the interaction:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
     // Endpoint to get user's favorite cocktail ID
     app.get('/api/user/:userId/fav', async (req, res) => {
         const userId = req.params.userId;
@@ -328,6 +354,20 @@ import('node-fetch').then(module => {
         } catch (err) {
             console.error('Error updating user interaction:', err);
             res.status(500).send({ error: 'Error updating user interaction' });
+        }
+    });
+
+    // Delete user interaction endpoint
+    app.delete('/api/user/:userId/interaction/:cocktailId', async (req, res) => {
+        const userId = req.params.userId;
+        const cocktailId = req.params.cocktailId;
+
+        try {
+            await deleteUserInteraction(userId, cocktailId);
+            res.status(200).json({ message: 'User interaction deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting user interaction:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     });
 

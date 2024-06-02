@@ -243,6 +243,17 @@ footer {
     justify-content: center;
     align-items: center;
 }
+.btn-part-nr {
+    height: var(--btn-part-size);
+    width: var(--btn-part-size);
+    border: none;
+    border-radius: 50%;
+    margin: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .btn-img {
     height: var(--btn-img-size);
     filter: drop-shadow(0 0 3px var(--black-66-opacity));

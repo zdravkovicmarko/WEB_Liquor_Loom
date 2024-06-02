@@ -387,6 +387,18 @@ function checkUserExists(username) {
     });
 }
 
+function getUserRatingById(userId, cocktailId) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT rating FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = "rating"', [userId, cocktailId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.rating : null);
+            }
+        });
+    });
+}
+
 async function rateCocktail(userId, cocktailId, rating) {
     try {
         // Check if the user exists
@@ -439,6 +451,18 @@ async function rateCocktail(userId, cocktailId, rating) {
     } catch (err) {
         console.error('Error rating cocktail:', err.message);
     }
+}
+
+function getUserInteractionById(userId, cocktailId) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT action FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action IN ("recommend", "not_recommend", "pin")', [userId, cocktailId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row ? row.action : null);
+            }
+        });
+    });
 }
 
 function updateUserInteraction(userId, cocktailId, action) {
@@ -772,7 +796,9 @@ module.exports ={
     getPasswordById,
     checkEmailExists,
     checkUserExists,
+    getUserRatingById,
     rateCocktail,
+    getUserInteractionById,
     updateUserInteraction,
     deleteUserInteraction,
     getUserFavCocktailId,
