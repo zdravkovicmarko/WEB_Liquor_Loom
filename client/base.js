@@ -62,9 +62,11 @@ export const appendCocktailFromDb = async (cocktail, containerId) => {
         try {
             const rating = await updateCocktailRating(cocktail.id);
             cocktailRatingLabel.textContent = `★ ${rating}`;
+            cocktail.rating = rating; // Add rating to the cocktail object
         } catch (error) {
             console.error('Error fetching rating:', error);
             cocktailRatingLabel.textContent = "★ 0.0";
+            cocktail.rating = 0.0;
         }
 
         cocktailContainer.appendChild(cocktailTitleLabel);
@@ -76,8 +78,11 @@ export const appendCocktailFromDb = async (cocktail, containerId) => {
         cocktailContainer.addEventListener("click", () => {
             window.location.href = `/recipe/${cocktail.id}`;
         });
+
+        return cocktail.rating; // Return the rating
     } else {
         console.error('Incomplete cocktail data:', cocktail);
+        return 0.0; // Return 0 rating if data is incomplete
     }
 }
 
@@ -167,6 +172,7 @@ export async function updateCocktailRating(cocktailID) {
         return "0.0"; // Return 0 on error
     }
 }
+
 export function logoutBtnHandling() {
     const logoutButton = document.getElementById('logout-btn');
 
