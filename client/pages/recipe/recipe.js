@@ -18,6 +18,8 @@ document.getElementById('profile-pic').addEventListener('click', () => {
 
 logoutBtnHandling();
 
+const alertSuccess = document.getElementById('alert-success');
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     // Fetch & display recipe (FE & BE)
@@ -92,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 favContainer.classList.remove('hidden');
 
                 // Handle slide value
-                slideValue(false, "/");
+                slideValue(false, "/", 2.5);
 
                 // Fetch username
                 const usernameResponse = await fetch(`/api/user/${userID}/username`);
@@ -178,11 +180,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     action = 'not_recommend';
                 } else if (btnId === 'btn-pin') {
                     action = 'pin';
-                } else if (btnId === 'btn-fav') {
-                    action = 'fav';
                 }
             }
-            // Check if the 'btn-fav' is clicked and update isFavorite
+            // Check if 'btn-fav' is clicked and update isFavorite
             if (btnId === 'btn-fav') {
                 isFavorite = !isFavorite; // Toggle isFavorite state
                 await updateOrDeleteFavorite(); // Update or delete the favorite
@@ -236,7 +236,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const response = await fetch(`/api/user/${userId}/interaction/${cocktailId}`);
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
                 return data.action;
             } else {
                 console.error('Failed to fetch user interaction for the cocktail');
@@ -302,6 +301,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const rating = await fetchUserRatingForCocktail(userId, cocktailId);
         if (rating !== null) {
             document.getElementById('slide').value = rating;
+            slideValue(false, "/", rating);
         }
     }
 
@@ -350,6 +350,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
             if (response.ok) {
+                selectedButtons.clear();
+                document.getElementById('slide').value = 2.5;
+                slideValue(false, "/", 2.5);
+
+                displayMessage(alertSuccess, 'Rating successfully deleted!', 3000);
                 console.log('User interaction deleted successfully');
                 // Deselect all buttons
                 btnParts.forEach(btnPart => {

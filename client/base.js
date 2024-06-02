@@ -130,13 +130,17 @@ export async function handleProfileClick() {
     }
 }
 
-export function slideValue(title, delimiter) {
+export function slideValue(title, delimiter, initialValue) {
     // Initialize slide value display
     const range = document.querySelector("#slide");
     const slideValue = document.querySelector(".slide-value");
 
     if (range && slideValue) {
-        title ? slideValue.innerText = `Rating ( ★ ${range.value} ${delimiter} 5 )`: slideValue.innerText = `★ ${range.value} ${delimiter} 5`;
+        if (title) {
+            slideValue.innerText = initialValue === 5 ? `Rating ( ★ ${initialValue} )` : `Rating ( ★ ${initialValue} ${delimiter} 5 )`;
+        } else {
+            slideValue.innerText = initialValue === 5 ? `★ ${initialValue}` : `★ ${initialValue} ${delimiter} 5`;
+        }
 
         const updateSlideValue = (value) => {
             if (title) {

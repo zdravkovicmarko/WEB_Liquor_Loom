@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Handle slide value
-    slideValue(true, "-");
+    slideValue(true, "-", 2.5);
 
     const fetchCocktailsFromBackend = async () => {
         try {
