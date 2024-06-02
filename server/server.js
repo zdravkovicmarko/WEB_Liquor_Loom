@@ -522,7 +522,7 @@ import('node-fetch').then(module => {
                 console.error('Fehler beim Abrufen der eindeutigen Zutaten:', err);
                 res.send('Error getting ingredients');
             } else {
-                console.log('Eindeutige Zutaten:', ingredients);
+                //console.log('Eindeutige Zutaten:', ingredients);
                 res.send(ingredients);
             }
         });
@@ -558,11 +558,19 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.get('/api/cocktail/:ingredients', async (req, res) => {
+    app.get('/api/cocktail', async (req, res) => {
         try {
-            const ingredients = req.params.ingredients.split(',');
+            const ingredients = req.query.ingredients ? req.query.ingredients.split(',') : [];
+            if (ingredients.length === 0) {
+                return res.status(400).json({ error: 'No ingredients provided' });
+            }
             const response = await getCocktailsByIngredients(ingredients);
-            res.json(response);
+            if (response.length > 0) {
+                res.json(response);
+            } else {
+                console.log('No cocktails found for ingredients:', ingredients);
+                res.status(404).json({ error: 'Cocktail not found' });
+            }
         } catch (error) {
             console.error('Error getting filtered cocktails:', error);
             res.status(500).send('Internal Server Error');

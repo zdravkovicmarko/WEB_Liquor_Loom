@@ -1,9 +1,11 @@
-import { displayMessage } from '/client/base.js';
-import { appendCocktailFromAPI, appendCocktailFromDb } from '/client/base.js';
-import { checkLoginStatus } from '/client/base.js';
-import { handleProfileClick } from '/client/base.js';
-import { slideValue } from '/client/base.js';
-import { logoutBtnHandling } from '/client/base.js';
+import {
+    appendCocktailFromDb,
+    checkLoginStatus,
+    displayMessage,
+    handleProfileClick,
+    logoutBtnHandling,
+    slideValue
+} from '/client/base.js';
 
 logoutBtnHandling();
 
@@ -60,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             allIngredients = await getAllIngredients();
-            console.log("All ingredients:" + allIngredients)
         } catch (error) {
             console.error('Error displaying initial cocktails:', error);
             const alertFetchError = document.getElementById('alert-fetch-error');
@@ -140,6 +141,22 @@ document.addEventListener("DOMContentLoaded", () => {
         updateDisplayedCocktails(searchTerm);
     });
 
+    const getCocktailsFromIngredients = async (ingredients) => {
+        try {
+            if (!ingredients || ingredients.length === 0) return [];
+            const queryString = ingredients.map(encodeURIComponent).join(',');
+            const response = await fetch(`/api/cocktail?ingredients=${queryString}`);
+            if (!response.ok) {
+                console.error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching cocktails by ingredients:', error);
+            return [];
+        }
+    };
+
     // Handle (de-)selection of tags visually & for filter method
     const tags = document.querySelectorAll(".tag");
     tags.forEach(tag => {
@@ -174,7 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Filter cocktails based on selected tags & ingredients (BE)
-    const filterCocktails = () => {
+    const filterCocktails = async () => {
+
         if (selectedTags.size === 0 && selectedIngredients.size === 0) {
             return allCocktails.sort((a, b) =>
                 sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
@@ -182,19 +200,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const selectedTagsArray = Array.from(selectedTags);
+        console.log('Selected tags:', selectedTagsArray);
+
         const selectedAlcoholicTag = selectedTagsArray.includes('alcoholic');
         const selectedNonAlcoholicTag = selectedTagsArray.includes('non alcoholic');
         const selectedCategoryTags = selectedTagsArray
             .filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'top rated');
+
+        console.log('Selected alcoholic tag:', selectedAlcoholicTag);
+        console.log('Selected non-alcoholic tag:', selectedNonAlcoholicTag);
+        console.log('Selected category tags:', selectedCategoryTags);
+
+        let ingredientMatchedCocktails = allCocktails;
+
+        if (selectedIngredients.size > 0) {
+            const ingredientMatchResponse = await getCocktailsFromIngredients(Array.from(selectedIngredients));
+            ingredientMatchedCocktails = ingredientMatchResponse.map(cocktail => cocktail.id);
+        }
 
         return allCocktails.filter(cocktail => {
             const isAlcoholicMatch = !selectedAlcoholicTag || cocktail.alcoholic.toLowerCase() === 'alcoholic';
             const isNonAlcoholicMatch = !selectedNonAlcoholicTag || cocktail.alcoholic.toLowerCase() === 'non alcoholic';
             const isCategoryMatch = selectedCategoryTags.length === 0 || selectedCategoryTags.includes(cocktail.category.toLowerCase());
 
-            const isIngredientMatch = Array.from(selectedIngredients).every(ingredient =>
-                Object.keys(cocktail).some(key => cocktail[key] && cocktail[key].toLowerCase() === ingredient)
-            );
+            const isIngredientMatch = selectedIngredients.size === 0 || ingredientMatchedCocktails.includes(cocktail.id);
 
             return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch && isIngredientMatch;
         }).sort((a, b) =>
@@ -202,15 +231,17 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     };
 
-    // Apply filter (FE)
-    const applyFilter = () => {
+// Apply filter (FE)
+    const applyFilter = async () => {
         if (isLoading) return;
 
+        console.log('Applying filter');
         cocktailsContainer.innerHTML = '';
 
-        const filteredCocktails = filterCocktails();
+        const filteredCocktails = await filterCocktails();
 
         if (filteredCocktails.length === 0) {
+            console.log('No results found');
             const noResultsMessage = document.createElement("div");
             noResultsMessage.textContent = "No results found";
             noResultsMessage.classList.add("no-results-text");
@@ -263,7 +294,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return lowerCaseIngredient.includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient);
         });
 
-        console.log(matchingIngredients)
 
         matchingIngredients.forEach(ingredient => createIngredientTag(ingredient, false));
 
