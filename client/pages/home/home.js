@@ -42,13 +42,22 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const fetchCocktailsFromAPI = async () => {
-        const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
-        for (const letter of alphabet) {
-            const url = `https://www.thecocktaildb.com/api/json/v1/1/search.php?f=${letter}`;
-            const cocktails = await fetchCocktails(url);
-            allCocktails.push(...cocktails);
+        try {
+            const response = await fetch('/api/allrecipes', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching all recipes (JSON):', error);
         }
     }
+
 
     const displayInitialCocktails = async () => {
         isLoading = true;

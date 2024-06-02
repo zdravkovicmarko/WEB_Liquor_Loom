@@ -398,26 +398,6 @@ import('node-fetch').then(module => {
         }
     });
 
-    function fetchCocktailData(endpoint, searchType, searchTerm) {
-        const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
-        // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
-        // possible search types: s, f, i, iid, a, c, g,
-        // visit https://www.thecocktaildb.com/api.php to see all endpoints, query, etc.
-
-        return fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                console.log(apiUrl);
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-                throw error; // Re-throw the error to propagate it down the promise chain
-            });
-    }
-
     app.get('/api/user/:id/username', async (req, res) => {
         try {
             const username = await getUsernameById(req.params.id);
@@ -474,6 +454,27 @@ import('node-fetch').then(module => {
                 .then(() => console.log(`Successfully added cocktail: ${cocktail.name}`))
                 .catch(err => console.error(`Error adding cocktail: ${cocktail.name}`, err));
         });
+    }
+
+    function fetchCocktailData(endpoint, searchType, searchTerm) {
+        const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
+        // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
+        // possible search types: s, f, i, iid, a, c, g,
+        // visit https://www.thecocktaildb.com/api.php to see all endpoints, query, etc.
+
+        return fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                console.log(apiUrl);
+                return response.json();
+            })
+
+            .catch(error => {
+                console.error('Fetch error:', error);
+                throw error; // Re-throw the error to propagate it down the promise chain
+            });
     }
 
     app.listen(666, () => {
