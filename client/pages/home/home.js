@@ -59,13 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 allCocktails = cocktailsWithRatings; // Store cocktails with ratings
             }
 
-            // Extract ingredients from all cocktails
-            allCocktails.forEach(cocktail => {
-                for (let i = 1; i <= 15; i++) {
-                    const ingredient = cocktail[`strIngredient${i}`];
-                    if (ingredient) allIngredients.add(ingredient.toLowerCase());
-                }
-            });
+            allIngredients = await getAllIngredients();
+            console.log("All ingredients:" + allIngredients)
         } catch (error) {
             console.error('Error displaying initial cocktails:', error);
             const alertFetchError = document.getElementById('alert-fetch-error');
@@ -83,6 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Display all cocktails initially
     displayInitialCocktails();
+
+    const getAllIngredients = async () => {
+        try {
+            const response = await fetch('/api/getAllIngredients');
+            const data = await response.json();
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching random cocktail:', error);
+        }
+    };
 
     // Redirect to random recipe
     const redirectToRandomRecipe = async () => {
@@ -252,10 +257,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (searchTerm === '') return;
 
-        const lowercaseSearchTerm = searchTerm.toLowerCase();
-        const matchingIngredients = Array.from(allIngredients).filter(
-            ingredient => ingredient.includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient)
-        );
+        const lowercaseSearchTerm = searchTerm.toLowerCase().trim();
+        const matchingIngredients = Array.from(allIngredients).filter(ingredient => {
+            const lowerCaseIngredient = ingredient.toLowerCase();
+            const words = lowerCaseIngredient.split(' ');
+            return words.includes(lowercaseSearchTerm) || lowerCaseIngredient.includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient);
+        });
+
+        console.log(matchingIngredients)
 
         matchingIngredients.forEach(ingredient => createIngredientTag(ingredient, false));
 
