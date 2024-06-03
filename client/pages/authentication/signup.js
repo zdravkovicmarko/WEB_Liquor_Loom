@@ -9,6 +9,16 @@ document.querySelector('form[action="/signup"]').addEventListener('submit', func
     const verification = document.getElementById('verification').value;
     const alertError = document.getElementById('alert-error');
 
+    // Check if username is at least 3 characters long and has no spaces
+    if (username.length < 3 || /\s/.test(username)) {
+        displayMessage(alertError, 'Username must be at least 3 characters long and contain no spaces!', 3000);
+        return;
+    }
+
+    /*
+   Email-Pattern explanation: first part til the "+" checks if there are characters except for space and @ before the actual "@",
+   then checks the same after the "@" and after the "."
+    */
     // Check if email is valid
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {

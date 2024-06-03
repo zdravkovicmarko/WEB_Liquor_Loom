@@ -316,6 +316,11 @@ import('node-fetch').then(module => {
     app.post('/signup', (req, res) => {
         const { username, email, password, verification } = req.body;
 
+        // Check if username is at least 3 characters long and has no spaces
+        if (username.length < 3 || /\s/.test(username)) {
+            return res.status(400).json({ error: 'Username must be at least 3 characters long and contains no spaces'});
+        }
+
         // Check if email is valid
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(email)) {
