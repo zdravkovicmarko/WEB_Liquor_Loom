@@ -107,8 +107,56 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    randomContainer.addEventListener('click', redirectToRandomRecipe);
+    randomContainer.addEventListener('click', redirectToRandomRecipe, testPost);
 
+    function testPost() {
+        const token = localStorage.getItem('token');
+        console.log('Token:', token); // Debugging: Stellen Sie sicher, dass der Token vorhanden ist
+
+        fetch('/add-cocktail', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token}` // assuming the token is stored in localStorage
+            },
+            body: JSON.stringify({
+                id: '20202020', // unique identifier for the cocktail
+                name: 'Margarita',
+                category: 'Cocktail',
+                alcoholic: 'Alcoholic',
+                glass: 'Cocktail glass',
+                instructions: 'Rub the rim of the glass with the lime slice to make the salt stick to it. Take care to moisten only the outer rim and sprinkle the salt on it. The salt should present to the lips of the imbiber and never mix into the cocktail. Shake the other ingredients with ice, then carefully pour into the glass.',
+                thumbnail: 'https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg',
+                ingredients: [
+                    'Tequila',
+                    'Triple sec',
+                    'Lime juice',
+                    'Salt'
+                ],
+                measures: [
+                    '1 1/2 oz',
+                    '1/2 oz',
+                    '1 oz',
+                    '1 pinch'
+                ]
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => {
+                        console.error('Response JSON:', error); // Debugging: Anzeigen der JSON-Antwort
+                        throw new Error(error.error); // Hier wird der Fehler weitergegeben
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Cocktail added successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error adding cocktail:', error);
+            });
+    }
     // Filter cocktails based on search term
     const filterCocktailsByName = (searchTerm) => {
         const lowercaseSearchTerm = searchTerm.toLowerCase();

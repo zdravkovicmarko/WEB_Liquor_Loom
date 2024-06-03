@@ -55,7 +55,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
             email TEXT NOT NULL,
-            password TEXT NOT NULL
+            password TEXT NOT NULL,
+            is_admin TEXT DEFAULT 'no'
       )`);
 
         db.run(`CREATE TABLE IF NOT EXISTS 

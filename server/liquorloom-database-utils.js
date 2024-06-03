@@ -272,6 +272,36 @@ async function updateUserPatch(id, userData) {
     });
 }
 
+function setIsAdmin(userId, isAdmin) { // isAdmin is a boolean
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE users SET is_admin = ? WHERE id = ?`;
+        db.run(sql, [isAdmin ? 'yes' : 'no', userId], function(err) {
+
+            if (err) {
+                reject(err);
+            } else {
+                resolve(`is_admin field for user with ID ${userId} set to ${isAdmin}`);
+            }
+        });
+    });
+}
+
+async function isUserAdmin(userId) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT is_admin FROM users WHERE id = ?', [userId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (row && row.is_admin === 'yes') {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            }
+        });
+    });
+}
+
 function removeUserByUsername(username) {
     return new Promise((resolve, reject) => {
         const query = 'DELETE FROM users WHERE username = ?';
@@ -767,6 +797,8 @@ module.exports ={
     updateCocktailIngredients,
     updateCocktailStats,
     insertUser,
+    setIsAdmin,
+    isUserAdmin,
     updateUserPut,
     updateUserPatch,
     removeUserByUsername,

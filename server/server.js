@@ -4,11 +4,11 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, setIsAdmin, isUserAdmin, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
-const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI} = require('./server-utils.js')
-
+const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI, generateToken, verifyToken} = require('./server-utils.js')
+const app = express();
 let fetch;
 
 import('node-fetch').then(module => {
@@ -433,7 +433,7 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.post('/add-cocktail', (req, res) => {
+    app.post('/add-cocktail', verifyToken, (req, res) => {
         // If cocktail data is in the request body
         const cocktailData = req.body;
 
@@ -471,7 +471,15 @@ import('node-fetch').then(module => {
             if (user) {
                 // Create a session for the logged-in user
                 req.session.userId = user.id;
-                res.json({ success: true });
+                console.log('user is admin? ' , await isUserAdmin(user.id));
+                // Create a JWT token for admin users
+                if (await isUserAdmin(user.id)) {
+                    const token = generateToken(user);
+                    res.json({ success: true, token });
+                } else {
+                    res.json({ success: true });
+                }
+
             } else {
                 res.status(401).json({ error: 'Invalid username or password' });
             }
@@ -571,6 +579,19 @@ import('node-fetch').then(module => {
         }
     });
 
+    app.post('/api/user/:userId/set-admin', verifyToken, async (req, res) => {
+        const userId = req.params.userId;
+
+        try {
+            // Call setIsAdmin function to set user as admin
+            await setIsAdmin(userId, true);
+            res.status(200).json({ message: 'Admin rights changed successfully' });
+        } catch (error) {
+            console.error('Error setting admin rights:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
     app.patch('/users/:userId', async (req, res) => {
         const userId = req.params.userId;
         const userData = req.body;
@@ -604,7 +625,7 @@ import('node-fetch').then(module => {
     });
 
     // Update Cocktail data
-    app.put('/recipe/:cocktailId', (req, res) => {
+    app.put('/recipe/:cocktailId', verifyToken, (req, res) => {
         const cocktailId = req.params.cocktailId;
         const { name, category, alcoholic, glass, instructions, thumbnail } = req.body;
 
@@ -619,7 +640,7 @@ import('node-fetch').then(module => {
     });
 
     // Update Cocktail ingredients and its measures,
-    app.put('/recipe/:cocktailId/ingredients', (req, res) => {
+    app.put('/recipe/:cocktailId/ingredients', verifyToken, (req, res) => {
         const cocktailId = req.params.cocktailId;
         const { ingredients } = req.body;
 
