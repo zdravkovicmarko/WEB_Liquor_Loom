@@ -23,6 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let sortOrder = 'asc';
     let allIngredients = new Set();
 
+    const ratingSlider = document.getElementById('slide');
+    const ratingRange = parseFloat(ratingSlider.value);
+
     const searchBarInput = document.getElementById('search');
     searchBarInput.addEventListener('input', function() {
         const searchBar = this.closest('.search-bar');
@@ -30,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Handle slide value
-    slideValue(true, "-", 2.5);
+    slideValue(true, "-", 0);
 
     const fetchCocktailsFromBackend = async () => {
         try {
@@ -190,26 +193,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Filter cocktails based on selected tags & ingredients (BE)
+    // Filter cocktails based on selected tags, ingredients, and rating (BE)
     const filterCocktails = async () => {
-
-        if (selectedTags.size === 0 && selectedIngredients.size === 0) {
-            return allCocktails.sort((a, b) =>
-                sortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-            );
-        }
-
-        const selectedTagsArray = Array.from(selectedTags);
-        console.log('Selected tags:', selectedTagsArray);
-
-        const selectedAlcoholicTag = selectedTagsArray.includes('alcoholic');
-        const selectedNonAlcoholicTag = selectedTagsArray.includes('non alcoholic');
-        const selectedCategoryTags = selectedTagsArray
-            .filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'top rated');
-
-        console.log('Selected alcoholic tag:', selectedAlcoholicTag);
-        console.log('Selected non-alcoholic tag:', selectedNonAlcoholicTag);
-        console.log('Selected category tags:', selectedCategoryTags);
+        // Get the selected rating value from the slider
+        const selectedRating = parseFloat(ratingSlider.value);
 
         let ingredientMatchedCocktails = allCocktails;
 
@@ -219,13 +206,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return allCocktails.filter(cocktail => {
-            const isAlcoholicMatch = !selectedAlcoholicTag || cocktail.alcoholic.toLowerCase() === 'alcoholic';
-            const isNonAlcoholicMatch = !selectedNonAlcoholicTag || cocktail.alcoholic.toLowerCase() === 'non alcoholic';
-            const isCategoryMatch = selectedCategoryTags.length === 0 || selectedCategoryTags.includes(cocktail.category.toLowerCase());
-
+            const isAlcoholicMatch = !selectedTags.has('alcoholic') || cocktail.alcoholic.toLowerCase() === 'alcoholic';
+            const isNonAlcoholicMatch = !selectedTags.has('non alcoholic') || cocktail.alcoholic.toLowerCase() === 'non alcoholic';
+            const isCategoryMatch = Array.from(selectedTags).filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'rating')
+                .every(tag => cocktail.category.toLowerCase().includes(tag));
             const isIngredientMatch = selectedIngredients.size === 0 || ingredientMatchedCocktails.includes(cocktail.id);
+            const isRatingMatch = cocktail.rating >= selectedRating;
 
-            return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch && isIngredientMatch;
+            return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch && isIngredientMatch && isRatingMatch;
         }).sort((a, b) =>
             sortOrder === 'asc' ? a.name.localeCompare(b.name) : sortOrder === 'desc' ? b.name.localeCompare(a.name) : b.rating - a.rating
         );
