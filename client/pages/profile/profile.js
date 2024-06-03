@@ -1,5 +1,4 @@
-import { logoutBtnHandling } from '/client/base.js';
-import { appendCocktailById } from '/client/base.js';
+import {appendCocktailById, logoutBtnHandling} from '/client/base.js';
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', function() {
@@ -28,30 +27,31 @@ async function displayFavoriteCocktail(userID) {
     }
 }
 
+// Function to fetch and display profile data
+const displayProfile = async (userID) => {
+    try {
+        // Fetch username
+        const usernameResponse = await fetch(`/api/user/${userID}/username`);
+        const usernameData = await usernameResponse.json();
+        document.getElementById('username').textContent = "@" + usernameData.username;
+
+        // Fetch email
+        const emailResponse = await fetch(`/api/user/${userID}/email`);
+        const emailData = await emailResponse.json();
+        document.getElementById('email').textContent = emailData.email;
+
+        // Fetch password & make ****
+        const passwordResponse = await fetch(`/api/user/${userID}/password`);
+        const passwordData = await passwordResponse.json();
+        const actualPassword = passwordData.password;
+        document.getElementById('password').textContent = '*'.repeat(actualPassword.length);
+
+    } catch (error) {
+        console.error('Error fetching profile data:', error);
+    }
+};
+
 document.addEventListener("DOMContentLoaded", async () => {
-    // Function to fetch and display profile data
-    const displayProfile = async (userID) => {
-        try {
-            // Fetch username
-            const usernameResponse = await fetch(`/api/user/${userID}/username`);
-            const usernameData = await usernameResponse.json();
-            document.getElementById('username').textContent = "@" + usernameData.username;
-
-            // Fetch email
-            const emailResponse = await fetch(`/api/user/${userID}/email`);
-            const emailData = await emailResponse.json();
-            document.getElementById('email').textContent = emailData.email;
-
-            // Fetch password & make ****
-            const passwordResponse = await fetch(`/api/user/${userID}/password`);
-            const passwordData = await passwordResponse.json();
-            const actualPassword = passwordData.password;
-            document.getElementById('password').textContent = '*'.repeat(actualPassword.length);
-
-        } catch (error) {
-            console.error('Error fetching profile data:', error);
-        }
-    };
 
     const response = await fetch(`/current-user`);
     const data = await response.json();
@@ -224,15 +224,39 @@ document.addEventListener('DOMContentLoaded', async function () {
         return input;
     }
 
+    async function fetchUserData(userId) {
+        const response = await fetch(`/users/${userId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+        }
+        return response.json();
+    }
+
+    async function updateUserData(userId, userData) {
+        const response = await fetch(`/users/${userId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update user data');
+        }
+        return response.json();
+    }
+
     // Handle (de-)selection of edit btn
     let selectedBtn = new Set();
     const btnParts = document.querySelectorAll(".btn-edit");
 
     btnParts.forEach(btnPart => {
-        btnPart.addEventListener("click", () => {
+        btnPart.addEventListener("click", async () => {
             const btnId = btnPart.id;
             const btnSet = btnPart.getAttribute('data-tag-set');
             const label = document.querySelector(`#${btnId}`).closest('.element-container').querySelector('.element-input');
+            const userId = '123'; // Replace with the actual user ID
 
             // Deselect other buttons in the same set
             btnParts.forEach(otherBtnPart => {
@@ -255,6 +279,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (label.tagName === 'INPUT') {
                     const inputValue = label.value;
                     const originalText = label.getAttribute('data-original-text');
+                    try {
+                        await updateUserData(userId, { [label.name]: inputValue });
+                        await displayProfile(userId);
+                    } catch (error) {
+                        console.error('Error updating user data:', error);
+                    }
                     label.replaceWith(createLabel(inputValue || originalText, label.id));
                 }
                 selectedBtn.delete(btnId);
@@ -263,6 +293,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (label.tagName === 'LABEL') {
                     const originalText = label.textContent;
                     label.replaceWith(createInput(originalText, label.id));
+                    try {
+                        const userData = await fetchUserData(userId);
+                        document.querySelector(`#${label.id}`).value = userData[label.name];
+                    } catch (error) {
+                        console.error('Error fetching user data:', error);
+                    }
                 }
                 selectedBtn.add(btnId);
             }
