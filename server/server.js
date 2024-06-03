@@ -561,7 +561,7 @@ import('node-fetch').then(module => {
             if (err) {
                 console.error('Fehler beim Abrufen der eindeutigen Zutaten:', err);
             } else {
-                console.log('Eindeutige Zutaten:', ingredients);
+                //console.log('Eindeutige Zutaten:', ingredients);
                 res.send(ingredients);
             }
         });
