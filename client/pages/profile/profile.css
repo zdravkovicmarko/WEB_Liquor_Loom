@@ -24,7 +24,7 @@ main {
     grid-template-areas:
         "stats"
         "recommendations";
-    grid-template-rows: auto auto;
+    grid-template-rows: min-content auto;
     row-gap: 35px;
 }
 #stats-border {
@@ -32,6 +32,21 @@ main {
 }
 #recommendation-border {
     grid-area: recommendations;
+}
+.subheader {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 0;
+}
+.btn-edit {
+    --btn-part-size: 30px;
+    --btn-img-size: 20px;
+}
+.input-writable {
+    color: black;
+    text-shadow: none;
+    background-color: white;
 }
 
 .element-inner-container {

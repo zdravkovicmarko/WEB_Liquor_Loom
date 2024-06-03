@@ -185,6 +185,89 @@ document.addEventListener('DOMContentLoaded', async function () {
     } catch (error) {
         console.error('Error fetching average rating:', error);
     }
+
+    function createLabel(text, id) {
+        const label = document.createElement('label');
+        label.classList.add('element-input', 'tags');
+        label.id = id;
+        label.name = id;
+        label.textContent = text;
+
+        if (id === 'email-tag') {
+            label.classList.add('scrollbox');
+            const tagsContent = document.createElement('div');
+            tagsContent.classList.add('tags-content');
+            label.appendChild(tagsContent);
+            label.id = 'email';
+        }
+
+        return label;
+    }
+
+    function createInput(value, id) {
+        const input = document.createElement('input');
+        input.classList.add('element-input', 'tags', 'input-writable'); // Add input-writable class initially
+        input.id = id;
+        input.name = id;
+        input.type = 'text';
+        input.value = value;
+        input.setAttribute('data-original-text', value);
+
+        if (id === 'email-tag') {
+            input.classList.add('scrollbox');
+            const tagsContent = document.createElement('div');
+            tagsContent.classList.add('tags-content');
+            input.appendChild(tagsContent);
+            input.id = 'email';
+        }
+
+        return input;
+    }
+
+    // Handle (de-)selection of edit btn
+    let selectedBtn = new Set();
+    const btnParts = document.querySelectorAll(".btn-edit");
+
+    btnParts.forEach(btnPart => {
+        btnPart.addEventListener("click", () => {
+            const btnId = btnPart.id;
+            const btnSet = btnPart.getAttribute('data-tag-set');
+            const label = document.querySelector(`#${btnId}`).closest('.element-container').querySelector('.element-input');
+
+            // Deselect other buttons in the same set
+            btnParts.forEach(otherBtnPart => {
+                const otherBtnSet = otherBtnPart.getAttribute('data-tag-set');
+                if (otherBtnSet === btnSet && otherBtnPart !== btnPart) {
+                    otherBtnPart.classList.remove("selected");
+                    const otherLabel = otherBtnPart.closest('.element-container').querySelector('.element-input');
+                    if (otherLabel.tagName === 'INPUT') {
+                        const inputValue = otherLabel.value;
+                        const originalText = otherLabel.getAttribute('data-original-text');
+                        otherLabel.replaceWith(createLabel(inputValue || originalText, otherLabel.id));
+                    }
+                    selectedBtn.delete(otherBtnPart.id);
+                }
+            });
+
+            // Handle (de-)selection of clicked button
+            if (selectedBtn.has(btnId)) {
+                btnPart.classList.remove("selected");
+                if (label.tagName === 'INPUT') {
+                    const inputValue = label.value;
+                    const originalText = label.getAttribute('data-original-text');
+                    label.replaceWith(createLabel(inputValue || originalText, label.id));
+                }
+                selectedBtn.delete(btnId);
+            } else {
+                btnPart.classList.add("selected");
+                if (label.tagName === 'LABEL') {
+                    const originalText = label.textContent;
+                    label.replaceWith(createInput(originalText, label.id));
+                }
+                selectedBtn.add(btnId);
+            }
+        });
+    });
 });
 
 document.addEventListener('DOMContentLoaded', async function () {

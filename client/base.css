@@ -58,6 +58,12 @@ header {
     padding: 0 35px 0 50px;
     column-gap: 2%;
 }
+.subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
 #sidebar {
     grid-area: s;
     padding-left: 35px;
@@ -296,6 +302,10 @@ footer {
 }
 .btn-grey {
     background-color: var(--white-33-opacity);
+}
+.btn-edit.selected .btn-img,
+.btn-edit:hover .btn-img {
+    content: url('images/symbol_edit_white.png');
 }
 
 .rating-bar input {

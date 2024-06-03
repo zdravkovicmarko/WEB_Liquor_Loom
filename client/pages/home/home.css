@@ -38,12 +38,6 @@ body {
     background-size: 16px;
 }
 
-.subheader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
 #random-button {
     margin-top: 20px;
 }
