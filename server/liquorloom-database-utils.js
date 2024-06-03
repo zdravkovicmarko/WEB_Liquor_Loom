@@ -389,7 +389,7 @@ function checkUserExists(username) {
 
 function getUserRatingById(userId, cocktailId) {
     return new Promise((resolve, reject) => {
-        db.get('SELECT rating FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = "rating"', [userId, cocktailId], (err, row) => {
+        db.get(`SELECT rating FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], (err, row) => {
             if (err) {
                 reject(err);
             } else {
