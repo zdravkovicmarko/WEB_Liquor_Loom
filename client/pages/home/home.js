@@ -168,7 +168,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const tagSet = tag.getAttribute('data-tag-set');
 
             // Sets order type for filter method
-            if (tagSet === '2') sortOrder = tagText;// Sets order type for filter method
+            if (tagSet === '2') {
+                sortOrder = tagText; // Sets order type for filter method
+                return; // Exit the function early since no further action is needed
+            }
 
             // Handles deselection of tags in same set
             if (tagSet !== '0') {
