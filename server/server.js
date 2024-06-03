@@ -4,7 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI} = require('./server-utils.js')
@@ -571,19 +571,36 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.patch('/users/:userId', (req, res) => {
+    app.patch('/users/:userId', async (req, res) => {
         const userId = req.params.userId;
-        const userData = req.body; // Contains fields to update
+        const userData = req.body;
 
-        // Update user data in the database using the userId and provided data
-        updateUser2(userId, userData)
-            .then(() => {
-                res.status(200).send(`User with ID ${userId} updated successfully`);
-            })
-            .catch((error) => {
-                console.error('Error updating user:', error);
-                res.status(500).send('Failed to update user');
-            });
+        try {
+            // Retrieve current email and username of the user
+            const userEmail = await getEmailById(userId);
+            const userUsername = await getUsernameById(userId);
+
+            // Check if email or username already exist for other users
+            const emailExists = await checkEmailExists(userData.email);
+            const usernameExists = await checkUserExists(userData.username);
+
+            if (emailExists && userData.email !== userEmail) {
+                res.status(400).json({ error: 'Email already exists. Please use a different email.' });
+            } else if (usernameExists && userData.username !== userUsername) {
+                res.status(400).json({ error: 'Username already exists. Please choose a different username.' });
+            } else if (emailExists && userData.email === userEmail) {
+                res.status(400).json({ error: 'That is your email??? Duh-doy!' });
+            } else if (usernameExists && userData.username === userUsername) {
+                res.status(400).json({ error: 'That is your username you idiot.' });
+            } else {
+                // Update user data in the database using the userId and provided data
+                await updateUserPatch(userId, userData);
+                res.status(200).json({ message: `User with ID ${userId} updated successfully` });
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            res.status(500).json({ error: 'Failed to update user' });
+        }
     });
 
     // Update Cocktail data

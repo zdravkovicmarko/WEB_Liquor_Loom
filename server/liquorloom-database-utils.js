@@ -237,7 +237,7 @@ function insertUser(username, email, password) {
     });
 }
 
-function updateUser(id, username, email, password) {
+function updateUserPut(id, username, email, password) {
     return new Promise((resolve, reject) => {
         const query = `UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?`;
         db.run(query, [username, email, password, id], function (err) {
@@ -252,15 +252,13 @@ function updateUser(id, username, email, password) {
     });
 }
 
-function updateUser2(id, userData) {
+async function updateUserPatch(id, userData) {
     return new Promise((resolve, reject) => {
-        // Construct the SET clause dynamically based on provided fields
         const updateFields = Object.keys(userData).map(field => `${field} = ?`).join(', ');
         const values = Object.values(userData);
+        values.push(id);
 
         const query = `UPDATE users SET ${updateFields} WHERE id = ?`;
-        // Add the user ID at the end of the values array
-        values.push(id);
 
         db.run(query, values, function (err) {
             if (err) {
@@ -769,8 +767,8 @@ module.exports ={
     updateCocktailIngredients,
     updateCocktailStats,
     insertUser,
-    updateUser,
-    updateUser2,
+    updateUserPut,
+    updateUserPatch,
     removeUserByUsername,
     clearUserDatabase,
     getUser,

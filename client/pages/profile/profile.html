@@ -15,6 +15,8 @@
     <script type="module" src="/client/pages/profile/profile.js"></script>
 </head>
 <body>
+    <div class="alert error-alert hidden" id="alert-error"></div>
+    <div class="alert success-alert hidden" id="alert-success"></div>
     <header>
         <div class="logo-container" id="logo-container">
             <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
@@ -34,7 +36,7 @@
                     </div>
                 </div>
                 <div class="element-inner-container">
-                    <label class="element-input tags" id="username" name="username"></label>
+                    <label class="element-input tags" id="username"></label>
                 </div>
             </div>
             <div class="element-container">
@@ -45,7 +47,7 @@
                     </div>
                 </div>
                 <div class="element-inner-container">
-                    <label class="element-input tags" id="email" name="email"></label>
+                    <label class="element-input tags" id="email"></label>
                 </div>
             </div>
             <div class="element-container">
