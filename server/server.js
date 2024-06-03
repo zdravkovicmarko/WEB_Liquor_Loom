@@ -7,6 +7,7 @@ const { processCocktailData } = require('./cocktail-utils');
 const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
+const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI} = require('./server-utils.js')
 
 let fetch;
 
@@ -119,6 +120,107 @@ import('node-fetch').then(module => {
         }
     });
 
+    // returns all recipe data as JSON or XML
+    app.get('/api/allrecipes', async (req, res) => {
+        try {
+            const allCocktails = await getAllCocktailsFromAPI();
+
+            const acceptHeader = req.headers.accept;
+            if (acceptHeader && acceptHeader.includes('application/xml')) {
+                const builder = new xml2js.Builder();
+                const xml = builder.buildObject({ cocktails: allCocktails });
+
+                res.set('Content-Type', 'application/xml');
+                res.send(xml);
+
+            } else {
+                res.json(allCocktails);
+            }
+        } catch (error) {
+            console.log('Error fetch all cocktails', error);
+            res.status(500).send('Failed to fetch all cocktails');
+        }
+    });
+
+    // returns the data of a specific recipe as JSON or XML
+    app.get('/api/recipe/:cocktailID', async (req, res) => {
+        try {
+            const cocktailID = req.params.cocktailID;
+
+            // Fetch and process cocktail data asynchronously
+            const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
+            const drinks = processCocktailData(jsonData);
+
+            // Find the specific cocktail by ID
+            const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
+
+            if (recipeData) {
+                // Add cocktail to database
+                try {
+                    await addCocktailToDb(recipeData);
+                    //console.log("Successfully added cocktail:", recipeData);
+                } catch (error) {
+                    console.log("Error adding cocktail:", error);
+                }
+
+                try {
+                    await getAllCocktailsFromDb();
+                } catch (error) {
+                    console.error("Error retrieving updated list of cocktails from the database:", error);
+                }
+
+                const acceptHeader = req.headers.accept;
+
+                if (acceptHeader && acceptHeader.includes('application/xml')) {
+                    // Convert the recipeData object to XML
+                    const builder = new xml2js.Builder();
+                    const xml = builder.buildObject({ cocktail: recipeData });
+
+                    res.set('Content-Type', 'application/xml');
+                    res.send(xml);
+                } else {
+                    res.json(recipeData);
+                }
+
+            } else {
+                res.status(404).send('Recipe not found');
+            }
+        } catch (error) {
+            console.error('Error fetching and processing cocktail data:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/getAllIngredients', async (req, res) => {
+        getAllUniqueIngredients((err, ingredients) => {
+            if (err) {
+                console.error('Fehler beim Abrufen der eindeutigen Zutaten:', err);
+            } else {
+                //console.log('Eindeutige Zutaten:', ingredients);
+                res.send(ingredients);
+            }
+        });
+    })
+
+    app.get('/api/cocktail', async (req, res) => {
+        try {
+            const ingredients = req.query.ingredients ? req.query.ingredients.split(',') : [];
+            if (ingredients.length === 0) {
+                return res.status(400).json({ error: 'No ingredients provided' });
+            }
+            const response = await getCocktailsByIngredients(ingredients);
+            if (response.length > 0) {
+                res.json(response);
+            } else {
+                console.log('No cocktails found for ingredients:', ingredients);
+                res.status(404).json({ error: 'Cocktail not found' });
+            }
+        } catch (error) {
+            console.error('Error getting filtered cocktails:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
     app.get('/api/cocktail/:id', async (req, res) => {
         const cocktailId = req.params.id;
 
@@ -147,45 +249,6 @@ import('node-fetch').then(module => {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
-
-    app.get('/api/user/:userId/action/:action/count', async (req, res) => {
-        const userId = req.params.userId;
-        const action = req.params.action;
-
-        try {
-            const count = await getCounterByUserId(userId, action);
-            res.json({ userId, action, count });
-        } catch (error) {
-            console.error('Error fetching the count:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    });
-
-    app.get('/api/user/:userId/action/:action/ids', async (req, res) => {
-        const userId = req.params.userId;
-        const action = req.params.action;
-
-        try {
-            const cocktailIds = await getCocktailIdsByUserId(userId, action);
-            res.json({ userId, action, cocktailIds });
-        } catch (error) {
-            console.error('Error fetching the cocktail IDs:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    });
-
-    app.get('/api/user/:userId/average-rating', async (req, res) => {
-        const userId = req.params.userId;
-
-        try {
-            const averageRating = await getAverageRatingByUserId(userId);
-            res.json({ userId, averageRating });
-        } catch (error) {
-            console.error('Error fetching the average rating:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    });
-
 
     app.get('/api/cocktail/:id/rating', async (req, res) => {
         const cocktailID = req.params.id;
@@ -238,16 +301,70 @@ import('node-fetch').then(module => {
         }
     });
 
-    // Update user favorite endpoint
-    app.post('/api/user/:userId/fav/:id', async (req, res) => {
+    app.get('/api/user/:id/username', async (req, res) => {
+        try {
+            const username = await getUsernameById(req.params.id);
+            res.json({ username });
+        } catch (error) {
+            console.error('Error fetching username:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/user/:id/email', async (req, res) => {
+        try {
+            const email = await getEmailById(req.params.id);
+            res.json({ email });
+        } catch (error) {
+            console.error('Error fetching email:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/user/:id/password', async (req, res) => {
+        try {
+            const password = await getPasswordById(req.params.id);
+            res.json({ password });
+        } catch (error) {
+            console.error('Error fetching password:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    app.get('/api/user/:userId/action/:action/count', async (req, res) => {
         const userId = req.params.userId;
-        const cocktailId = req.params.id;
+        const action = req.params.action;
 
         try {
-            await updateUserFav(userId, cocktailId);
-            res.status(200).json({ message: 'Favorite updated successfully' });
+            const count = await getCounterByUserId(userId, action);
+            res.json({ userId, action, count });
         } catch (error) {
-            console.error('Error updating user favorite:', error);
+            console.error('Error fetching the count:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.get('/api/user/:userId/action/:action/ids', async (req, res) => {
+        const userId = req.params.userId;
+        const action = req.params.action;
+
+        try {
+            const cocktailIds = await getCocktailIdsByUserId(userId, action);
+            res.json({ userId, action, cocktailIds });
+        } catch (error) {
+            console.error('Error fetching the cocktail IDs:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.get('/api/user/:userId/average-rating', async (req, res) => {
+        const userId = req.params.userId;
+
+        try {
+            const averageRating = await getAverageRatingByUserId(userId);
+            res.json({ userId, averageRating });
+        } catch (error) {
+            console.error('Error fetching the average rating:', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
@@ -261,6 +378,57 @@ import('node-fetch').then(module => {
             res.status(200).json({ message: 'Favorite deleted successfully' });
         } catch (error) {
             console.error('Error deleting user favorite:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    // Delete user interaction endpoint
+    app.delete('/api/user/:userId/interaction/:cocktailId', async (req, res) => {
+        const userId = req.params.userId;
+        const cocktailId = req.params.cocktailId;
+
+        try {
+            await deleteUserInteraction(userId, cocktailId);
+            res.status(200).json({ message: 'User interaction deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting user interaction:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.delete('/users/:username', (req, res) => {
+        const username = req.params.username;
+
+        // Destroy the session first
+        req.session.destroy(err => {
+            if (err) {
+                console.error('Error destroying session:', err);
+                res.status(500).send('Failed to delete user and logout');
+            } else {
+                // Respond to the client indicating the session was destroyed
+                res.status(200).send('Session destroyed, proceeding with user deletion.');
+
+                // Delete user from the database using the username
+                removeUserByUsername(username)
+                    .then(() => {
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting user:', error);
+                    });
+            }
+        });
+    });
+
+    // Update user favorite endpoint
+    app.post('/api/user/:userId/fav/:id', async (req, res) => {
+        const userId = req.params.userId;
+        const cocktailId = req.params.id;
+
+        try {
+            await updateUserFav(userId, cocktailId);
+            res.status(200).json({ message: 'Favorite updated successfully' });
+        } catch (error) {
+            console.error('Error updating user favorite:', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
@@ -373,20 +541,6 @@ import('node-fetch').then(module => {
         }
     });
 
-    // Delete user interaction endpoint
-    app.delete('/api/user/:userId/interaction/:cocktailId', async (req, res) => {
-        const userId = req.params.userId;
-        const cocktailId = req.params.cocktailId;
-
-        try {
-            await deleteUserInteraction(userId, cocktailId);
-            res.status(200).json({ message: 'User interaction deleted successfully' });
-        } catch (error) {
-            console.error('Error deleting user interaction:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    });
-
     app.post('/ingredients', async (req, res) => {
         try {
             const { cocktailIDs } = req.body;
@@ -417,6 +571,20 @@ import('node-fetch').then(module => {
         }
     });
 
+    app.patch('/users/:userId', (req, res) => {
+        const userId = req.params.userId;
+        const userData = req.body; // Contains fields to update
+
+        // Update user data in the database using the userId and provided data
+        updateUser2(userId, userData)
+            .then(() => {
+                res.status(200).send(`User with ID ${userId} updated successfully`);
+            })
+            .catch((error) => {
+                console.error('Error updating user:', error);
+                res.status(500).send('Failed to update user');
+            });
+    });
 
     // Update Cocktail data
     app.put('/recipe/:cocktailId', (req, res) => {
@@ -462,270 +630,6 @@ import('node-fetch').then(module => {
                 res.status(500).send('Failed to update cocktail stats');
             });
     });
-
-    app.patch('/users/:userId', (req, res) => {
-        const userId = req.params.userId;
-        const userData = req.body; // Contains fields to update
-
-        // Update user data in the database using the userId and provided data
-        updateUser2(userId, userData)
-            .then(() => {
-                res.status(200).send(`User with ID ${userId} updated successfully`);
-            })
-            .catch((error) => {
-                console.error('Error updating user:', error);
-                res.status(500).send('Failed to update user');
-            });
-    });
-
-    app.delete('/users/:username', (req, res) => {
-        const username = req.params.username;
-
-        // Destroy the session first
-        req.session.destroy(err => {
-            if (err) {
-                console.error('Error destroying session:', err);
-                res.status(500).send('Failed to delete user and logout');
-            } else {
-                // Respond to the client indicating the session was destroyed
-                res.status(200).send('Session destroyed, proceeding with user deletion.');
-
-                // Delete user from the database using the username
-                removeUserByUsername(username)
-                    .then(() => {
-                    })
-                    .catch((error) => {
-                        console.error('Error deleting user:', error);
-                    });
-            }
-        });
-    });
-
-    // returns all recipe data as JSON or XML
-    app.get('/api/allrecipes', async (req, res) => {
-        try {
-            const allCocktails = await getAllCocktailsFromAPI();
-
-            const acceptHeader = req.headers.accept;
-            if (acceptHeader && acceptHeader.includes('application/xml')) {
-                const builder = new xml2js.Builder();
-                const xml = builder.buildObject({ cocktails: allCocktails });
-
-                res.set('Content-Type', 'application/xml');
-                res.send(xml);
-
-            } else {
-                res.json(allCocktails);
-            }
-        } catch (error) {
-            console.log('Error fetch all cocktails', error);
-            res.status(500).send('Failed to fetch all cocktails');
-        }
-    });
-
-    // returns the data of a specific recipe as JSON or XML
-    app.get('/api/recipe/:cocktailID', async (req, res) => {
-        try {
-            const cocktailID = req.params.cocktailID;
-
-            // Fetch and process cocktail data asynchronously
-            const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
-            const drinks = processCocktailData(jsonData);
-
-            // Find the specific cocktail by ID
-            const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
-
-            if (recipeData) {
-                // Add cocktail to database
-                try {
-                    await addCocktailToDb(recipeData);
-                    //console.log("Successfully added cocktail:", recipeData);
-                } catch (error) {
-                    console.log("Error adding cocktail:", error);
-                }
-
-                try {
-                    await getAllCocktailsFromDb();
-                } catch (error) {
-                    console.error("Error retrieving updated list of cocktails from the database:", error);
-                }
-
-                const acceptHeader = req.headers.accept;
-
-                if (acceptHeader && acceptHeader.includes('application/xml')) {
-                    // Convert the recipeData object to XML
-                    const builder = new xml2js.Builder();
-                    const xml = builder.buildObject({ cocktail: recipeData });
-
-                    res.set('Content-Type', 'application/xml');
-                    res.send(xml);
-                } else {
-                    res.json(recipeData);
-                }
-
-            } else {
-                res.status(404).send('Recipe not found');
-            }
-        } catch (error) {
-            console.error('Error fetching and processing cocktail data:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    });
-
-    app.get('/api/getAllIngredients', async (req, res) => {
-        getAllUniqueIngredients((err, ingredients) => {
-            if (err) {
-                console.error('Fehler beim Abrufen der eindeutigen Zutaten:', err);
-            } else {
-                //console.log('Eindeutige Zutaten:', ingredients);
-                res.send(ingredients);
-            }
-        });
-    })
-
-    app.get('/api/user/:id/username', async (req, res) => {
-        try {
-            const username = await getUsernameById(req.params.id);
-            res.json({ username });
-        } catch (error) {
-            console.error('Error fetching username:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    });
-
-    app.get('/api/user/:id/email', async (req, res) => {
-        try {
-            const email = await getEmailById(req.params.id);
-            res.json({ email });
-        } catch (error) {
-            console.error('Error fetching email:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    });
-
-    app.get('/api/user/:id/password', async (req, res) => {
-        try {
-            const password = await getPasswordById(req.params.id);
-            res.json({ password });
-        } catch (error) {
-            console.error('Error fetching password:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    });
-
-    app.get('/api/cocktail', async (req, res) => {
-        try {
-            const ingredients = req.query.ingredients ? req.query.ingredients.split(',') : [];
-            if (ingredients.length === 0) {
-                return res.status(400).json({ error: 'No ingredients provided' });
-            }
-            const response = await getCocktailsByIngredients(ingredients);
-            if (response.length > 0) {
-                res.json(response);
-            } else {
-                console.log('No cocktails found for ingredients:', ingredients);
-                res.status(404).json({ error: 'Cocktail not found' });
-            }
-        } catch (error) {
-            console.error('Error getting filtered cocktails:', error);
-            res.status(500).send('Internal Server Error');
-        }
-    });
-
-    function fetchCocktailsByLetter(letter) {
-        return fetchCocktailData('search.php', 'f', letter)
-            .then(data => data.drinks || []);
-    }
-
-    async function getAllCocktailsFromAPI() {
-        let allCocktails = [];
-        const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
-        for (const letter of alphabet) { // fetchCocktailsByLetter is called with every letter and their results concatenated
-            const cocktails = await fetchCocktailsByLetter(letter);
-            allCocktails = allCocktails.concat(cocktails);
-        }
-        return allCocktails;
-    }
-
-    async function addAllCocktailsFromAPIToDb() {
-        const response = await fetch(`http://localhost:666/api/allrecipes`);
-        const jsonData = await response.json();
-        const wrappedResponse = { drinks: jsonData };
-
-        let allCocktails = processCocktailData(wrappedResponse);
-        allCocktails.forEach(cocktail => {
-            addCocktailToDb(cocktail)
-                .then(() => console.log(`Successfully added cocktail: ${cocktail.name}`))
-                .catch(err => console.error(`Error adding cocktail: ${cocktail.name}`, err));
-        });
-    }
-
-    function fetchCocktailData(endpoint, searchType, searchTerm) {
-        const apiUrl = `https://www.thecocktaildb.com/api/json/v1/1/${endpoint}?${searchType}=${searchTerm}`;
-        // possible endpoints: search.php, filter.php, lookup.php, random.php, list.php
-        // possible search types: s, f, i, iid, a, c, g,
-        // visit https://www.thecocktaildb.com/api.php to see all endpoints, query, etc.
-
-        return fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                console.log(apiUrl);
-                return response.json();
-            })
-
-            .catch(error => {
-                console.error('Fetch error:', error);
-                throw error; // Re-throw the error to propagate it down the promise chain
-            });
-    }
-
-    function transformCocktailData(apiCocktail) {
-        return {
-            id: apiCocktail.idDrink,
-            name: apiCocktail.strDrink,
-            category: apiCocktail.strCategory,
-            alcoholic: apiCocktail.strAlcoholic,
-            glass: apiCocktail.strGlass,
-            instructions: apiCocktail.strInstructions,
-            thumbnail: apiCocktail.strDrinkThumb,
-            ingredients: [
-                apiCocktail.strIngredient1,
-                apiCocktail.strIngredient2,
-                apiCocktail.strIngredient3,
-                apiCocktail.strIngredient4,
-                apiCocktail.strIngredient5,
-                apiCocktail.strIngredient6,
-                apiCocktail.strIngredient7,
-                apiCocktail.strIngredient8,
-                apiCocktail.strIngredient9,
-                apiCocktail.strIngredient10,
-                apiCocktail.strIngredient11,
-                apiCocktail.strIngredient12,
-                apiCocktail.strIngredient13,
-                apiCocktail.strIngredient14,
-                apiCocktail.strIngredient15,
-            ].filter(ingredient => ingredient), // Filter out null/undefined ingredients
-            measures: [
-                apiCocktail.strMeasure1,
-                apiCocktail.strMeasure2,
-                apiCocktail.strMeasure3,
-                apiCocktail.strMeasure4,
-                apiCocktail.strMeasure5,
-                apiCocktail.strMeasure6,
-                apiCocktail.strMeasure7,
-                apiCocktail.strMeasure8,
-                apiCocktail.strMeasure9,
-                apiCocktail.strMeasure10,
-                apiCocktail.strMeasure11,
-                apiCocktail.strMeasure12,
-                apiCocktail.strMeasure13,
-                apiCocktail.strMeasure14,
-                apiCocktail.strMeasure15,
-            ].filter(measure => measure), // Filter out null/undefined measures
-        };
-    }
 
     app.listen(666, () => {
         console.log("Server now listening on http://localhost:666");
