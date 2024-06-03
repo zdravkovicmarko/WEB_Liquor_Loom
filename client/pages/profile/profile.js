@@ -33,7 +33,7 @@ const displayProfile = async (userID) => {
         // Fetch username
         const usernameResponse = await fetch(`/api/user/${userID}/username`);
         const usernameData = await usernameResponse.json();
-        document.getElementById('username').textContent = "@" + usernameData.username;
+        document.getElementById('username').textContent = usernameData.username;
 
         // Fetch email
         const emailResponse = await fetch(`/api/user/${userID}/email`);
@@ -186,65 +186,50 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error('Error fetching average rating:', error);
     }
 
-    function createLabel(text, id) {
+    async function updateUserData(userId, userData) {
+        const response = await fetch(`/users/${userId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+        if (!response.ok) throw new Error('Failed to update user data');
+        return response.json();
+    }
+
+    async function createLabel(text, id) {
         const label = document.createElement('label');
         label.classList.add('element-input', 'tags');
         label.id = id;
         label.name = id;
-        label.textContent = text;
 
-        if (id === 'email-tag') {
-            label.classList.add('scrollbox');
-            const tagsContent = document.createElement('div');
-            tagsContent.classList.add('tags-content');
-            label.appendChild(tagsContent);
-            label.id = 'email';
+        try {
+            const response = await fetch(`/api/user/${userId}/${id}`);
+            const data = await response.json();
+            label.textContent = id === 'password' ? '*'.repeat(data[id].length) : data[id];
+        } catch (error) {
+            console.error('Error fetching user data:', error);
         }
 
         return label;
     }
 
-    function createInput(value, id) {
+    async function createInput(value, id, userId) {
         const input = document.createElement('input');
         input.classList.add('element-input', 'tags', 'input-writable'); // Add input-writable class initially
         input.id = id;
         input.name = id;
         input.type = 'text';
-        input.value = value;
+
+        try {
+            const response = await fetch(`/api/user/${userId}/${id}`);
+            const data = await response.json();
+            input.value = data[id];
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+
         input.setAttribute('data-original-text', value);
-
-        if (id === 'email-tag') {
-            input.classList.add('scrollbox');
-            const tagsContent = document.createElement('div');
-            tagsContent.classList.add('tags-content');
-            input.appendChild(tagsContent);
-            input.id = 'email';
-        }
-
         return input;
-    }
-
-    async function fetchUserData(userId) {
-        const response = await fetch(`/users/${userId}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch user data');
-        }
-        return response.json();
-    }
-
-    async function updateUserData(userId, userData) {
-        const response = await fetch(`/users/${userId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update user data');
-        }
-        return response.json();
     }
 
     // Handle (de-)selection of edit btn
@@ -256,7 +241,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             const btnId = btnPart.id;
             const btnSet = btnPart.getAttribute('data-tag-set');
             const label = document.querySelector(`#${btnId}`).closest('.element-container').querySelector('.element-input');
-            const userId = '123'; // Replace with the actual user ID
 
             // Deselect other buttons in the same set
             btnParts.forEach(otherBtnPart => {
@@ -285,20 +269,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                     } catch (error) {
                         console.error('Error updating user data:', error);
                     }
-                    label.replaceWith(createLabel(inputValue || originalText, label.id));
+                    label.replaceWith(await createLabel(inputValue || originalText, label.id));
                 }
                 selectedBtn.delete(btnId);
             } else {
                 btnPart.classList.add("selected");
                 if (label.tagName === 'LABEL') {
                     const originalText = label.textContent;
-                    label.replaceWith(createInput(originalText, label.id));
-                    try {
-                        const userData = await fetchUserData(userId);
-                        document.querySelector(`#${label.id}`).value = userData[label.name];
-                    } catch (error) {
-                        console.error('Error fetching user data:', error);
-                    }
+                    label.replaceWith(await createInput(originalText, label.id, userId));
                 }
                 selectedBtn.add(btnId);
             }

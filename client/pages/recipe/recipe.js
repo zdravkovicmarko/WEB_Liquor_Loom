@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Fetch username
                 const usernameResponse = await fetch(`/api/user/${userID}/username`);
                 const usernameData = await usernameResponse.json();
-                document.getElementById('username').textContent = "@" + usernameData.username;
+                document.getElementById('username').textContent = usernameData.username;
             } catch (error) {
                 console.error('Error fetching profile data:', error);
             }
