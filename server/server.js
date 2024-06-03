@@ -316,6 +316,17 @@ import('node-fetch').then(module => {
     app.post('/signup', (req, res) => {
         const { username, email, password, verification } = req.body;
 
+        // Check if email is valid
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            return res.status(400).json({ error: 'Please enter a valid email address' });
+        }
+
+        // Check if password is at least 6 characters
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+        }
+
         if (password !== verification) {
             return res.status(400).json({ error: 'Passwords do not match' });
         }
