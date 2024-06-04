@@ -255,18 +255,27 @@ document.addEventListener("DOMContentLoaded", () => {
             ingredientMatchedCocktails = ingredientMatchResponse.map(cocktail => cocktail.id);
         }
 
-        return allCocktails.filter(cocktail => {
+        const filtered = allCocktails.filter(cocktail => {
             const isAlcoholicMatch = !selectedTags.has('alcoholic') || cocktail.alcoholic.toLowerCase() === 'alcoholic';
             const isNonAlcoholicMatch = !selectedTags.has('non alcoholic') || cocktail.alcoholic.toLowerCase() === 'non alcoholic';
-            const isCategoryMatch = Array.from(selectedTags).filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'top rated')
-                .every(tag => cocktail.category.toLowerCase().includes(tag));
+
+            const selectedCategoryTags = Array.from(selectedTags).filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'top rated');
+
+            const isCategoryMatch = selectedCategoryTags.length === 0 || selectedCategoryTags.some(tag =>
+                cocktail.category.toLowerCase().includes(tag)
+            );
+
             const isIngredientMatch = selectedIngredients.size === 0 || ingredientMatchedCocktails.includes(cocktail.id);
             const isRatingMatch = cocktail.rating >= selectedRating;
 
             return isAlcoholicMatch && isNonAlcoholicMatch && isCategoryMatch && isIngredientMatch && isRatingMatch;
-        }).sort((a, b) =>
+        });
+
+        // Sort filtered results
+        filtered.sort((a, b) =>
             sortOrder === 'asc' ? a.name.localeCompare(b.name) : sortOrder === 'desc' ? b.name.localeCompare(a.name) : b.rating - a.rating
         );
+        return filtered;
     };
 
     // Apply filter (FE)
