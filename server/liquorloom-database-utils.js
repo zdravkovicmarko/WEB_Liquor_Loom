@@ -237,7 +237,7 @@ function insertUser(username, email, password) {
     });
 }
 
-function updateUser(id, username, email, password) {
+function updateUserPut(id, username, email, password) {
     return new Promise((resolve, reject) => {
         const query = `UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?`;
         db.run(query, [username, email, password, id], function (err) {
@@ -252,15 +252,13 @@ function updateUser(id, username, email, password) {
     });
 }
 
-function updateUser2(id, userData) {
+async function updateUserPatch(id, userData) {
     return new Promise((resolve, reject) => {
-        // Construct the SET clause dynamically based on provided fields
         const updateFields = Object.keys(userData).map(field => `${field} = ?`).join(', ');
         const values = Object.values(userData);
+        values.push(id);
 
         const query = `UPDATE users SET ${updateFields} WHERE id = ?`;
-        // Add the user ID at the end of the values array
-        values.push(id);
 
         db.run(query, values, function (err) {
             if (err) {
@@ -269,6 +267,36 @@ function updateUser2(id, userData) {
             } else {
                 console.log(`User with ID ${id} updated successfully`);
                 resolve();
+            }
+        });
+    });
+}
+
+function setIsAdmin(userId, isAdmin) { // isAdmin is a boolean
+    return new Promise((resolve, reject) => {
+        const sql = `UPDATE users SET is_admin = ? WHERE id = ?`;
+        db.run(sql, [isAdmin ? 'yes' : 'no', userId], function(err) {
+
+            if (err) {
+                reject(err);
+            } else {
+                resolve(`is_admin field for user with ID ${userId} set to ${isAdmin}`);
+            }
+        });
+    });
+}
+
+async function isUserAdmin(userId) {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT is_admin FROM users WHERE id = ?', [userId], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (row && row.is_admin === 'yes') {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
             }
         });
     });
@@ -769,8 +797,10 @@ module.exports ={
     updateCocktailIngredients,
     updateCocktailStats,
     insertUser,
-    updateUser,
-    updateUser2,
+    setIsAdmin,
+    isUserAdmin,
+    updateUserPut,
+    updateUserPatch,
     removeUserByUsername,
     clearUserDatabase,
     getUser,

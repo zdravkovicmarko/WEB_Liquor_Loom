@@ -12,15 +12,20 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({username, password})
     })
         .then(response => {
             if (!response.ok) {
-                return response.json().then(error => { throw new Error(error.error); });
+                return response.json().then(error => {
+                    throw new Error(error.error);
+                });
             }
             return response.json();
         })
         .then(data => {
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
             console.log('Success:', data);
             window.location.href = '/home';
         })
@@ -30,7 +35,7 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
                 console.error('Handled Error:', error);
             } else if (error.message === 'Invalid username or password') {
                 displayMessage(alertError, 'Invalid password!', 3000);
-            } else if (error.message === 'Unexpected token \'U\', "User alrea"... is not valid JSON') {
+            } else if (error.message === 'You are already logged in!') {
                 displayMessage(alertError, 'You are already logged in!', 3000);
             } else {
                 console.error('Unhandled error:', error);

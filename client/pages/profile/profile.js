@@ -1,4 +1,4 @@
-import {appendCocktailById, logoutBtnHandling} from '/client/base.js';
+import {appendCocktailById, displayMessage, logoutBtnHandling} from '/client/base.js';
 
 // Event listeners for navigation
 document.getElementById('logo-container').addEventListener('click', function() {
@@ -187,13 +187,28 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function updateUserData(userId, userData) {
-        const response = await fetch(`/users/${userId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData)
-        });
-        if (!response.ok) throw new Error('Failed to update user data');
-        return response.json();
+        const alertError = document.getElementById('alert-error');
+        const alertSuccess = document.getElementById('alert-success');
+
+        try {
+            const response = await fetch(`/users/${userId}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(userData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                displayMessage(alertError, errorData.error, 5000);
+            } else {
+                const result = await response.json();
+                displayMessage(alertSuccess, 'User info successfully updated!', 3000);
+                return result;
+            }
+        } catch (error) {
+            console.error('Error updating user data:', error);
+            displayMessage(alertError, 'An error occurred while updating the user data. Please try again later.', 10000);
+        }
     }
 
     async function createLabel(text, id) {

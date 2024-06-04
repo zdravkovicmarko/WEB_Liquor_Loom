@@ -16,89 +16,89 @@
 <body>
     <div class="alert error-alert hidden" id="alert-error"></div>
     <div class="alert success-alert hidden" id="alert-success"></div>
-<header>
-    <div class="logo-container" id="logo-container">
-        <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
-        <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
-    </div>
-    <div class="middle-container">
-        <label class="search-bar search-header" for="search">
-            <input id="search">
-        </label>
-    </div>
-    <div class="profile-container">
-        <button class="btn-normal-grey" id="login-btn">LOGIN</button>
-        <button class="btn-normal-grey hidden" id="logout-btn">LOGOUT</button>
-        <img class="header-profile-picture" id="profile-pic" src="/client/images/profile_picture_empty.png" alt="Profile Picture">
-    </div>
-</header>
-<aside id="sidebar">
-    <div class="element-border">
-        <div class="element-container">
-            <div class="element-inner-container tags">
-                <span class="tag" data-tag-set="1">alcoholic</span>
-                <span class="tag" data-tag-set="1">non alcoholic</span>
-            </div>
+    <header>
+        <div class="logo-container" id="logo-container">
+            <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
+            <img class="logo-small" src="/client/images/logo_small_orange.png" alt="LiquorLoom Logo Small">
         </div>
-        <div class="element-container">
-            <label class="main-label">Categories</label>
-            <div class="element-inner-container tags">
-                <span class="tag" data-tag-set="0">shot</span>
-                <span class="tag" data-tag-set="0">cocoa</span>
-                <span class="tag" data-tag-set="0">coffee / tea</span>
-                <span class="tag" data-tag-set="0">homemade liqueur</span>
-                <span class="tag" data-tag-set="0">shake</span>
-                <span class="tag" data-tag-set="0">ordinary drink</span>
-                <span class="tag" data-tag-set="0">soft drink</span>
-                <span class="tag" data-tag-set="0">punch / party drink</span>
-                <span class="tag" data-tag-set="0">beer</span>
-                <span class="tag" data-tag-set="0">cocktail</span>
-                <span class="tag" data-tag-set="0">other / unknown</span>
-
-            </div>
-        </div>
-        <div class="element-container">
-            <label class="main-label">Ingredients</label>
-            <label class="search-bar search-ingredients" for="search-ingredients">
-                <input id="search-ingredients">
+        <div class="middle-container">
+            <label class="search-bar search-header" for="search">
+                <input id="search">
             </label>
-            <div class="element-inner-container tags ingredients">
+        </div>
+        <div class="profile-container">
+            <button class="btn-normal-grey" id="login-btn">LOGIN</button>
+            <button class="btn-normal-grey hidden" id="logout-btn">LOGOUT</button>
+            <img class="header-profile-picture" id="profile-pic" src="/client/images/profile_picture_empty.png" alt="Profile Picture">
+        </div>
+    </header>
+    <aside id="sidebar">
+        <div class="element-border">
+            <div class="element-container">
+                <div class="element-inner-container tags">
+                    <span class="tag" data-tag-set="1">alcoholic</span>
+                    <span class="tag" data-tag-set="1">non alcoholic</span>
+                </div>
+            </div>
+            <div class="element-container">
+                <label class="main-label">Categories</label>
+                <div class="element-inner-container tags">
+                    <span class="tag" data-tag-set="0">shot</span>
+                    <span class="tag" data-tag-set="0">cocoa</span>
+                    <span class="tag" data-tag-set="0">coffee / tea</span>
+                    <span class="tag" data-tag-set="0">homemade liqueur</span>
+                    <span class="tag" data-tag-set="0">shake</span>
+                    <span class="tag" data-tag-set="0">ordinary drink</span>
+                    <span class="tag" data-tag-set="0">soft drink</span>
+                    <span class="tag" data-tag-set="0">punch / party drink</span>
+                    <span class="tag" data-tag-set="0">beer</span>
+                    <span class="tag" data-tag-set="0">cocktail</span>
+                    <span class="tag" data-tag-set="0">other / unknown</span>
 
+                </div>
             </div>
-        </div>
-        <div class="element-container">
-            <span class="main-label slide-value"></span>
-            <div class="element-inner-container rating-container">
-                <label class="rating-bar" for="slide">
-                    <input id="slide" type="range" min="0.0" max="5.0" step="0.1" value="0">
+            <div class="element-container">
+                <label class="main-label">Ingredients</label>
+                <label class="search-bar search-ingredients" for="search-ingredients">
+                    <input id="search-ingredients">
                 </label>
+                <div class="element-inner-container tags ingredients">
+
+                </div>
+            </div>
+            <div class="element-container">
+                <span class="main-label slide-value"></span>
+                <div class="element-inner-container rating-container">
+                    <label class="rating-bar" for="slide">
+                        <input id="slide" type="range" min="0.0" max="5.0" step="0.1" value="0">
+                    </label>
+                </div>
+            </div>
+            <div class="element-container">
+                <label class="main-label">Sort by</label>
+                <div class="element-inner-container tags">
+                    <span class="tag" data-tag-set="2">asc</span>
+                    <span class="tag" data-tag-set="2">desc</span>
+                    <span class="tag" data-tag-set="2">top rated</span>
+                </div>
+            </div>
+            <div class="element-container btn-container" id="filter-button">
+                <button class="btn-bold-orange">FILTER</button>
             </div>
         </div>
-        <div class="element-container">
-            <label class="main-label">Sort by</label>
-            <div class="element-inner-container tags">
-                <span class="tag" data-tag-set="2">asc</span>
-                <span class="tag" data-tag-set="2">desc</span>
-                <span class="tag" data-tag-set="2">top rated</span>
+    </aside>
+    <main>
+        <div class="element-border">
+            <div class="subheader">
+                <label class="title-label">DRINKS</label>
+                <span class="tag" id="random-button">Open Random Recipe</span>
+            </div>
+            <div class="alert alert-not-fixed hidden" id="alert-fetch-data"></div>
+            <div class="alert alert-not-fixed error-alert hidden" id="alert-fetch-error"></div>
+            <div class="cocktails-container">
+                <!-- Cocktail items will be dynamically appended here -->
             </div>
         </div>
-        <div class="element-container btn-container" id="filter-button">
-            <button class="btn-bold-orange">FILTER</button>
-        </div>
-    </div>
-</aside>
-<main>
-    <div class="element-border">
-        <div class="subheader">
-            <label class="title-label">DRINKS</label>
-            <span class="tag" id="random-button">Open Random Recipe</span>
-        </div>
-        <div class="alert alert-not-fixed hidden" id="alert-fetch-data"></div>
-        <div class="alert alert-not-fixed error-alert hidden" id="alert-fetch-error"></div>
-        <div class="cocktails-container">
-            <!-- Cocktail items will be dynamically appended here -->
-        </div>
-    </div>
-</main>
+    </main>
 </body>
 </html>

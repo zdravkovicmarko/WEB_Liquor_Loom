@@ -4,11 +4,11 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, updateUser2, checkUserExists, checkEmailExists, updateUser, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, setIsAdmin, isUserAdmin, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const app = express();
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
-const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI} = require('./server-utils.js')
-
+const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI, generateToken, verifyToken} = require('./server-utils.js')
+const app = express();
 let fetch;
 
 import('node-fetch').then(module => {
@@ -433,7 +433,7 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.post('/add-cocktail', (req, res) => {
+    app.post('/add-cocktail', verifyToken, (req, res) => {
         // If cocktail data is in the request body
         const cocktailData = req.body;
 
@@ -471,7 +471,15 @@ import('node-fetch').then(module => {
             if (user) {
                 // Create a session for the logged-in user
                 req.session.userId = user.id;
-                res.json({ success: true });
+                console.log('user is admin? ' , await isUserAdmin(user.id));
+                // Create a JWT token for admin users
+                if (await isUserAdmin(user.id)) {
+                    const token = generateToken(user);
+                    res.json({ success: true, token });
+                } else {
+                    res.json({ success: true });
+                }
+
             } else {
                 res.status(401).json({ error: 'Invalid username or password' });
             }
@@ -571,23 +579,53 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.patch('/users/:userId', (req, res) => {
+    app.post('/api/user/:userId/set-admin', verifyToken, async (req, res) => {
         const userId = req.params.userId;
-        const userData = req.body; // Contains fields to update
 
-        // Update user data in the database using the userId and provided data
-        updateUser2(userId, userData)
-            .then(() => {
-                res.status(200).send(`User with ID ${userId} updated successfully`);
-            })
-            .catch((error) => {
-                console.error('Error updating user:', error);
-                res.status(500).send('Failed to update user');
-            });
+        try {
+            // Call setIsAdmin function to set user as admin
+            await setIsAdmin(userId, true);
+            res.status(200).json({ message: 'Admin rights changed successfully' });
+        } catch (error) {
+            console.error('Error setting admin rights:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app.patch('/users/:userId', async (req, res) => {
+        const userId = req.params.userId;
+        const userData = req.body;
+
+        try {
+            // Retrieve current email and username of the user
+            const userEmail = await getEmailById(userId);
+            const userUsername = await getUsernameById(userId);
+
+            // Check if email or username already exist for other users
+            const emailExists = await checkEmailExists(userData.email);
+            const usernameExists = await checkUserExists(userData.username);
+
+            if (emailExists && userData.email !== userEmail) {
+                res.status(400).json({ error: 'Email already exists. Please use a different email.' });
+            } else if (usernameExists && userData.username !== userUsername) {
+                res.status(400).json({ error: 'Username already exists. Please choose a different username.' });
+            } else if (emailExists && userData.email === userEmail) {
+                res.status(400).json({ error: 'That is your email??? Duh-doy!' });
+            } else if (usernameExists && userData.username === userUsername) {
+                res.status(400).json({ error: 'That is your username you idiot.' });
+            } else {
+                // Update user data in the database using the userId and provided data
+                await updateUserPatch(userId, userData);
+                res.status(200).json({ message: `User with ID ${userId} updated successfully` });
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            res.status(500).json({ error: 'Failed to update user' });
+        }
     });
 
     // Update Cocktail data
-    app.put('/recipe/:cocktailId', (req, res) => {
+    app.put('/recipe/:cocktailId', verifyToken, (req, res) => {
         const cocktailId = req.params.cocktailId;
         const { name, category, alcoholic, glass, instructions, thumbnail } = req.body;
 
@@ -602,7 +640,7 @@ import('node-fetch').then(module => {
     });
 
     // Update Cocktail ingredients and its measures,
-    app.put('/recipe/:cocktailId/ingredients', (req, res) => {
+    app.put('/recipe/:cocktailId/ingredients', verifyToken, (req, res) => {
         const cocktailId = req.params.cocktailId;
         const { ingredients } = req.body;
 

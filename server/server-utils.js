@@ -1,5 +1,8 @@
 const {processCocktailData} = require("./cocktail-utils");
 const {addCocktailToDb} = require("./liquorloom-database-utils");
+const jwt = require('jsonwebtoken');
+
+const secretKey = 'DaS_ISt_meIN_sEcReT_KEY';
 
 function transformCocktailData(apiCocktail) {
     return {
@@ -96,10 +99,34 @@ async function getAllCocktailsFromAPI() {
     return allCocktails;
 }
 
+function generateToken(user) {
+    return jwt.sign({ id: user.id, isAdmin: user.is_admin }, secretKey, { expiresIn: '1h' });
+}
+
+// Middleware-Funktion zum Überprüfen des JWT-Tokens
+function verifyToken(req, res, next) {
+    const token = req.headers['authorization'];
+    console.log('This is my token in verify Token: ', token);
+
+    if (!token) {
+        return res.status(401).json({ error: 'Access Denied' });
+    }
+
+    jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ error: 'Invalid Token' });
+        }
+        req.user = decoded;
+        next();
+    });
+}
+
 module.exports = {
     transformCocktailData,
     fetchCocktailData,
     addAllCocktailsFromAPIToDb,
     fetchCocktailsByLetter,
-    getAllCocktailsFromAPI
+    getAllCocktailsFromAPI,
+    generateToken,
+    verifyToken
 }
