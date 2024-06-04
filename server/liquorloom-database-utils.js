@@ -767,10 +767,9 @@ function getCocktailsByIngredients(ingredients) {
             JOIN ingredients i ON c.id = i.cocktail_id
             WHERE i.ingredient IN (${placeholders})
             GROUP BY c.id
-            HAVING COUNT(DISTINCT i.ingredient) = ?
         `;
 
-        const params = [...ingredients, ingredients.length];
+        const params = [...ingredients];
 
         db.all(query, params, function(err, rows) {
             if (err) {
@@ -782,7 +781,6 @@ function getCocktailsByIngredients(ingredients) {
         });
     });
 }
-
 
 module.exports ={
     runQuery,
