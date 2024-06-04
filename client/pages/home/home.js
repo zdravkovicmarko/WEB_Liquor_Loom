@@ -170,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // Sets order type for filter method
             if (tagSet === '2') {
                 sortOrder = tagText; // Sets order type for filter method
-                return; // Exit the function early since no further action is needed
             }
 
             // Handles deselection of tags in same set
@@ -211,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return allCocktails.filter(cocktail => {
             const isAlcoholicMatch = !selectedTags.has('alcoholic') || cocktail.alcoholic.toLowerCase() === 'alcoholic';
             const isNonAlcoholicMatch = !selectedTags.has('non alcoholic') || cocktail.alcoholic.toLowerCase() === 'non alcoholic';
-            const isCategoryMatch = Array.from(selectedTags).filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'rating')
+            const isCategoryMatch = Array.from(selectedTags).filter(tag => tag !== 'alcoholic' && tag !== 'non alcoholic' && tag !== 'asc' && tag !== 'desc' && tag !== 'top rated')
                 .every(tag => cocktail.category.toLowerCase().includes(tag));
             const isIngredientMatch = selectedIngredients.size === 0 || ingredientMatchedCocktails.includes(cocktail.id);
             const isRatingMatch = cocktail.rating >= selectedRating;
