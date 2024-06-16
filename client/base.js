@@ -113,6 +113,9 @@ export async function checkLoginStatus() {
             document.getElementById('login-btn').classList.add('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
         } else {
+            if (localStorage.getItem('token')) {
+                localStorage.removeItem('token');
+            }
             document.getElementById('login-btn').classList.remove('hidden');
             document.getElementById('logout-btn').classList.add('hidden');
         }
@@ -182,6 +185,9 @@ export function logoutBtnHandling() {
 
     logoutButton.addEventListener('click', async function(event) {
         try {
+            if (localStorage.getItem('token')) {
+                localStorage.removeItem('token');
+            }
             localStorage.setItem('logoutSuccess', 'true');
             window.location.href = '/logout';
         } catch (error) {

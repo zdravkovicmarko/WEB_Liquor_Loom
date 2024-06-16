@@ -580,7 +580,7 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.post('/api/user/:userId/set-admin', verifyToken, async (req, res) => {
+    app.post('/user/:userId/set-admin', verifyToken, async (req, res) => {
         const userId = req.params.userId;
 
         try {
