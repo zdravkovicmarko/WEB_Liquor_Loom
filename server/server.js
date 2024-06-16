@@ -3,6 +3,8 @@ const path = require('path');
 const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
+const secret = crypto.randomBytes(32).toString('hex');
 const { processCocktailData } = require('./cocktail-utils');
 const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, setIsAdmin, isUserAdmin, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
@@ -23,7 +25,7 @@ import('node-fetch').then(module => {
     app.use(bodyParser.json());
 
     app.use(session({
-        secret: 'your_secret_key', // Replace with your own secret key
+        secret: secret,
         resave: false,
         saveUninitialized: true,
         cookie: { secure: false } // Use secure: true in production with HTTPS
