@@ -12,19 +12,17 @@ logoutBtnHandling();
 document.addEventListener("DOMContentLoaded", () => {
     const randomContainer = document.getElementById("random-button");
     const cocktailsContainer = document.querySelector(".cocktails-container");
-    const filterButton = document.getElementById("filter-button");
     const searchInput = document.getElementById("search");
     const ingredientSearchInput = document.getElementById("search-ingredients");
     const ingredientTagsContainer = document.querySelector(".element-inner-container.ingredients");
+    const tagElements = document.querySelectorAll("#sidebar .tag");
+    const ratingSlider = document.getElementById('slide');
     let selectedTags = new Set();
     let selectedIngredients = new Set();
     let allCocktails = [];
     let isLoading = false;
     let sortOrder = 'asc';
     let allIngredients = new Set();
-
-    const ratingSlider = document.getElementById('slide');
-    const ratingRange = parseFloat(ratingSlider.value);
 
     const searchBarInput = document.getElementById('search');
     searchBarInput.addEventListener('input', function() {
@@ -280,7 +278,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Apply filter (FE)
     const applyFilter = async () => {
-        if (isLoading) return;
+        // Wait until isLoading becomes false to filter
+        while (isLoading) { await new Promise(resolve => setTimeout(resolve, 500)); }
 
         console.log('Applying filter');
         cocktailsContainer.innerHTML = '';
@@ -298,7 +297,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    if (filterButton) filterButton.addEventListener("click", applyFilter);
+    // Add event listeners to all tag elements
+    tagElements.forEach(tag => {
+        tag.addEventListener("click", applyFilter);
+    });
+
+    // Add event listener to slider's value change
+    if (ratingSlider) { ratingSlider.addEventListener("change", applyFilter); }
 
     // Handle ingredient tags based on search input (FE & BE)
     const updateIngredientTags = (searchTerm) => {
@@ -326,6 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     selectedIngredients.add(ingredient);
                 }
                 updateIngredientTags(searchTerm);
+                applyFilter();
             });
 
             ingredientTagsContainer.appendChild(ingredientTag);
