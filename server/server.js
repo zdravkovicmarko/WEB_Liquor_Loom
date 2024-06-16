@@ -4,6 +4,7 @@ const session = require('express-session');
 const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+const cors = require('cors');
 const secret = crypto.randomBytes(32).toString('hex');
 const { processCocktailData } = require('./cocktail-utils');
 const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, setIsAdmin, isUserAdmin, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
@@ -19,6 +20,7 @@ import('node-fetch').then(module => {
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
+    app.use(cors());
 
     // Middleware to parse URL-encoded data and JSON data
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,7 +35,7 @@ import('node-fetch').then(module => {
 
     // Middleware to redirect from '/' to '/home'
     app.get('/', (req, res) => {
-        res.redirect('/home');
+        res.redirect(302,'/home');
     });
 
     app.get('/home', function (req, res) {
@@ -42,6 +44,14 @@ import('node-fetch').then(module => {
 
     app.get('/login', function (req, res) {
         res.sendFile(path.join(__dirname, '../client/pages/authentication/login.html'));
+    });
+
+    app.get('/signup/', function (req, res) {
+        res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
+    });
+
+    app.get('/recipe/:cocktailID', function (req, res) {
+        res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
     });
 
     app.get('/logout', (req, res) => {
@@ -63,6 +73,17 @@ import('node-fetch').then(module => {
         }
     });
 
+    app.get('/profile', async function (req, res) {
+        if (req.session && req.session.userId) {
+            console.log(req.session.userId)
+            // If logged in, send profile page
+            res.status(200).sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
+        } else {
+            // If not logged in, redirect to login page
+            res.redirect(302, '/login');
+        }
+    });
+
     app.get('/login-status', (req, res) => {
         if (req.session && req.session.userId) {
             res.json({ loggedIn: true });
@@ -78,24 +99,6 @@ import('node-fetch').then(module => {
         } else {
             res.status(401).json({ error: 'User not logged in' });
         }
-    });
-
-    app.get('/signup/', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
-    });
-
-    app.get('/profile', async function (req, res) {
-        if (req.session && req.session.userId) {
-            // If logged in, send profile page
-            res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
-        } else {
-            // If not logged in, redirect to login page
-            res.redirect('/login');
-        }
-    });
-
-    app.get('/recipe/:cocktailID', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
     });
 
     app.get('/cocktails', async (req, res) => {
@@ -476,9 +479,16 @@ import('node-fetch').then(module => {
                 // Create a JWT token for admin users
                 if (await isUserAdmin(user.id)) {
                     const token = generateToken(user);
-                    res.json({ success: true, token });
+                    res.json({
+                        success: true,
+                        sessionId: req.session.id,
+                        token: token
+                    });
                 } else {
-                    res.json({ success: true });
+                    res.json({
+                        success: true,
+                        sessionId: req.session.id,
+                    });
                 }
 
             } else {
