@@ -1,5 +1,9 @@
 @import url(/client/base.css);
 
+:root {
+    --btn-big-font-size: 1.5rem;
+}
+
 body {
     display: grid;
     grid-template-areas:
@@ -12,10 +16,11 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-bottom: 50px;
 }
 
 .element-border {
-    width: 600px;
+    width: 400px;
 }
 .btn-container {
     margin-top: 5%;
@@ -24,19 +29,14 @@ main {
     justify-content: space-between;
 }
 .btn-normal-grey {
-    font-size: 135%;
     margin-right: 5px;
 }
 .btn-normal-grey:hover {
     text-shadow: 0 0 15px black;
 }
 
-/* Responsive Layout */
-@media (max-width: 930px) {
-    .btn-normal-grey {
-        display: flex;
-    }
+@media (max-width: 460px) {
     .element-border {
-        width: 400px;
+        width: 100%;
     }
 }

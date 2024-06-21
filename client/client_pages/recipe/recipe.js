@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Fetch & display recipe (FE & BE)
     const displayRecipe = async (cocktailID) => {
         const alertFetch = document.getElementById('alert-fetch-data');
-        const mainContainer = document.getElementById('main');
         displayMessage(alertFetch, 'Currently fetching recipe...', 1000000);
         try {
             // Fetch cocktail data asynchronously
@@ -58,7 +57,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ingredientsList.appendChild(listItem);
             }
             document.getElementById('instructions').textContent = recipeData.instructions;
-            mainContainer.style.display = 'grid';
 
             // Adds columns for ingredients if exceeding 250px
             const ingredientsDiv = document.querySelector('.ingredients');
@@ -85,9 +83,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (userID) {
             try {
                 // Display rate container
-                const mainContainer = document.getElementById('main');
-                mainContainer.classList.remove('normal-main');
-                mainContainer.classList.add('account-main');
                 const rateContainer = document.getElementById('rate-container');
                 rateContainer.classList.remove('hidden');
                 const favContainer = document.getElementById('btn-fav');

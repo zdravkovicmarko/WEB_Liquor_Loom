@@ -1,1 +1,5 @@
 @import url(authentication.css);
+
+:root {
+    --btn-small-font-size: 1.15rem;
+}

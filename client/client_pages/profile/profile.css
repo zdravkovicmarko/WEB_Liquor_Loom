@@ -1,23 +1,23 @@
 @import url(/client/base.css);
 
 :root {
-    --base-font-size: 1rem;
+    --base-font-size: 1.25rem;
     --main-label-size: 1.25rem;
+    --btn-big-font-size: 1.5rem;
+    --cocktail-name-font-size: 1.45rem;
+
+    --profile-picture-size: 270px;
     --cocktail-img-size: 220px;
     --btn-part-size: 40px;
     --btn-img-size: 24px;
-    --profile-picture-size: 270px;
 }
 body {
-    display: grid;
     grid-template-areas:
         "h h"
         "s m"
         "f f";
     grid-template-columns: 335px auto;
     grid-template-rows: 135px auto 35px;
-    margin: 0;
-    font-size: var(--base-font-size);
 }
 main {
     display: grid;
@@ -108,7 +108,6 @@ main {
     justify-content: space-between;
 }
 .btn-normal-grey {
-    font-size: 135%;
     margin: 0 5px 0 5px;
 }
 
@@ -151,7 +150,6 @@ main {
     display: grid;
     grid-template-areas:
         "s-r s-s";
-    font-size: 1.25em;
     align-content: center;
 }
 .stats-container > * {
@@ -184,7 +182,6 @@ main {
     color: var(--orange);
 }
 
-/* Responsive Layout */
 @media (max-width: 930px) {
     .btn-normal-grey {
         display: flex;
