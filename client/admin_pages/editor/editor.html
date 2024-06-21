@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor - LiquorLoom</title>
+    <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
+    <link rel="stylesheet" href="/client/base.css">
+    <link rel="stylesheet" href="/client/admin_pages/editor/editor.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script type="module" src="/client/admin_pages/editor/editor.js"></script>
+</head>
+<body>
+<span class="alert error-alert hidden" id="alert-error"></span>
+<div class="alert success-alert hidden" id="alert-success"></div>
+<header>
+    <div class="middle-container">
+        <label class="search-bar search-header" for="search">
+            <input id="search">
+        </label>
+    </div>
+</header>
+<main>
+    <div class="element-border">
+        <div class="element-container">
+            <label class="main-label" for="cocktail_id">ID</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_id" name="cocktail_id" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_name">Cocktail Name</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_name" name="cocktail_name" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_category">Category</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_category" name="cocktail_category" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_alcoholic">Alcoholic</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_alcoholic" name="cocktail_alcoholic" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_glass">Glass</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_glass" name="cocktail_glass" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_instructions">Instructions</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_instructions" name="cocktail_instructions" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_thumbnail">Thumbnail URL</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_thumbnail" name="cocktail_thumbnail" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_ingredients">Instructions</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_ingredients" name="cocktail_ingredients" required>
+            </div>
+        </div>
+        <div class="element-container">
+            <label class="main-label" for="cocktail_measures">Measures</label>
+            <div class="element-inner-container">
+                <input class="element-input" type="text" id="cocktail_measures" name="cocktail_measures" required>
+            </div>
+        </div>
+        <div class="element-container btn-container">
+            <button class="btn-bold-orange" type="submit">SAVE</button>
+            <button class="btn-normal-grey" id="signup" type="button">DELETE</button>
+        </div>
+    </div>
+</main>
+</body>
+</html>

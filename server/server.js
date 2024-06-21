@@ -10,12 +10,11 @@ const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktail
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI, generateToken, verifyToken} = require('./server-utils.js')
 const app = express();
+const app_admin = express();
 let fetch;
 
 import('node-fetch').then(module => {
     fetch = module.default;
-
-    // Now that fetch is available, proceed with the server setup
 
     // Serve static content
     app.use('/client', express.static(path.join(__dirname, '../client')));
@@ -37,11 +36,11 @@ import('node-fetch').then(module => {
     });
 
     app.get('/home', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/home/home.html'));
+        res.sendFile(path.join(__dirname, '../client/client_pages/home/home.html'));
     });
 
     app.get('/login', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/authentication/login.html'));
+        res.sendFile(path.join(__dirname, '../client/client_pages/authentication/login.html'));
     });
 
     app.get('/logout', (req, res) => {
@@ -81,13 +80,13 @@ import('node-fetch').then(module => {
     });
 
     app.get('/signup/', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/authentication/signup.html'));
+        res.sendFile(path.join(__dirname, '../client/client_pages/authentication/signup.html'));
     });
 
     app.get('/profile', async function (req, res) {
         if (req.session && req.session.userId) {
             // If logged in, send profile page
-            res.sendFile(path.join(__dirname, '../client/pages/profile/profile.html'));
+            res.sendFile(path.join(__dirname, '../client/client_pages/profile/profile.html'));
         } else {
             // If not logged in, redirect to login page
             res.redirect('/login');
@@ -95,7 +94,7 @@ import('node-fetch').then(module => {
     });
 
     app.get('/recipe/:cocktailID', function (req, res) {
-        res.sendFile(path.join(__dirname, '../client/pages/recipe/recipe.html'));
+        res.sendFile(path.join(__dirname, '../client/client_pages/recipe/recipe.html'));
     });
 
     app.get('/cocktails', async (req, res) => {
@@ -434,19 +433,6 @@ import('node-fetch').then(module => {
         }
     });
 
-    app.post('/add-cocktail', verifyToken, (req, res) => {
-        // If cocktail data is in the request body
-        const cocktailData = req.body;
-
-        addCocktailToDb(cocktailData)
-            .then(cocktail => {
-                res.status(201).json({ message: 'Cocktail added successfully', cocktail });
-            })
-            .catch(error => {
-                res.status(500).json({ error: 'Failed to add cocktail' });
-            });
-    });
-
     app.post('/login', async (req, res) => {
         const { username, password } = req.body;
 
@@ -625,36 +611,6 @@ import('node-fetch').then(module => {
         }
     });
 
-    // Update Cocktail data
-    app.put('/recipe/:cocktailId', verifyToken, (req, res) => {
-        const cocktailId = req.params.cocktailId;
-        const { name, category, alcoholic, glass, instructions, thumbnail } = req.body;
-
-        updateCocktailInDb(cocktailId, name, category, alcoholic, glass, instructions, thumbnail)
-            .then(() => {
-                res.status(200).send(`Cocktail with ID ${cocktailId} updated successfully`);
-            })
-            .catch((error) => {
-                console.error('Error updating cocktail:', error);
-                res.status(500).send(`Failed to update cocktail with ID ${cocktailId}`);
-            });
-    });
-
-    // Update Cocktail ingredients and its measures,
-    app.put('/recipe/:cocktailId/ingredients', verifyToken, (req, res) => {
-        const cocktailId = req.params.cocktailId;
-        const { ingredients } = req.body;
-
-        updateCocktailIngredients(cocktailId, ingredients)
-            .then(() => {
-                res.status(200).send(`Ingredients for cocktail with ID ${cocktailId} updated successfully`);
-            })
-            .catch((error) => {
-                console.error('Error updating cocktail ingredients:', error);
-                res.status(500).send('Failed to update cocktail ingredients');
-            });
-    });
-
     // Update the stats of a cocktail
     app.put('/cocktails/:cocktailId/stats', (req, res) => {
         const cocktailId = req.params.cocktailId;
@@ -673,6 +629,70 @@ import('node-fetch').then(module => {
     app.listen(666, () => {
         console.log("Server now listening on http://localhost:666");
     });
+
+    // Serve static content
+    app_admin.use('/client', express.static(path.join(__dirname, '../client')));
+
+    // Middleware to parse URL-encoded data and JSON data
+    app_admin.use(bodyParser.urlencoded({ extended: true }));
+    app_admin.use(bodyParser.json());
+
+    // Middleware to redirect from '/' to '/home'
+    app_admin.get('/', (req, res) => {
+        res.redirect('/editor');
+    });
+
+    app_admin.get('/editor', function (req, res) {
+        res.sendFile(path.join(__dirname, '../client/admin_pages/editor/editor.html'));
+    });
+
+    app_admin.post('/add-cocktail', verifyToken, (req, res) => {
+        // If cocktail data is in the request body
+        const cocktailData = req.body;
+
+        addCocktailToDb(cocktailData)
+            .then(cocktail => {
+                res.status(201).json({ message: 'Cocktail added successfully', cocktail });
+            })
+            .catch(error => {
+                res.status(500).json({ error: 'Failed to add cocktail' });
+            });
+    });
+
+    // Update Cocktail data
+    app_admin.put('/recipe/:cocktailId', verifyToken, (req, res) => {
+        const cocktailId = req.params.cocktailId;
+        const { name, category, alcoholic, glass, instructions, thumbnail } = req.body;
+
+        updateCocktailInDb(cocktailId, name, category, alcoholic, glass, instructions, thumbnail)
+            .then(() => {
+                res.status(200).send(`Cocktail with ID ${cocktailId} updated successfully`);
+            })
+            .catch((error) => {
+                console.error('Error updating cocktail:', error);
+                res.status(500).send(`Failed to update cocktail with ID ${cocktailId}`);
+            });
+    });
+
+    // Update Cocktail ingredients and its measures,
+    app_admin.put('/recipe/:cocktailId/ingredients', verifyToken, (req, res) => {
+        const cocktailId = req.params.cocktailId;
+        const { ingredients } = req.body;
+
+        updateCocktailIngredients(cocktailId, ingredients)
+            .then(() => {
+                res.status(200).send(`Ingredients for cocktail with ID ${cocktailId} updated successfully`);
+            })
+            .catch((error) => {
+                console.error('Error updating cocktail ingredients:', error);
+                res.status(500).send('Failed to update cocktail ingredients');
+            });
+    });
+
+    app_admin.listen(999, () => {
+        console.log("Admin server now listening on http://localhost:999");
+    });
+
 }).catch(err => {
     console.error('Error importing node-fetch:', err);
 });
