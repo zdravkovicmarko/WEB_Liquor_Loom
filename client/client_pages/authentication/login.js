@@ -32,30 +32,34 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
             window.location.href = '/home';
         })
         .catch(error => {
-            let imageUrl = '';
+            let status = error.status;
 
-            if (error.status === 404) {
-                imageUrl = 'https://http.cat/404';
+            let imageUrl = `https://http.cat/${status}`;
+
+            // Use no-cors to fetch the image directly
+            fetch(imageUrl, { mode: 'no-cors' })
+                .then(() => {
+                    errorImageContainer.innerHTML = `<img src="${imageUrl}" alt="Error Image">`;
+                    errorImageContainer.classList.add('element-cat');
+                    errorImageContainer.style.display = 'block';
+
+                    setTimeout(() => {
+                        errorImageContainer.style.display = 'none';
+                    }, 3000);
+                })
+                .catch(() => {
+                    console.error('Failed to fetch error image from http.cat');
+                });
+
+            if (status === 404) {
                 displayMessage(alertError, 'Account does not exist!', 3000);
                 console.error('Handled Error:', error);
-            } else if (error.status === 401) {
-                imageUrl = 'https://http.cat/401';
+            } else if (status === 401) {
                 displayMessage(alertError, 'Invalid username or password!', 3000);
-            } else if (error.status === 409) {
-                imageUrl = 'https://http.cat/409';
+            } else if (status === 409) {
                 displayMessage(alertError, 'You are already logged in!', 3000);
             } else {
                 console.error('Unhandled error:', error);
-            }
-
-            if (imageUrl) {
-                errorImageContainer.innerHTML = `<img src="${imageUrl}" alt="Error Image">`;
-                errorImageContainer.classList.add('element-cat');
-                errorImageContainer.style.display = 'block';
-
-                setTimeout(() => {
-                    errorImageContainer.style.display = 'none';
-                }, 3000);
             }
         });
 });

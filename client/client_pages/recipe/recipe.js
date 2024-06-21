@@ -21,6 +21,30 @@ logoutBtnHandling();
 const alertSuccess = document.getElementById('alert-success');
 
 document.addEventListener("DOMContentLoaded", async () => {
+    const alertFetchError = document.getElementById('alert-fetch-error');
+    const quoteContainer = document.getElementById('quote-container');
+    const quoteLabel = document.getElementById('quote');
+
+    const displayMessage = (element, message, duration) => {
+        element.textContent = message;
+        element.classList.remove('hidden');
+        setTimeout(() => {
+            element.classList.add('hidden');
+        }, duration);
+    };
+
+    try {
+        const response = await fetch('/api/quote');
+        const data = await response.json();
+        if (data.content && data.author) {
+            quoteLabel.textContent = `"${data.content}" - ${data.author}`;
+        } else {
+            displayMessage(alertFetchError, 'Quote data is incomplete.', 3000);
+        }
+    } catch (error) {
+        console.error('Error fetching quote:', error);
+        displayMessage(alertFetchError, 'Failed to load quote. Please try again later.', 3000);
+    }
 
     // Fetch & display recipe (FE & BE)
     const displayRecipe = async (cocktailID) => {

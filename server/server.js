@@ -43,6 +43,21 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/client_pages/authentication/login.html'));
     });
 
+    app.get('/api/quote', async (req, res) => {
+        try {
+            let response = await fetch('https://api.quotable.io/random?tags=inspirational');
+
+            if (!response.ok) {
+                console.error('Network response was not ok.');
+            }
+            const data = await response.json();
+            res.json(data);
+        } catch (error) {
+            console.error('Failed to fetch quote:', error);
+            res.status(500).json({ error: 'Failed to fetch quote' });
+        }
+    });
+
     app.get('/logout', (req, res) => {
         // Check if the user is logged in
         if (req.session && req.session.userId) {
