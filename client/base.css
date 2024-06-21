@@ -47,6 +47,7 @@
 }
 body {
     background: url('images/background.png') no-repeat fixed center;
+    background-size: cover;
 }
 header {
     grid-area: h;
