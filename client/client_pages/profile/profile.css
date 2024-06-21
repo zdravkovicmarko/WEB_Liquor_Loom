@@ -32,6 +32,7 @@ main {
 }
 #user-info {
     grid-area: user;
+    overflow-x: auto;
 }
 #recommendation-border {
     grid-area: recommendations;
@@ -80,6 +81,8 @@ main {
     color: black;
     text-shadow: none;
     background-color: white;
+    white-space: nowrap;
+    overflow-x: auto;
 }
 .element-inner-container::-webkit-scrollbar {
     width: 0;
@@ -218,5 +221,12 @@ main {
     }
     .element-input.tags {
         min-width: calc(100% - 5px);
+    }
+    #user-info {
+        overflow-x: auto;
+    }
+    .input-writable {
+        white-space: nowrap;
+        overflow-x: auto;
     }
 }
