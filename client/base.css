@@ -4,6 +4,7 @@
 
     --white-50-opacity: rgba(255, 255, 255, 0.5);
     --white-33-opacity: rgba(255, 255, 255, 0.33);
+    --white-15-opacity: rgba(255, 255, 255, 0.15);
 
     --grey: #a3a3a3;
     --grey-66-opacity: rgba(163, 163, 163, 0.66);
@@ -188,7 +189,7 @@ footer {
     outline: none;
     border: none;
     width: calc(100% - 10px);
-    border-radius: 35px;
+    border-radius: 25px;
     background-color: var(--white-33-opacity);
     padding: 5px 15px;
     margin-left: 5px;

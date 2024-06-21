@@ -19,7 +19,7 @@ main {
     display: grid;
     grid-template-areas:
         "recipe recipe"
-        "rate null";
+        "rate quote";
     grid-template-columns: 350px auto;
     gap: 35px;
 }
@@ -125,6 +125,12 @@ input::-webkit-slider-thumb {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+#quote-container {
+    grid-area: quote;
+}
+#quote {
+    background-color: var(--white-15-opacity);
 }
 
 @media (max-width: 1100px) {

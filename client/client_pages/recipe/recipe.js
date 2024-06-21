@@ -12,38 +12,34 @@ document.getElementById('logo-container').addEventListener('click', () => {
 document.getElementById('login-btn').addEventListener('click', () => {
     window.location.href = '/login';
 });
-document.getElementById('profile-pic').addEventListener('click', () => {
-    window.location.href = '/profile';
-});
 
 logoutBtnHandling();
 
 const alertSuccess = document.getElementById('alert-success');
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+    // Add inspirational quote if random recipe btn used
     const alertFetchError = document.getElementById('alert-fetch-error');
     const quoteContainer = document.getElementById('quote-container');
     const quoteLabel = document.getElementById('quote');
 
-    const displayMessage = (element, message, duration) => {
-        element.textContent = message;
-        element.classList.remove('hidden');
-        setTimeout(() => {
-            element.classList.add('hidden');
-        }, duration);
-    };
+    const queryParams = new URLSearchParams(window.location.search);
 
-    try {
-        const response = await fetch('/api/quote');
-        const data = await response.json();
-        if (data.content && data.author) {
-            quoteLabel.textContent = `"${data.content}" - ${data.author}`;
-        } else {
-            displayMessage(alertFetchError, 'Quote data is incomplete.', 3000);
+    if (queryParams.get('fromRandom') === 'true') {
+        try {
+            const response = await fetch('/api/quote');
+            const data = await response.json();
+            if (data.content && data.author) {
+                quoteContainer.classList.remove('hidden');
+                quoteLabel.textContent = `"${data.content}" - ${data.author}`;
+            } else {
+                displayMessage(alertFetchError, 'Quote data is incomplete.', 3000)
+            }
+        } catch (error) {
+            console.error('Error fetching quote:', error);
+            displayMessage(alertFetchError, 'Failed to load quote. Please try again later.', 3000)
         }
-    } catch (error) {
-        console.error('Error fetching quote:', error);
-        displayMessage(alertFetchError, 'Failed to load quote. Please try again later.', 3000);
     }
 
     // Fetch & display recipe (FE & BE)
@@ -395,7 +391,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
     checkLoginStatus();
-    document.getElementById('profile-pic').addEventListener('click', handleProfileClick);
+    document.getElementById('profile-btn').addEventListener('click', handleProfileClick);
 });
 
 document.addEventListener('DOMContentLoaded', async function () {

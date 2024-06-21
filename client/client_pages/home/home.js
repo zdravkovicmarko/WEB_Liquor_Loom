@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             const randomCocktailID = data.drinks[0].idDrink;
 
-            window.location.href = `/recipe/${randomCocktailID}`;
+            window.location.href = `/recipe/${randomCocktailID}?fromRandom=true`;
         } catch (error) {
             console.error('Error fetching random cocktail:', error);
         }
