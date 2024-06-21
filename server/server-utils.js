@@ -100,7 +100,7 @@ async function getAllCocktailsFromAPI() {
 }
 
 function generateToken(user) {
-    return jwt.sign({ id: user.id, isAdmin: user.is_admin }, secretKey, { expiresIn: '1h' });
+    return jwt.sign({ id: user.id, isAdmin: user.is_admin }, secretKey, { expiresIn: '1d' });
 }
 
 // Middleware-Funktion zum Überprüfen des JWT-Tokens
@@ -114,7 +114,7 @@ function verifyToken(req, res, next) {
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
-            return res.status(403).json({ error: 'Invalid Token' });
+            return res.status(403).json({ error: 'Admins only' });
         }
         req.user = decoded;
         next();
