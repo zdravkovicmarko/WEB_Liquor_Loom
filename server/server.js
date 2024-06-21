@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const secret = crypto.randomBytes(32).toString('hex');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, insertUser, setIsAdmin, isUserAdmin, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, getCocktailByName, insertUser, setIsAdmin, isUserAdmin, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
 const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI, generateToken, verifyToken} = require('./server-utils.js')
 const app = express();
@@ -646,6 +646,39 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/admin_pages/editor/editor.html'));
     });
 
+    app_admin.get('/api/fetch-cocktail/:id', async (req, res) => {
+        const cocktailId = req.params.id;
+
+        try {
+            const response = await fetch(`http://localhost:666/api/cocktail/${cocktailId}`);
+            if (!response.ok) {
+                res.status(response.status).json({ error: `Error fetching cocktail: ${response.statusText}` });
+                return;
+            }
+            const cocktail = await response.json();
+            res.json(cocktail);
+        } catch (error) {
+            console.error('Error fetching cocktail from Server 1:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
+    app_admin.get('/api/cocktail/name/:name', async (req, res) => {
+        const cocktailName = req.params.name;
+
+        try {
+            const cocktail = await getCocktailByName(cocktailName);
+            if (!cocktail) {
+                res.status(404).json({ error: 'Cocktail not found' });
+            } else {
+                res.json(cocktail);
+            }
+        } catch (error) {
+            console.error('Error fetching cocktail:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+
     app_admin.post('/add-cocktail', verifyToken, (req, res) => {
         // If cocktail data is in the request body
         const cocktailData = req.body;
@@ -657,6 +690,22 @@ import('node-fetch').then(module => {
             .catch(error => {
                 res.status(500).json({ error: 'Failed to add cocktail' });
             });
+    });
+
+    app_admin.delete('/recipe/:cocktailId', verifyToken, async (req, res) => {
+        const cocktailId = req.params.cocktailId;
+
+        try {
+            const result = await removeCocktailFromDb(cocktailId);
+            if (result.error) {
+                res.status(404).json({ error: result.error });
+            } else {
+                res.json(result);
+            }
+        } catch (error) {
+            console.error('Error removing cocktail:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
     });
 
     // Update Cocktail data
