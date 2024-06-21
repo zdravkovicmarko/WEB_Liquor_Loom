@@ -126,12 +126,14 @@ export async function checkLoginStatus() {
         if (data.loggedIn) {
             document.getElementById('login-btn').classList.add('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
+            document.getElementById('profile-btn').classList.remove('hidden');
         } else {
             if (localStorage.getItem('token')) {
                 localStorage.removeItem('token');
             }
             document.getElementById('login-btn').classList.remove('hidden');
             document.getElementById('logout-btn').classList.add('hidden');
+            document.getElementById('profile-btn').classList.add('hidden');
         }
     } catch (error) {
         console.error('Error checking login status:', error);

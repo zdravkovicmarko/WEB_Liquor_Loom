@@ -144,15 +144,6 @@ footer {
     box-shadow: 0 0 15px var(--grey-33-opacity);
 }
 
-.header-profile-picture {
-    height: 70px;
-    border-radius: 50%;
-}
-.header-profile-picture:hover {
-    height: 75px;
-    box-shadow: 0 0 20px var(--grey-50-opacity);
-}
-
 .title-label {
     font-size: var(--title-font-size);
     color: var(--orange);
@@ -390,7 +381,7 @@ input::-webkit-slider-thumb {
     left: 50%;
     transform: translateX(-50%);
     padding: 3px 20px 3px 20px;
-    border-radius: 100px;
+    border-radius: 20px;
     z-index: 1000;
     text-align: center;
     background-color: var(--white-33-opacity);

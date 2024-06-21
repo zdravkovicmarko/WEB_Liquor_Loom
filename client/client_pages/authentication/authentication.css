@@ -1,5 +1,8 @@
 @import url(/client/base.css);
 
+:root {
+  --btn-big-font-size: 1.35rem;
+}
 body {
     grid-template-areas:
         "h"
@@ -27,7 +30,6 @@ main {
     justify-content: space-between;
 }
 .btn-normal-grey {
-    font-size: 135%;
     margin-right: 5px;
 }
 .btn-normal-grey:hover {
@@ -44,8 +46,11 @@ main {
     width: 400px;
 }
 
-@media (max-width: 460px) {
-    .element-border {
+@media (max-width: 480px) {
+    main {
+        grid-template-columns: 100%;
+    }
+    .element-border, .element-cat img {
         width: 100%;
     }
 }

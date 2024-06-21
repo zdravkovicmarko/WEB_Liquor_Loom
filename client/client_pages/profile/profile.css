@@ -4,35 +4,40 @@
     --base-font-size: 1.25rem;
     --main-label-size: 1.25rem;
     --btn-big-font-size: 1.5rem;
-    --cocktail-name-font-size: 1.45rem;
 
-    --profile-picture-size: 270px;
-    --cocktail-img-size: 220px;
     --btn-part-size: 40px;
     --btn-img-size: 24px;
 }
 body {
     grid-template-areas:
-        "h h"
-        "s m"
-        "f f";
-    grid-template-columns: 335px auto;
+        "h"
+        "m"
+        "f";
     grid-template-rows: 135px auto 35px;
 }
 main {
     display: grid;
     grid-template-areas:
-        "stats"
-        "recommendations";
+        "stats stats"
+        "user recommendations"
+        "null recommendations";
     grid-template-rows: min-content auto;
-    row-gap: 35px;
+    grid-template-columns: 300px auto;
+    gap: 35px;
 }
 #stats-border {
     grid-area: stats;
+    --cocktail-img-size: 220px;
+    --cocktail-name-font-size: 1.25rem;
+}
+#user-info {
+    grid-area: user;
 }
 #recommendation-border {
     grid-area: recommendations;
+    --cocktail-name-font-size: 1.15rem;
 }
+
 .subheader {
     display: flex;
     justify-content: flex-start;
@@ -85,30 +90,11 @@ main {
     background: transparent;
 }
 
-#profile-border {
-    border-radius: 200px 200px 35px 35px;
-}
-.profile-picture-container {
-    width: var(--profile-picture-size);
-    height: var(--profile-picture-size);
-    padding-top: 15px;
-    display: flex;
-    justify-content: center;
-}
-.profile-picture {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    box-shadow: 0 3px 10px black;
-}
 .btn-container {
     margin-top: 5%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-.btn-normal-grey {
-    margin: 0 5px 0 5px;
 }
 
 #stats-border {
@@ -182,8 +168,55 @@ main {
     color: var(--orange);
 }
 
-@media (max-width: 930px) {
-    .btn-normal-grey {
-        display: flex;
+@media (max-width: 900px) {
+    :root {
+        --base-font-size: 1rem;
+        --tag-font-size: 1.1rem;
+        --main-font-size: 1.15rem;
+        --cocktail-rating-font-size: 1.0rem;
+        --title-font-size: 1.15rem;
+        --btn-big-font-size: 1.35rem;
+
+        --btn-part-size: 35px;
+        --btn-img-size: 22px;
+    }
+}
+
+@media (max-width: 750px) {
+    main {
+        grid-template-areas:
+            "user"
+            "stats"
+            "recommendations";
+        grid-template-rows: min-content;
+        grid-template-columns: auto;
+    }
+    #stats-border {
+        grid-template-areas:
+            "fav"
+            "stats";
+        grid-template-columns: auto;
+        column-gap: 2%;
+        text-align: center;
+        white-space: nowrap;
+    }
+    .stats-container {
+        grid-template-areas:
+            "s-r"
+            "s-s";
+        justify-content: center;
+    }
+    .stats-sum .stat-item {
+        height: 45px;
+    }
+    #fav-cocktail {
+        text-align: center;
+        justify-self: center;
+    }
+    .element-border {
+        width: 100%;
+    }
+    .element-input.tags {
+        min-width: calc(100% - 5px);
     }
 }

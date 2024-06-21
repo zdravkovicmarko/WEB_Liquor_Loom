@@ -401,5 +401,5 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
     checkLoginStatus();
 
-    document.getElementById('profile-pic').addEventListener('click', handleProfileClick);
+    document.getElementById('profile-btn').addEventListener('click', handleProfileClick);
 });
