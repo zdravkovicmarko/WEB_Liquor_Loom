@@ -12,13 +12,19 @@ document.querySelector('form[action="/signup"]').addEventListener('submit', func
 
     // Function to display error images
     const displayErrorImage = (url) => {
-        errorImageContainer.innerHTML = `<img src="${url}" alt="Error Image">`;
-        errorImageContainer.classList.add('element-cat');
-        errorImageContainer.style.display = 'block';
+        fetch(url, { mode: 'no-cors' })
+            .then(() => {
+                errorImageContainer.innerHTML = `<img src="${url}" alt="Error Image">`;
+                errorImageContainer.classList.add('element-cat');
+                errorImageContainer.style.display = 'block';
 
-        setTimeout(() => {
-            errorImageContainer.style.display = 'none';
-        }, 3000);
+                setTimeout(() => {
+                    errorImageContainer.style.display = 'none';
+                }, 3000);
+            })
+            .catch(() => {
+                console.error('Failed to fetch error image from http.cat');
+            });
     };
 
     // Validation checks
