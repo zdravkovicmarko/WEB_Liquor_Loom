@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="element-container">
-            <label class="main-label" for="cocktail_category">Category</label>
+            <label class="main-label" for="cocktail_category">Categories</label>
             <div class="element-inner-container">
                 <input class="element-input" type="text" id="cocktail_category" name="cocktail_category" required>
             </div>
@@ -67,19 +67,23 @@
             </div>
         </div>
         <div class="element-container">
-            <label class="main-label" for="cocktail_ingredients">Instructions</label>
+            <label class="main-label" for="ingredient">Ingredient</label>
             <div class="element-inner-container">
-                <input class="element-input" type="text" id="cocktail_ingredients" name="cocktail_ingredients" required>
+                <input class="element-input" type="text" id="ingredient" name="ingredient" required>
             </div>
         </div>
         <div class="element-container">
-            <label class="main-label" for="cocktail_measures">Measures</label>
+            <label class="main-label" for="measure">Measure</label>
             <div class="element-inner-container">
-                <input class="element-input" type="text" id="cocktail_measures" name="cocktail_measures" required>
+                <input class="element-input" type="text" id="measure" name="measure"  required>
             </div>
         </div>
+        <button type="button" id="addIngredient">Add Ingredient</button>
+
+        <div id="ingredientsList"></div>
+
         <div class="element-container btn-container">
-            <button class="btn-bold-orange" type="submit">SAVE</button>
+            <button class="btn-bold-orange" id="save" type="submit">SAVE</button>
             <button class="btn-normal-grey" id="signup" type="button">DELETE</button>
         </div>
     </div>

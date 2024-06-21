@@ -51,7 +51,6 @@ async function addCocktailToDb(cocktail) {
         console.log("Cocktail added successfully");
     } catch (err) {
         console.error("Error adding cocktail:", err);
-        //throw err;
     }
 }
 

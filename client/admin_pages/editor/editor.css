@@ -34,9 +34,24 @@ main {
 .btn-normal-grey:hover {
     text-shadow: 0 0 15px black;
 }
+.ingredient-item {
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
+.remove-button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: 20px;
+    cursor: pointer;
+}
 @media (max-width: 460px) {
     .element-border {
         width: 100%;
     }
 }
+

@@ -673,7 +673,7 @@ import('node-fetch').then(module => {
             const cocktail = await response.json();
             res.json(cocktail);
         } catch (error) {
-            console.error('Error fetching cocktail from Server 1:', error);
+            console.error('Error fetching cocktail from main Server: ', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
@@ -694,7 +694,7 @@ import('node-fetch').then(module => {
         }
     });
 
-    app_admin.post('/add-cocktail', verifyToken, (req, res) => {
+    app_admin.post('/add-cocktail', (req, res) => {
         // If cocktail data is in the request body
         const cocktailData = req.body;
 
