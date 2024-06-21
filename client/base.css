@@ -47,6 +47,7 @@
 }
 body {
     background: url('images/background.png') no-repeat fixed center;
+    background-size: cover;
 }
 header {
     grid-area: h;
@@ -447,19 +448,6 @@ input::-webkit-slider-thumb {
 }
 
 @media (max-width: 630px) {
-    .logo-container,
-    .middle-container,
-    .profile-container {
-        padding-left: 0;
-        padding-right: 0;
-    }
-    .logo-container {
-        padding-left: 25px;
-    }
-    .profile-container {
-        padding-right: 25px;
-    }
-
     .search-header input {
         width: 250px;
         background: transparent;

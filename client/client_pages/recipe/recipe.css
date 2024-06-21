@@ -158,8 +158,8 @@ input::-webkit-slider-thumb {
         --base-font-size: 0.9rem;
         --title-font-size: 1.8rem;
         --cocktail-img-size: 300px;
-        --btn-part-size: 38.5px;
-        --btn-img-size: 23.5px;
+        --btn-part-size: 39px;
+        --btn-img-size: 23px;
     }
 }
 
@@ -174,7 +174,7 @@ input::-webkit-slider-thumb {
         "tags tags"
         "ingredients ingredients"
         "instructions instructions";
-        grid-template-columns: auto 48.5px;
+        grid-template-columns: auto 48px;
     }
     .account-main {
         display: grid;

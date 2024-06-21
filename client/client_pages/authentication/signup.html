@@ -2,20 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - LiquorLoom</title>
+    <title>Title</title>
     <link rel="icon" type="image/png" href="/client/images/logo_small_black.png">
     <link rel="stylesheet" href="/client/base.css">
-    <link rel="stylesheet" href="/client/pages/authentication/authentication.css">
-    <link rel="stylesheet" href="/client/pages/authentication/login.css">
+    <link rel="stylesheet" href="/client/client_pages/authentication/authentication.css">
+    <link rel="stylesheet" href="/client/client_pages/authentication/signup.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script type="module" src="/client/pages/authentication/login.js"></script>
+    <script type="module" src="/client/client_pages/authentication/signup.js"></script>
 </head>
 <body>
     <span class="alert error-alert hidden" id="alert-error"></span>
-    <div class="alert success-alert hidden" id="alert-success"></div>
     <header>
         <div class="logo-container" id="logo-container">
             <img class="logo" src="/client/images/logo_full.png" alt="LiquorLoom Logo">
@@ -24,11 +22,17 @@
     </header>
     <main>
         <div class="element-border">
-            <form action="/login" method="POST">
+            <form action="/signup" method="POST">
                 <div class="element-container">
-                    <label class="main-label" for="username">Username / Email</label>
+                    <label class="main-label" for="username">Username</label>
                     <div class="element-inner-container">
                         <input class="element-input" type="text" id="username" name="username" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="email">Email</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="email" name="email" required>
                     </div>
                 </div>
                 <div class="element-container">
@@ -37,9 +41,15 @@
                         <input class="element-input" type="password" id="password" name="password" required>
                     </div>
                 </div>
+                <div class="element-container">
+                    <label class="main-label" for="verification">Password Verification</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="password" id="verification" name="verification" required>
+                    </div>
+                </div>
                 <div class="element-container btn-container">
-                    <button class="btn-bold-orange" type="submit">LOGIN</button>
-                    <button class="btn-normal-grey" id="signup" type="button">SIGN UP</button>
+                    <button class="btn-bold-orange" type="submit">CREATE ACCOUNT</button>
+                    <button class="btn-normal-grey" id="login-btn" type="button">LOGIN</button>
                 </div>
             </form>
         </div>
@@ -51,8 +61,8 @@
         document.getElementById('logo-container').addEventListener('click', function() {
             window.location.href = '/home';
         });
-        document.getElementById('signup').addEventListener('click', function() {
-            window.location.href = '/signup';
+        document.getElementById('login-btn').addEventListener('click', function() {
+            window.location.href = '/login';
         });
     </script>
 </body>
