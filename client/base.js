@@ -1,5 +1,19 @@
-export function displayMessage(element, text, timeout) {
-    element.textContent = text;
+export function displayMessage(element, text, timeout, imageUrl) {
+    // Clear the element's previous content
+    element.innerHTML = '';
+
+    // Create an image element if imageUrl is provided
+    if (imageUrl) {
+        const img = document.getElementById('error-image-container');
+        img.src = imageUrl;
+        element.appendChild(img);
+    }
+
+    // Create a text node
+    const textNode = document.createTextNode(text);
+    element.appendChild(textNode);
+
+    // Show the element
     element.style.display = 'block';
 
     // Add hidden class again after defined time

@@ -105,12 +105,12 @@ function generateToken(user) {
 
 // Middleware-Funktion zum Überprüfen des JWT-Tokens
 function verifyToken(req, res, next) {
-    const token = req.headers['authorization'];
-    console.log('This is my token in verify Token: ', token);
+    let token = req.headers['authorization'];
 
     if (!token) {
         return res.status(401).json({ error: 'Access Denied' });
     }
+     
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {

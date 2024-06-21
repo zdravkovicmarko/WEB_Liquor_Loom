@@ -7,12 +7,16 @@ body {
     grid-template-rows: 135px auto;
 }
 main {
-    display: flex;
+    display: grid;
+    grid-template-areas:
+            "form"
+            "cat";
     justify-content: center;
     align-items: center;
 }
 
 .element-border {
+    grid-area: form;
     margin-top: 5%;
     width: 400px;
 }
@@ -28,6 +32,16 @@ main {
 }
 .btn-normal-grey:hover {
     text-shadow: 0 0 15px black;
+}
+
+.element-cat {
+    display: flex;
+    grid-area: cat;
+    margin-top: 2%;
+    justify-content: center;
+}
+.element-cat img {
+    width: 400px;
 }
 
 @media (max-width: 460px) {
