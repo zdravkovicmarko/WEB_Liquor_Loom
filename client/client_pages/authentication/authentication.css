@@ -45,7 +45,7 @@ main {
 }
 
 @media (max-width: 460px) {
-    .element-border {
+    .element-border, .element-cat img {
         width: 100%;
     }
 }
