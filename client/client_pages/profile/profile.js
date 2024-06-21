@@ -58,20 +58,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userID = data.userId;
     displayProfile(userID);
     displayFavoriteCocktail(userID);
-
-    const profilePictures = {
-        1: 'client/images/dummy-img/schmirko-pb.jpg',
-        2: 'client/images/dummy-img/lisa-pb.jpg',
-        3: 'client/images/dummy-img/schmortn-pb.jpg',
-        4: 'client/images/dummy-img/masud-pb.png',
-        5: 'client/images/dummy-img/sabimami-pb.jpg',
-        6: 'client/images/dummy-img/sarma-pb.png'
-    };
-
-    const profilePictureSrc = profilePictures[userID];
-    if (profilePictureSrc) {
-        document.querySelector('.profile-picture').src = profilePictureSrc;
-    }
 });
 
 document.getElementById('delete-btn').addEventListener('click', async function () {

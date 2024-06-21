@@ -627,7 +627,7 @@ import('node-fetch').then(module => {
     });
 
     app.listen(666, () => {
-        console.log("Server now listening on http://localhost:666");
+        console.log("Normal client server now listening on http://localhost:666");
     });
 
     // Serve static content
