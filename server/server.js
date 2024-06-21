@@ -453,7 +453,7 @@ import('node-fetch').then(module => {
         try {
             // Check if user is already logged in
             if (req.session && req.session.userId) {
-                res.status(200).send('User already logged in');
+                res.status(409).json({ error: 'User already logged in'});
                 return;
             }
 
