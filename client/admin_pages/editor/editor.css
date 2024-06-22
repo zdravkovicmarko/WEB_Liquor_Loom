@@ -3,14 +3,11 @@
 :root {
     --btn-big-font-size: 1.5rem;
 }
-
 body {
-    display: grid;
     grid-template-areas:
         "h"
         "m";
     grid-template-rows: 135px auto;
-    margin: 0;
 }
 main {
     display: flex;
@@ -20,7 +17,7 @@ main {
 }
 
 .element-border {
-    width: 400px;
+    width: 500px;
 }
 .btn-container {
     margin-top: 5%;
@@ -35,21 +32,25 @@ main {
     text-shadow: 0 0 15px black;
 }
 .ingredient-item {
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 10px;
 }
 
-.remove-button {
-    background-color: transparent;
-    border: none;
-    color: red;
-    font-size: 20px;
-    cursor: pointer;
+.element-input::placeholder {
+    font-size: var(--main-font-size);
+    color: var(--grey);
 }
-@media (max-width: 460px) {
+#ingredients_container > .element-inner-container {
+    margin-bottom: 15px;
+}
+#ingredients_container > .btn-normal-grey {
+    font-size: var(--main-font-size);
+    padding: 10px 0 0 10px;
+}
+
+@media (max-width: 550px) {
+    main {
+        grid-template-columns: 100%;
+    }
     .element-border {
         width: 100%;
     }

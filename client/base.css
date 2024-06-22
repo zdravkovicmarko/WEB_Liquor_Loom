@@ -244,7 +244,7 @@ input::-webkit-slider-thumb {
     font-weight: 600;
     text-shadow: 0 0 20px var(--grey-66-opacity);
 }
-.btn-normal-grey:hover#logout-btn, .btn-normal-grey:hover#delete-btn {
+.delete:hover, .btn-normal-grey:hover#logout-btn, .btn-normal-grey:hover#delete-btn {
     color: var(--red);
     text-shadow: 0 0 15px var(--red);
 }
@@ -405,6 +405,9 @@ input::-webkit-slider-thumb {
 }
 
 @media (max-width: 930px) {
+    :root {
+        --btn-big-font-size: 1.5rem;
+    }
     .logo {
         display: none;
     }

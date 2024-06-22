@@ -1,48 +1,100 @@
-document.getElementById('addIngredient').addEventListener('click', () => {
-    const ingredientInput = document.getElementById('ingredient');
-    const measureInput = document.getElementById('measure');
-    const ingredientsList = document.getElementById('ingredientsList');
+import {displayMessage} from "/client/base.js";
 
-    if (ingredientInput.value && measureInput.value) {
-        const ingredient = ingredientInput.value;
-        const measure = measureInput.value;
+const alertSuccess = document.getElementById('alert-success');
+const alertError = document.getElementById('alert-error');
 
-        // Create a new div to display the added ingredient and measure
-        const ingredientDiv = document.createElement('div');
-        ingredientDiv.className = 'ingredient-item';
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById("search");
+    const addIngredientBtn = document.getElementById("add_ingredient_btn");
+    const deleteIngredientBtn = document.getElementById("delete_ingredient_btn");
 
-        // Create a span to hold the ingredient text
-        const ingredientText = document.createElement('span');
-        ingredientText.textContent = `Ingredient: ${ingredient}, Measure: ${measure}`;
 
-        // Add hidden input fields to hold the values
-        const ingredientHiddenInput = document.createElement('input');
-        ingredientHiddenInput.type = 'hidden';
-        ingredientHiddenInput.name = 'ingredients[]';
-        ingredientHiddenInput.value = JSON.stringify({ ingredient, measure });
+    searchInput.addEventListener('keypress', async (event) => {
+        if (event.key !== 'Enter') return;
 
-        // Create a button to remove the ingredient
-        const removeButton = document.createElement('button');
-        removeButton.className = 'remove-button';
-        removeButton.innerHTML = '&times;'; // Red cross
-        removeButton.addEventListener('click', () => {
-            ingredientDiv.remove();
-        });
+        const searchText = event.target.value.trim();
+        if (!searchText) return;
 
-        ingredientDiv.appendChild(ingredientText);
-        ingredientDiv.appendChild(ingredientHiddenInput);
-        ingredientDiv.appendChild(removeButton);
-        ingredientsList.appendChild(ingredientDiv);
+        try {
+            const response = await fetch(`/api/cocktail/name/${encodeURIComponent(searchText)}`);
+            const cocktail = await response.json();
 
-        // Clear the input fields
-        ingredientInput.value = '';
-        measureInput.value = '';
-    } else {
-        alert('Please enter both ingredient and measure');
-    }
+            if (!response.ok || cocktail.error) {
+                displayMessage(alertError, 'Cocktail not found', 5000);
+            } else {
+                displayMessage(alertSuccess, `Cocktail found: ${cocktail.name} (ID: ${cocktail.id})`, 5000);
+                console.log(cocktail);
+
+                document.getElementById('cocktail_id').value = cocktail.id || '';
+                document.getElementById('cocktail_name').value = cocktail.name || '';
+                document.getElementById('cocktail_category').value = cocktail.category || '';
+                document.getElementById('cocktail_alcoholic').value = cocktail.alcoholic || '';
+                document.getElementById('cocktail_glass').value = cocktail.glass || '';
+                document.getElementById('cocktail_instructions').value = cocktail.instructions || '';
+                document.getElementById('cocktail_thumbnail').value = cocktail.thumbnail || '';
+                displayIngredientsAndMeasures(cocktail.ingredients);
+            }
+        } catch (error) {
+            console.error('Error fetching cocktail:', error);
+            displayMessage(alertError, 'Error fetching cocktail', 5000);
+        } finally {
+            searchInput.value = '';
+        }
+    });
+
+    addIngredientBtn.addEventListener('click', () => addIngredientInput());
+    deleteIngredientBtn.addEventListener('click', () => deleteIngredientInput());
 });
 
-document.getElementById('save').addEventListener('click', () => {
+function displayIngredientsAndMeasures(ingredients) {
+    const ingredientsContainer = document.getElementById('ingredients_container');
+    const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
+    ingredientDivs.forEach(div => div.remove());
+    ingredients.forEach((item, index) => addIngredientInput(item.ingredient, item.measure, index));
+}
+
+function addIngredientInput(ingredient = '', measure = '', index = null) {
+    const ingredientsContainer = document.getElementById('ingredients_container');
+    const ingredientDiv = document.createElement('div');
+    ingredientDiv.className = 'element-inner-container';
+
+    const ingredientInput = document.createElement('input');
+    ingredientInput.className = 'element-input ingredient-item';
+    ingredientInput.type = 'text';
+    ingredientInput.name = 'ingredient';
+    ingredientInput.placeholder = 'Ingredient';
+    ingredientInput.value = ingredient;
+
+    const measureInput = document.createElement('input');
+    measureInput.className = 'element-input measure-item';
+    measureInput.type = 'text';
+    measureInput.name = 'measure';
+    measureInput.placeholder = 'Measure';
+    measureInput.value = measure;
+
+    ingredientDiv.appendChild(ingredientInput);
+    ingredientDiv.appendChild(measureInput);
+
+    if (index !== null) {
+        ingredientInput.id = `ingredient${index + 1}`;
+        measureInput.id = `measure${index + 1}`;
+    } else {
+        const currentCount = ingredientsContainer.querySelectorAll('.element-inner-container').length;
+        ingredientInput.id = `ingredient${currentCount + 1}`;
+        measureInput.id = `measure${currentCount + 1}`;
+    }
+
+    const addButton = document.getElementById('add_ingredient_btn');
+    ingredientsContainer.insertBefore(ingredientDiv, addButton);
+}
+
+function deleteIngredientInput() {
+    const ingredientsContainer = document.getElementById('ingredients_container');
+    const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
+    if (ingredientDivs.length > 0) ingredientsContainer.removeChild(ingredientDivs[ingredientDivs.length - 1]);
+}
+
+document.getElementById('save-btn').addEventListener('click', () => {
     const formData = {
         id: document.getElementById('cocktail_id').value,
         name: document.getElementById('cocktail_name').value,
@@ -78,42 +130,4 @@ document.getElementById('save').addEventListener('click', () => {
         .catch(error => {
             console.error('Error:', error);
         });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('search');
-
-    // Function to handle search action
-    const handleSearch = async () => {
-        const searchText = searchInput.value.trim(); // Get input value and trim whitespace
-
-        if (searchText) {
-            try {
-                // Call backend API to search by cocktail name
-                const response = await fetch(`/api/cocktail/name/${encodeURIComponent(searchText)}`);
-                if (!response.ok) {
-                    console.log('Failed to fetch cocktail');
-                }
-
-                const cocktail = await response.json();
-                console.log('Cocktail found:', cocktail);
-                // Handle displaying the cocktail data or further processing
-            } catch (error) {
-                console.error('Error fetching cocktail:', error);
-                // Handle error case, e.g., display an error message
-            }
-        } else {
-            alert('Please enter a cocktail name');
-        }
-
-        // Clear input after search
-        searchInput.value = '';
-    };
-
-    // Event listener for Enter key press
-    searchInput.addEventListener('keydown', async (event) => {
-        if (event.key === 'Enter') {
-            await handleSearch();
-        }
-    });
 });

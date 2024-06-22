@@ -707,7 +707,7 @@ import('node-fetch').then(module => {
             });
     });
 
-    app_admin.delete('/recipe/:cocktailId', verifyToken, async (req, res) => {
+    app_admin.delete('/recipe/:cocktailId', async (req, res) => {
         const cocktailId = req.params.cocktailId;
 
         try {
