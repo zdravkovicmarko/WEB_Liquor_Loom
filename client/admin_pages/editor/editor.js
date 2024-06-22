@@ -142,8 +142,7 @@ async function saveCocktail() {
             });
             if (updateResponse.ok) {
                 displayMessage(alertSuccess, 'Cocktail updated successfully', 5000);
-                inputDivs.forEach(input => {input.value = '';});
-                deleteIngredientInput()
+                clearAllInputs();
             } else {
                 displayMessage(alertError, 'Failed to update cocktail', 5000);
             }
@@ -159,8 +158,7 @@ async function saveCocktail() {
             });
             if (createResponse.ok) {
                 displayMessage(alertSuccess, 'Cocktail created successfully', 5000);
-                inputDivs.forEach(input => {input.value = '';});
-                deleteIngredientInput()
+                clearAllInputs();
             } else {
                 displayMessage(alertError, 'Failed to create cocktail', 5000);
             }
@@ -181,8 +179,7 @@ async function deleteCocktail() {
 
         if (response.ok) {
             displayMessage(alertSuccess, 'Cocktail deleted successfully', 5000);
-            inputDivs.forEach(input => {input.value = '';});
-            deleteIngredientInput();
+            clearAllInputs();
         } else {
             displayMessage(alertError, `Failed to delete cocktail: ${result.error}`, 5000);
         }
@@ -190,4 +187,14 @@ async function deleteCocktail() {
         console.error('Error deleting cocktail:', error);
         displayMessage(alertError, 'Error deleting cocktail', 5000);
     }
+}
+
+function clearAllInputs() {
+    // Clear all regular input fields
+    inputDivs.forEach(input => input.value = '');
+
+    // Clear all dynamically added ingredient inputs
+    const ingredientsContainer = document.getElementById('ingredients_container');
+    const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
+    ingredientDivs.forEach(div => div.remove());
 }
