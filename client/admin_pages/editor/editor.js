@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById("search");
     const addIngredientBtn = document.getElementById("add_ingredient_btn");
     const deleteIngredientBtn = document.getElementById("delete_ingredient_btn");
-
+    const saveBtn = document.getElementById("save-btn");
 
     searchInput.addEventListener('keypress', async (event) => {
         if (event.key !== 'Enter') return;
@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addIngredientBtn.addEventListener('click', () => addIngredientInput());
     deleteIngredientBtn.addEventListener('click', () => deleteIngredientInput());
+    saveBtn.addEventListener('click', saveCocktail);
 });
 
 function displayIngredientsAndMeasures(ingredients) {
@@ -94,7 +95,7 @@ function deleteIngredientInput() {
     if (ingredientDivs.length > 0) ingredientsContainer.removeChild(ingredientDivs[ingredientDivs.length - 1]);
 }
 
-document.getElementById('save-btn').addEventListener('click', () => {
+async function saveCocktail() {
     const formData = {
         id: document.getElementById('cocktail_id').value,
         name: document.getElementById('cocktail_name').value,
@@ -107,27 +108,49 @@ document.getElementById('save-btn').addEventListener('click', () => {
         measures: []
     };
 
-    const hiddenInputs = document.querySelectorAll('input[name="ingredients[]"]');
-
-    hiddenInputs.forEach(input => {
-        const { ingredient, measure } = JSON.parse(input.value);
+    const ingredientDivs = document.querySelectorAll('#ingredients_container .element-inner-container');
+    ingredientDivs.forEach(div => {
+        const ingredient = div.querySelector('input[name="ingredient"]').value;
+        const measure = div.querySelector('input[name="measure"]').value;
         formData.ingredients.push(ingredient);
         formData.measures.push(measure);
     });
 
-    console.log("This is my FormData: ",formData);
-    // You can now send this formData to your server using fetch or another method
-    fetch('/add-cocktail', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    }).then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-});
+    console.log("This is my FormData: ", formData);
+
+    try {
+        const response = await fetch(`/api/cocktail/${formData.id}`);
+        const data = await response.json();
+
+        if (response.ok && data) { // ID exists, use PUT to update
+            const updateResponse = await fetch(`/api/cocktail/${formData.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            if (updateResponse.ok) {
+                displayMessage(alertSuccess, 'Cocktail updated successfully', 5000);
+            } else {
+                displayMessage(alertError, 'Failed to update cocktail', 5000);
+            }
+        } else { // ID does not exist, use POST to create
+            const createResponse = await fetch('/add-cocktail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            if (createResponse.ok) {
+                displayMessage(alertSuccess, 'Cocktail created successfully', 5000);
+            } else {
+                displayMessage(alertError, 'Failed to create cocktail', 5000);
+            }
+        }
+    } catch (error) {
+        console.error('Error saving cocktail:', error);
+        displayMessage(alertError, 'Error saving cocktail', 5000);
+    }
+}

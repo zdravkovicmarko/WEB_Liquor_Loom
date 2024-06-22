@@ -661,19 +661,18 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/admin_pages/editor/editor.html'));
     });
 
-    app_admin.get('/api/fetch-cocktail/:id', async (req, res) => {
+    app_admin.get('/api/cocktail/:cocktailId', async (req, res) => {
         const cocktailId = req.params.id;
 
         try {
-            const response = await fetch(`http://localhost:666/api/cocktail/${cocktailId}`);
-            if (!response.ok) {
-                res.status(response.status).json({ error: `Error fetching cocktail: ${response.statusText}` });
-                return;
+            const cocktail = await getCocktailById(cocktailId);
+            if (!cocktail) {
+                res.status(404).json({ error: 'Cocktail not found' });
+            } else {
+                res.json(cocktail);
             }
-            const cocktail = await response.json();
-            res.json(cocktail);
         } catch (error) {
-            console.error('Error fetching cocktail from main Server: ', error);
+            console.error('Error fetching cocktail:', error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     });
