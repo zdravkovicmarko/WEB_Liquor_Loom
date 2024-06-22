@@ -417,5 +417,6 @@ input::-webkit-slider-thumb {
     .search-header,
     .search-header input {
         width: 100%;
+        max-width: 400px;
     }
 }

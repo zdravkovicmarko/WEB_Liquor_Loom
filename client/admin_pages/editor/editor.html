@@ -23,62 +23,64 @@
         </div>
     </header>
     <main>
-        <div class="element-border">
-            <div class="element-container">
-                <label class="main-label" for="cocktail_id">ID</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="cocktail_id" name="cocktail_id" required>
+        <form id="cocktail-form">
+            <div class="element-border">
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_id">ID</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="cocktail_id" name="cocktail_id" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_name">Cocktail Name</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="cocktail_name" name="cocktail_name" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_category">Categories</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="cocktail_category" name="cocktail_category" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_alcoholic">Alcoholic</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="cocktail_alcoholic" name="cocktail_alcoholic" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_glass">Glass</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="cocktail_glass" name="cocktail_glass" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_instructions">Instructions</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="cocktail_instructions" name="cocktail_instructions" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_thumbnail">Thumbnail URL</label>
+                    <div class="element-inner-container">
+                        <input class="element-input" type="text" id="cocktail_thumbnail" name="cocktail_thumbnail" required>
+                    </div>
+                </div>
+                <div class="element-container">
+                    <label class="main-label" for="cocktail_thumbnail">Ingredients & Measures</label>
+                    <div id="ingredients_container">
+                        <!-- Ingredient and measure fields will be appended here -->
+                        <button class="btn-normal-grey" id="add_ingredient_btn" type="button">Add Ingredient</button>
+                        <button class="btn-normal-grey delete" id="delete_ingredient_btn" type="button">Delete Ingredient</button>
+                    </div>
+                </div>
+                <div class="element-container btn-container">
+                    <button class="btn-bold-orange" id="save-btn" type="submit">SAVE</button>
+                    <button class="btn-normal-grey delete" id="delete-btn" type="button">DELETE</button>
                 </div>
             </div>
-            <div class="element-container">
-                <label class="main-label" for="cocktail_name">Cocktail Name</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="cocktail_name" name="cocktail_name" required>
-                </div>
-            </div>
-            <div class="element-container">
-                <label class="main-label" for="cocktail_category">Categories</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="cocktail_category" name="cocktail_category" required>
-                </div>
-            </div>
-            <div class="element-container">
-                <label class="main-label" for="cocktail_alcoholic">Alcoholic</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="cocktail_alcoholic" name="cocktail_alcoholic" required>
-                </div>
-            </div>
-            <div class="element-container">
-                <label class="main-label" for="cocktail_glass">Glass</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="cocktail_glass" name="cocktail_glass" required>
-                </div>
-            </div>
-            <div class="element-container">
-                <label class="main-label" for="cocktail_instructions">Instructions</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="cocktail_instructions" name="cocktail_instructions" required>
-                </div>
-            </div>
-            <div class="element-container">
-                <label class="main-label" for="cocktail_thumbnail">Thumbnail URL</label>
-                <div class="element-inner-container">
-                    <input class="element-input" type="text" id="cocktail_thumbnail" name="cocktail_thumbnail" required>
-                </div>
-            </div>
-            <div class="element-container">
-                <label class="main-label" for="cocktail_thumbnail">Ingredients & Measures</label>
-                <div id="ingredients_container">
-                    <!-- Ingredient and measure fields will be appended here -->
-                    <button class="btn-normal-grey" id="add_ingredient_btn" type="button">Add Ingredient</button>
-                    <button class="btn-normal-grey delete" id="delete_ingredient_btn" type="button">Delete Ingredient</button>
-                </div>
-            </div>
-            <div class="element-container btn-container">
-                <button class="btn-bold-orange" id="save-btn" type="submit">SAVE</button>
-                <button class="btn-normal-grey delete" id="delete-btn" type="button">DELETE</button>
-            </div>
-        </div>
+        </form>
     </main>
 </body>
 </html>

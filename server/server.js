@@ -164,7 +164,7 @@ import('node-fetch').then(module => {
 
             let cocktail = await getCocktailById(cocktailID);
 
-            // If  cocktail isn't in DB, fetch from the API
+            // If cocktail isn't in DB, fetch from the API
             if (!cocktail) {
                 const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
                 const drinks = processCocktailData(jsonData);
@@ -177,6 +177,7 @@ import('node-fetch').then(module => {
                     try {
                         await addCocktailToDb(cocktail);
                         console.log("Successfully added cocktail:", cocktail);
+                        cocktail = await getCocktailById(cocktailID);
                     } catch (error) {
                         console.log("Error adding cocktail:", error);
                     }

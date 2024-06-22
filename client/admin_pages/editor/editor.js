@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById("search");
     const addIngredientBtn = document.getElementById("add_ingredient_btn");
     const deleteIngredientBtn = document.getElementById("delete_ingredient_btn");
+    const cocktailForm = document.getElementById('cocktail-form');
     const saveBtn = document.getElementById("save-btn");
+    const deleteBtn = document.getElementById('delete-btn');
 
     searchInput.addEventListener('keypress', async (event) => {
         if (event.key !== 'Enter') return;
@@ -44,7 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addIngredientBtn.addEventListener('click', () => addIngredientInput());
     deleteIngredientBtn.addEventListener('click', () => deleteIngredientInput());
-    saveBtn.addEventListener('click', saveCocktail);
+    deleteBtn.addEventListener('click', deleteCocktail);
+
+    saveBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default form submission
+        cocktailForm.checkValidity() ? saveCocktail() : displayMessage(alertError, 'Please fill out all required fields.', 5000);
+    });
 });
 
 function displayIngredientsAndMeasures(ingredients) {
@@ -65,6 +72,7 @@ function addIngredientInput(ingredient = '', measure = '', index = null) {
     ingredientInput.name = 'ingredient';
     ingredientInput.placeholder = 'Ingredient';
     ingredientInput.value = ingredient;
+    ingredientInput.required = true;
 
     const measureInput = document.createElement('input');
     measureInput.className = 'element-input measure-item';
@@ -72,6 +80,7 @@ function addIngredientInput(ingredient = '', measure = '', index = null) {
     measureInput.name = 'measure';
     measureInput.placeholder = 'Measure';
     measureInput.value = measure;
+    measureInput.required = true;
 
     ingredientDiv.appendChild(ingredientInput);
     ingredientDiv.appendChild(measureInput);
@@ -154,5 +163,29 @@ async function saveCocktail() {
     } catch (error) {
         console.error('Error saving cocktail:', error);
         displayMessage(alertError, 'Error saving cocktail', 5000);
+    }
+}
+
+async function deleteCocktail() {
+    const cocktailId = document.getElementById('cocktail_id').value;
+    try {
+        const response = await fetch(`/recipe/${cocktailId}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            displayMessage(alertSuccess, 'Cocktail deleted successfully', 5000);
+
+            // Reset inputs
+            const ingredientsContainer = document.getElementById('ingredients_container');
+            const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
+            ingredientDivs.forEach(div => div.remove());
+        } else {
+            displayMessage(alertError, `Failed to delete cocktail: ${result.error}`, 5000);
+        }
+    } catch (error) {
+        console.error('Error deleting cocktail:', error);
+        displayMessage(alertError, 'Error deleting cocktail', 5000);
     }
 }

@@ -270,9 +270,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Sort filtered results
-        filtered.sort((a, b) =>
-            sortOrder === 'asc' ? a.name.localeCompare(b.name) : sortOrder === 'desc' ? b.name.localeCompare(a.name) : b.rating - a.rating
-        );
+        filtered.sort((a, b) => {
+            if (sortOrder === 'asc') return a.name.localeCompare(b.name);
+            if (sortOrder === 'desc') return b.name.localeCompare(a.name);
+            if (sortOrder === 'top rated') return b.rating - a.rating;
+        });
         return filtered;
     };
 
