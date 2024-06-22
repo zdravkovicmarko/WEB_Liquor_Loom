@@ -95,7 +95,7 @@ function getCocktailById(id) {
             if (err) {
                 return reject(err);
             }
-            if (!cocktail) { // Cocktail nicht gefunden
+            if (!cocktail) { // Cocktail not found
                 return resolve(null);
             }
             db.all(`SELECT ingredient, measure FROM ingredients WHERE cocktail_id = ?`, [id], (err, ingredients) => {

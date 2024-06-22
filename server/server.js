@@ -162,41 +162,39 @@ import('node-fetch').then(module => {
         try {
             const cocktailID = req.params.cocktailID;
 
-            // Fetch and process cocktail data asynchronously
-            const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
-            const drinks = processCocktailData(jsonData);
+            let cocktail = await getCocktailById(cocktailID);
 
-            // Find the specific cocktail by ID
-            const recipeData = drinks.find(cocktail => cocktail.id === cocktailID);
+            // If  cocktail isn't in DB, fetch from the API
+            if (!cocktail) {
+                const jsonData = await fetchCocktailData('lookup.php', 'i', cocktailID);
+                const drinks = processCocktailData(jsonData);
 
-            if (recipeData) {
-                // Add cocktail to database
-                try {
-                    await addCocktailToDb(recipeData);
-                    //console.log("Successfully added cocktail:", recipeData);
-                } catch (error) {
-                    console.log("Error adding cocktail:", error);
+                // Find the specific cocktail by ID
+                cocktail = drinks.find(cocktail => cocktail.id === cocktailID);
+
+                // Add cocktail to the database if it was found
+                if (cocktail) {
+                    try {
+                        await addCocktailToDb(cocktail);
+                        console.log("Successfully added cocktail:", cocktail);
+                    } catch (error) {
+                        console.log("Error adding cocktail:", error);
+                    }
                 }
+            }
 
-                try {
-                    await getAllCocktailsFromDb();
-                } catch (error) {
-                    console.error("Error retrieving updated list of cocktails from the database:", error);
-                }
-
+            if (cocktail) {
                 const acceptHeader = req.headers.accept;
-
                 if (acceptHeader && acceptHeader.includes('application/xml')) {
-                    // Convert the recipeData object to XML
+                    // Convert the cocktail object to XML
                     const builder = new xml2js.Builder();
-                    const xml = builder.buildObject({ cocktail: recipeData });
+                    const xml = builder.buildObject({ cocktail });
 
                     res.set('Content-Type', 'application/xml');
                     res.send(xml);
                 } else {
-                    res.json(recipeData);
+                    res.json(cocktail);
                 }
-
             } else {
                 res.status(404).send('Recipe not found');
             }

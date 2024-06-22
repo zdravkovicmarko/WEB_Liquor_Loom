@@ -71,8 +71,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             for (let i = 0; i < recipeData.ingredients.length; i++) {
                 const listItem = document.createElement('li');
-                const ingredient = recipeData.ingredients[i].toLowerCase();
-                const measure = recipeData.measures[i] ? recipeData.measures[i].toLowerCase() : '';
+                const ingredient = recipeData.ingredients[i].ingredient.toLowerCase();
+                const measure = recipeData.ingredients[i].measure ? recipeData.ingredients[i].measure.toLowerCase() : '';
                 listItem.textContent = measure ? `${ingredient} - ${measure}` : ingredient;
                 ingredientsList.appendChild(listItem);
             }
