@@ -81,7 +81,6 @@ function addIngredientInput(ingredient = '', measure = '', index = null) {
     measureInput.name = 'measure';
     measureInput.placeholder = 'Measure';
     measureInput.value = measure;
-    measureInput.required = true;
 
     ingredientDiv.appendChild(ingredientInput);
     ingredientDiv.appendChild(measureInput);
