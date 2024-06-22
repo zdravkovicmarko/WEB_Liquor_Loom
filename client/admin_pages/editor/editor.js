@@ -46,12 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addIngredientBtn.addEventListener('click', () => addIngredientInput());
     deleteIngredientBtn.addEventListener('click', () => deleteIngredientInput());
-    deleteBtn.addEventListener('click', deleteCocktail);
-
-    saveBtn.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent default form submission
-        cocktailForm.checkValidity() ? saveCocktail() : displayMessage(alertError, 'Please fill out all required fields.', 5000);
-    });
+    saveBtn.addEventListener('click', saveCocktail);
 });
 
 function displayIngredientsAndMeasures(ingredients) {
