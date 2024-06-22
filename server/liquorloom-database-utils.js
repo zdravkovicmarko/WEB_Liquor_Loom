@@ -172,24 +172,36 @@ function updateCocktailInDb(id, name, category, alcoholic, glass, instructions, 
     });
 }
 
-function updateCocktailIngredients(cocktailId, ingredients) {
+function updateCocktailIngredients(cocktailId, ingredients, measures) {
     return new Promise((resolve, reject) => {
+        if (ingredients.length !== measures.length) {
+            return reject(new Error('Ingredients and measures arrays must be of the same length'));
+        }
+
         // Assuming ingredients are stored in a separate table
         const deleteQuery = `DELETE FROM ingredients WHERE cocktail_id = ?`;
         db.run(deleteQuery, [cocktailId], function (err) {
             if (err) {
                 console.error('Error deleting old ingredients:', err);
-                reject(err);
+                return reject(err);
             } else {
                 const insertQuery = `INSERT INTO ingredients (cocktail_id, ingredient, measure) VALUES (?, ?, ?)`;
                 const stmt = db.prepare(insertQuery);
-                ingredients.forEach(({ ingredient, measure }) => {
-                    stmt.run([cocktailId, ingredient, measure]);
-                });
+
+                // Insert each ingredient and measure pair
+                for (let i = 0; i < ingredients.length; i++) {
+                    stmt.run([cocktailId, ingredients[i], measures[i]], (err) => {
+                        if (err) {
+                            console.error('Error inserting new ingredients:', err);
+                            return reject(err);
+                        }
+                    });
+                }
+
                 stmt.finalize((err) => {
                     if (err) {
-                        console.error('Error inserting new ingredients:', err);
-                        reject(err);
+                        console.error('Error finalizing statement:', err);
+                        return reject(err);
                     } else {
                         console.log(`Ingredients for cocktail with ID ${cocktailId} updated successfully`);
                         resolve();

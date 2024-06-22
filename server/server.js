@@ -659,7 +659,7 @@ import('node-fetch').then(module => {
         res.sendFile(path.join(__dirname, '../client/admin_pages/editor/editor.html'));
     });
 
-    app_admin.get('/api/cocktail/:cocktailId', async (req, res) => {
+    app_admin.get('/api/cocktail/id/:id', async (req, res) => {
         const cocktailId = req.params.id;
 
         try {
@@ -720,34 +720,25 @@ import('node-fetch').then(module => {
         }
     });
 
-    // Update Cocktail data
-    app_admin.put('/recipe/:cocktailId', verifyToken, (req, res) => {
+    app_admin.put('/recipe/:cocktailId', async (req, res) => {
         const cocktailId = req.params.cocktailId;
-        const { name, category, alcoholic, glass, instructions, thumbnail } = req.body;
+        const { name, category, alcoholic, glass, instructions, thumbnail, ingredients, measures } = req.body;
 
-        updateCocktailInDb(cocktailId, name, category, alcoholic, glass, instructions, thumbnail)
-            .then(() => {
-                res.status(200).send(`Cocktail with ID ${cocktailId} updated successfully`);
-            })
-            .catch((error) => {
-                console.error('Error updating cocktail:', error);
-                res.status(500).send(`Failed to update cocktail with ID ${cocktailId}`);
-            });
-    });
+        // Validate inputs
+        if (!name || !category || !alcoholic || !glass || !instructions || !thumbnail || !Array.isArray(ingredients) || !Array.isArray(measures)) {
+            return res.status(400).send('Missing required fields or ingredients/measures are not arrays');
+        }
 
-    // Update Cocktail ingredients and its measures,
-    app_admin.put('/recipe/:cocktailId/ingredients', verifyToken, (req, res) => {
-        const cocktailId = req.params.cocktailId;
-        const { ingredients } = req.body;
+        try {
+            // Update cocktail details and ingredients
+            await updateCocktailInDb(cocktailId, name, category, alcoholic, glass, instructions, thumbnail);
+            await updateCocktailIngredients(cocktailId, ingredients, measures);
 
-        updateCocktailIngredients(cocktailId, ingredients)
-            .then(() => {
-                res.status(200).send(`Ingredients for cocktail with ID ${cocktailId} updated successfully`);
-            })
-            .catch((error) => {
-                console.error('Error updating cocktail ingredients:', error);
-                res.status(500).send('Failed to update cocktail ingredients');
-            });
+            res.status(200).send(`Cocktail with ID ${cocktailId} updated successfully`);
+        } catch (error) {
+            console.error('Error updating cocktail:', error);
+            res.status(500).send(`Failed to update cocktail with ID ${cocktailId}`);
+        }
     });
 
     app_admin.listen(999, () => {

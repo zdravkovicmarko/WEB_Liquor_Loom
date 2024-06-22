@@ -118,12 +118,12 @@ async function saveCocktail() {
 
     console.log("This is my FormData: ", formData);
 
-    try {
-        const response = await fetch(`/api/cocktail/${formData.id}`);
+    try { // Check ID in database
+        const response = await fetch(`/api/cocktail/id/${formData.id}`);
         const data = await response.json();
 
-        if (response.ok && data) { // ID exists, use PUT to update
-            const updateResponse = await fetch(`/api/cocktail/${formData.id}`, {
+        if (response.ok && data) { // ID exists, use PUT to update cocktail
+            const updateResponse = await fetch(`/recipe/${formData.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -135,7 +135,9 @@ async function saveCocktail() {
             } else {
                 displayMessage(alertError, 'Failed to update cocktail', 5000);
             }
-        } else { // ID does not exist, use POST to create
+        }
+
+        else { // ID does not exist, use POST to create cocktail
             const createResponse = await fetch('/add-cocktail', {
                 method: 'POST',
                 headers: {
