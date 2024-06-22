@@ -46,7 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addIngredientBtn.addEventListener('click', () => addIngredientInput());
     deleteIngredientBtn.addEventListener('click', () => deleteIngredientInput());
-    saveBtn.addEventListener('click', saveCocktail);
+    deleteBtn.addEventListener('click', deleteCocktail);
+
+    saveBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default form submission
+        cocktailForm.checkValidity() ? saveCocktail() : displayMessage(alertError, 'Please fill out all required fields.', 5000);
+    });
 });
 
 function displayIngredientsAndMeasures(ingredients) {
@@ -136,6 +141,7 @@ async function saveCocktail() {
             });
             if (updateResponse.ok) {
                 displayMessage(alertSuccess, 'Cocktail updated successfully', 5000);
+                resetInputs();
             } else {
                 displayMessage(alertError, 'Failed to update cocktail', 5000);
             }
@@ -151,6 +157,7 @@ async function saveCocktail() {
             });
             if (createResponse.ok) {
                 displayMessage(alertSuccess, 'Cocktail created successfully', 5000);
+                resetInputs();
             } else {
                 displayMessage(alertError, 'Failed to create cocktail', 5000);
             }
@@ -171,11 +178,7 @@ async function deleteCocktail() {
 
         if (response.ok) {
             displayMessage(alertSuccess, 'Cocktail deleted successfully', 5000);
-
-            // Reset inputs
-            const ingredientsContainer = document.getElementById('ingredients_container');
-            const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
-            ingredientDivs.forEach(div => div.remove());
+            resetInputs();
         } else {
             displayMessage(alertError, `Failed to delete cocktail: ${result.error}`, 5000);
         }
@@ -183,4 +186,10 @@ async function deleteCocktail() {
         console.error('Error deleting cocktail:', error);
         displayMessage(alertError, 'Error deleting cocktail', 5000);
     }
+}
+
+function resetInputs(){
+    const ingredientsContainer = document.getElementById('ingredients_container');
+    const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
+    ingredientDivs.forEach(div => div.remove());
 }
