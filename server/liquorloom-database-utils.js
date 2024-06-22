@@ -66,6 +66,9 @@ async function removeCocktailFromDb(cocktailId) {
         await runQuery(`DELETE FROM ingredients WHERE cocktail_id = ?`, [cocktailId]);
         console.log(`Ingredients deleted for cocktail with ID: ${cocktailId}`);
 
+        await runQuery(`DELETE FROM user_interaction WHERE cocktail_id = ?`, [cocktailId]);
+        console.log(`Deleted user interaction associated with CocktailID: ${cocktailId}`);
+
         // Now delete cocktail from cocktails table
         await runQuery(`DELETE FROM cocktails WHERE id = ?`, [cocktailId]);
         console.log(`Cocktail deleted from cocktails table with ID: ${cocktailId}`);

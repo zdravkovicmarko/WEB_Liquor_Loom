@@ -172,16 +172,15 @@ async function saveCocktail() {
 async function deleteCocktail() {
     const cocktailId = document.getElementById('cocktail_id').value;
     try {
-        const response = await fetch(`/recipe/${cocktailId}`, {
+        const deleteResponse = await fetch(`/recipe/${cocktailId}`, {
             method: 'DELETE'
         });
-        const result = await response.json();
 
-        if (response.ok) {
+        if (deleteResponse.ok) {
             displayMessage(alertSuccess, 'Cocktail deleted successfully', 5000);
             clearAllInputs();
         } else {
-            displayMessage(alertError, `Failed to delete cocktail: ${result.error}`, 5000);
+            displayMessage(alertError, `Failed to delete cocktail: ${deleteResponse.error}`, 5000);
         }
     } catch (error) {
         console.error('Error deleting cocktail:', error);
