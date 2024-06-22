@@ -65,6 +65,13 @@ function addIngredientInput(ingredient = '', measure = '', index = null) {
     ingredientInput.name = 'ingredient';
     ingredientInput.placeholder = 'Ingredient';
     ingredientInput.value = ingredient;
+    ingredientInput.addEventListener('input', () => {
+        if (ingredientInput.value.trim() === '') {
+            ingredientInput.classList.add('input-error');
+        } else {
+            ingredientInput.classList.remove('input-error');
+        }
+    });
 
     const measureInput = document.createElement('input');
     measureInput.className = 'element-input measure-item';
@@ -72,6 +79,13 @@ function addIngredientInput(ingredient = '', measure = '', index = null) {
     measureInput.name = 'measure';
     measureInput.placeholder = 'Measure';
     measureInput.value = measure;
+    measureInput.addEventListener('input', () => {
+        if (measureInput.value.trim() === '') {
+            measureInput.classList.add('input-error');
+        } else {
+            measureInput.classList.remove('input-error');
+        }
+    });
 
     ingredientDiv.appendChild(ingredientInput);
     ingredientDiv.appendChild(measureInput);
@@ -95,7 +109,38 @@ function deleteIngredientInput() {
     if (ingredientDivs.length > 0) ingredientsContainer.removeChild(ingredientDivs[ingredientDivs.length - 1]);
 }
 
+function validateIngredientsAndMeasures() {
+    const ingredientInputs = document.querySelectorAll('.ingredient-item');
+    const measureInputs = document.querySelectorAll('.measure-item');
+    let isValid = true;
+
+    ingredientInputs.forEach(input => {
+        if (input.value.trim() === '') {
+            input.classList.add('input-error');
+            isValid = false;
+        } else {
+            input.classList.remove('input-error');
+        }
+    });
+
+    measureInputs.forEach(input => {
+        if (input.value.trim() === '') {
+            input.classList.add('input-error');
+            isValid = false;
+        } else {
+            input.classList.remove('input-error');
+        }
+    });
+
+    return isValid;
+}
+
 async function saveCocktail() {
+    if (!validateIngredientsAndMeasures()) {
+        displayMessage(alertError, 'Please fill out all the ingredient und measure fields', 5000);
+        return; // Prevent form submission
+    }
+
     const formData = {
         id: document.getElementById('cocktail_id').value,
         name: document.getElementById('cocktail_name').value,
