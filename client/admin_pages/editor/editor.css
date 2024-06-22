@@ -28,9 +28,6 @@ main {
 .btn-normal-grey {
     margin-right: 5px;
 }
-.btn-normal-grey:hover {
-    text-shadow: 0 0 15px black;
-}
 .ingredient-item {
     margin-bottom: 10px;
 }

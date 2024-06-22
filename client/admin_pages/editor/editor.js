@@ -1,8 +1,6 @@
 import {displayMessage} from "/client/base.js";
-
 const alertSuccess = document.getElementById('alert-success');
 const alertError = document.getElementById('alert-error');
-const inputDivs = document.querySelectorAll('.element-input');
 
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById("search");
@@ -12,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveBtn = document.getElementById("save-btn");
     const deleteBtn = document.getElementById('delete-btn');
 
+    // Handle element inputs when searching cocktail name
     searchInput.addEventListener('keypress', async (event) => {
         if (event.key !== 'Enter') return;
 
@@ -28,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayMessage(alertSuccess, `Cocktail found: ${cocktail.name} (ID: ${cocktail.id})`, 5000);
                 console.log(cocktail);
 
+                // Populate form fields with retrieved cocktail data
                 document.getElementById('cocktail_id').value = cocktail.id || '';
                 document.getElementById('cocktail_name').value = cocktail.name || '';
                 document.getElementById('cocktail_category').value = cocktail.category || '';
@@ -36,15 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('cocktail_instructions').value = cocktail.instructions || '';
                 document.getElementById('cocktail_thumbnail').value = cocktail.thumbnail || '';
                 displayIngredientsAndMeasures(cocktail.ingredients);
+
+                searchInput.value = '';
             }
         } catch (error) {
             console.error('Error fetching cocktail:', error);
             displayMessage(alertError, 'Error fetching cocktail', 5000);
-        } finally {
-            searchInput.value = '';
         }
     });
 
+    // Button event handlers
     addIngredientBtn.addEventListener('click', () => addIngredientInput());
     deleteIngredientBtn.addEventListener('click', () => deleteIngredientInput());
     deleteBtn.addEventListener('click', deleteCocktail);
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Create all ingredient element inputs for found cocktail
 function displayIngredientsAndMeasures(ingredients) {
     const ingredientsContainer = document.getElementById('ingredients_container');
     const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
@@ -62,6 +64,7 @@ function displayIngredientsAndMeasures(ingredients) {
     ingredients.forEach((item, index) => addIngredientInput(item.ingredient, item.measure, index));
 }
 
+// Create empty ingredient element input dynamically
 function addIngredientInput(ingredient = '', measure = '', index = null) {
     const ingredientsContainer = document.getElementById('ingredients_container');
     const ingredientDiv = document.createElement('div');
@@ -85,25 +88,22 @@ function addIngredientInput(ingredient = '', measure = '', index = null) {
     ingredientDiv.appendChild(ingredientInput);
     ingredientDiv.appendChild(measureInput);
 
-    if (index !== null) {
-        ingredientInput.id = `ingredient${index + 1}`;
-        measureInput.id = `measure${index + 1}`;
-    } else {
-        const currentCount = ingredientsContainer.querySelectorAll('.element-inner-container').length;
-        ingredientInput.id = `ingredient${currentCount + 1}`;
-        measureInput.id = `measure${currentCount + 1}`;
-    }
+    // Give ingredients & measures unique ID (either using provided index or counted containers)
+    const currentCount = ingredientsContainer.querySelectorAll('.element-inner-container').length;
+    ingredientInput.id = `ingredient${index !== null ? index + 1 : currentCount + 1}`;
+    measureInput.id = `measure${index !== null ? index + 1 : currentCount + 1}`;
 
-    const addButton = document.getElementById('add_ingredient_btn');
-    ingredientsContainer.insertBefore(ingredientDiv, addButton);
+    ingredientsContainer.insertBefore(ingredientDiv, document.getElementById('add_ingredient_btn'));
 }
 
+// Delete last ingredient element input
 function deleteIngredientInput() {
     const ingredientsContainer = document.getElementById('ingredients_container');
     const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
     if (ingredientDivs.length > 0) ingredientsContainer.removeChild(ingredientDivs[ingredientDivs.length - 1]);
 }
 
+// Save cocktail using PUT (cocktailID in DB) & POST (cocktailID not in DB) endpoint
 async function saveCocktail() {
     const formData = {
         id: document.getElementById('cocktail_id').value,
@@ -117,6 +117,7 @@ async function saveCocktail() {
         measures: []
     };
 
+    // Gather ingredient & measure inputs
     const ingredientDivs = document.querySelectorAll('#ingredients_container .element-inner-container');
     ingredientDivs.forEach(div => {
         const ingredient = div.querySelector('input[name="ingredient"]').value;
@@ -127,11 +128,11 @@ async function saveCocktail() {
 
     console.log("This is my FormData: ", formData);
 
-    try { // Check ID in database
+    try {
         const response = await fetch(`/api/cocktail/id/${formData.id}`);
         const data = await response.json();
 
-        if (response.ok && data) { // ID exists, use PUT to update cocktail
+        if (response.ok && data) { // ID exists in DB, use PUT to update cocktail
             const updateResponse = await fetch(`/recipe/${formData.id}`, {
                 method: 'PUT',
                 headers: {
@@ -145,9 +146,7 @@ async function saveCocktail() {
             } else {
                 displayMessage(alertError, 'Failed to update cocktail', 5000);
             }
-        }
-
-        else { // ID does not exist, use POST to create cocktail
+        } else { // ID doesn't exist in DB, use POST to create cocktail
             const createResponse = await fetch('/add-cocktail', {
                 method: 'POST',
                 headers: {
@@ -168,6 +167,7 @@ async function saveCocktail() {
     }
 }
 
+// Delete cocktail using DELETE endpoint
 async function deleteCocktail() {
     const cocktailId = document.getElementById('cocktail_id').value;
     try {
@@ -187,11 +187,11 @@ async function deleteCocktail() {
     }
 }
 
+// Clear all regular input fields & dynamically added ingredient inputs
 function clearAllInputs() {
-    // Clear all regular input fields
+    const inputDivs = document.querySelectorAll('.element-input');
     inputDivs.forEach(input => input.value = '');
 
-    // Clear all dynamically added ingredient inputs
     const ingredientsContainer = document.getElementById('ingredients_container');
     const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
     ingredientDivs.forEach(div => div.remove());

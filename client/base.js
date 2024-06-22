@@ -1,25 +1,26 @@
-export function displayMessage(element, text, timeout, imageUrl) {
-    // Clear the element's previous content
+export function displayMessage(element, text, timeout) {
     element.innerHTML = '';
 
-    // Create an image element if imageUrl is provided
-    if (imageUrl) {
-        const img = document.getElementById('error-image-container');
-        img.src = imageUrl;
-        element.appendChild(img);
-    }
-
-    // Create a text node
+    // Display message
     const textNode = document.createTextNode(text);
     element.appendChild(textNode);
-
-    // Show the element
     element.style.display = 'block';
 
-    // Add hidden class again after defined time
-    setTimeout(() => {
-        element.style.display = 'none';
-    }, timeout); // e.g.: 5000 ms = 5 s
+    // Hide message after defined time
+    setTimeout(() => element.style.display = 'none', timeout); // e.g.: 5000 ms = 5 s
+}
+
+export function displayErrorImg(url) {
+    const errorImageContainer = document.getElementById('error-image-container');
+
+    fetch(url, { mode: 'no-cors' })
+        .then(() => {
+            errorImageContainer.innerHTML = `<img src="${url}" alt="Error Image">`;
+            errorImageContainer.classList.add('element-cat');
+            errorImageContainer.style.display = 'block';
+            setTimeout(() => errorImageContainer.style.display = 'none', 5000);
+        })
+        .catch(() => console.error('Failed to fetch error image from http.cat'));
 }
 
 export const appendCocktailFromAPI = (cocktail, containerId) => {
