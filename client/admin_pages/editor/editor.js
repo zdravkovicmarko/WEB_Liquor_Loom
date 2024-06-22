@@ -2,6 +2,7 @@ import {displayMessage} from "/client/base.js";
 
 const alertSuccess = document.getElementById('alert-success');
 const alertError = document.getElementById('alert-error');
+const inputDivs = document.querySelectorAll('.element-input');
 
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById("search");
@@ -141,7 +142,8 @@ async function saveCocktail() {
             });
             if (updateResponse.ok) {
                 displayMessage(alertSuccess, 'Cocktail updated successfully', 5000);
-                resetInputs();
+                inputDivs.forEach(input => {input.value = '';});
+                deleteIngredientInput()
             } else {
                 displayMessage(alertError, 'Failed to update cocktail', 5000);
             }
@@ -157,7 +159,8 @@ async function saveCocktail() {
             });
             if (createResponse.ok) {
                 displayMessage(alertSuccess, 'Cocktail created successfully', 5000);
-                resetInputs();
+                inputDivs.forEach(input => {input.value = '';});
+                deleteIngredientInput()
             } else {
                 displayMessage(alertError, 'Failed to create cocktail', 5000);
             }
@@ -178,7 +181,8 @@ async function deleteCocktail() {
 
         if (response.ok) {
             displayMessage(alertSuccess, 'Cocktail deleted successfully', 5000);
-            resetInputs();
+            inputDivs.forEach(input => {input.value = '';});
+            deleteIngredientInput();
         } else {
             displayMessage(alertError, `Failed to delete cocktail: ${result.error}`, 5000);
         }
@@ -186,10 +190,4 @@ async function deleteCocktail() {
         console.error('Error deleting cocktail:', error);
         displayMessage(alertError, 'Error deleting cocktail', 5000);
     }
-}
-
-function resetInputs(){
-    const ingredientsContainer = document.getElementById('ingredients_container');
-    const ingredientDivs = ingredientsContainer.querySelectorAll('.element-inner-container');
-    ingredientDivs.forEach(div => div.remove());
 }

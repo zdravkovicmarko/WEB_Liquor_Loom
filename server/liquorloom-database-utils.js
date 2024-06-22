@@ -62,15 +62,16 @@ async function removeCocktailFromDb(cocktailId) {
             console.log("Cocktail not found in the database");
         }
 
-        // Delete the cocktail from the cocktails table
-        await runQuery(`DELETE FROM cocktails WHERE id = ?`, [cocktailId]);
-
-        // Delete associated ingredients from the ingredients table
+        // Delete associated ingredients first
         await runQuery(`DELETE FROM ingredients WHERE cocktail_id = ?`, [cocktailId]);
+        console.log(`Ingredients deleted for cocktail with ID: ${cocktailId}`);
+
+        // Now delete cocktail from cocktails table
+        await runQuery(`DELETE FROM cocktails WHERE id = ?`, [cocktailId]);
+        console.log(`Cocktail deleted from cocktails table with ID: ${cocktailId}`);
 
         return { id: cocktailId };
     } catch (error) {
-        // If any error occurs during deletion or checking for existence, throw the error
         console.log('Issue in removeCocktailFromDb: ', error);
     }
 }
