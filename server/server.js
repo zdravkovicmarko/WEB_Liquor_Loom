@@ -457,30 +457,21 @@ import('node-fetch').then(module => {
                 return;
             }
 
-            // Check if the user exists
+            // Check if user or email exists
             const userExists = await checkUserExists(username);
-            const emailExists = await checkEmailExists(username); // Check if the username is an email
+            const emailExists = await checkEmailExists(username);
 
             if (!userExists && !emailExists) {
                 res.status(404).json({ error: 'Account does not exist' });
                 return;
             }
 
-            // Authenticate the user
+            // Authenticate user
             const user = await getUser(username, password);
 
-            if (user) {
-                // Create a session for the logged-in user
+            if (user) { // Create session for the logged-in user
                 req.session.userId = user.id;
-                console.log('user is admin? ' , await isUserAdmin(user.id));
-                // Create a JWT token for admin users
-                if (await isUserAdmin(user.id)) {
-                    const token = generateToken(user);
-                    res.json({ success: true, token });
-                } else {
-                    res.json({ success: true });
-                }
-
+                res.json({ success: true });
             } else {
                 res.status(401).json({ error: 'Invalid username or password' });
             }

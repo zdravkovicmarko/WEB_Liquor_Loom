@@ -2,8 +2,6 @@ import { appendCocktailById, displayMessage, logoutBtnHandling } from '/client/b
 const alertError = document.getElementById('alert-error');
 const alertSuccess = document.getElementById('alert-success');
 
-// Navigation event listeners
-document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');
 logoutBtnHandling();
 
 // Display user data
@@ -115,7 +113,7 @@ async function displayUserActions(userID) {
     }
 }
 
-// Fetch current user ID & display profile, favorite cocktail, actions & stats
+// Fetch current user ID & display profile, favorite cocktail, stats & actions
 document.addEventListener("DOMContentLoaded", async () => {
     const { userId } = await fetch('/current-user').then(res => res.json());
     await Promise.all([
@@ -219,9 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selectedBtn.delete(btnId);
             } else {
                 btnPart.classList.add("selected");
-                if (label.tagName === 'LABEL') {
-                    label.replaceWith(await createInput(label.id));
-                }
+                if (label.tagName === 'LABEL') label.replaceWith(await createInput(label.id));
                 selectedBtn.add(btnId);
             }
         });

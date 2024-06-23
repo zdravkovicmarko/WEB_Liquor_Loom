@@ -19,11 +19,8 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         // If response is OK, parse response as JSON; otherwise, parse error & throw with status
         .then(response => response.ok ? response.json() : response.json().then(error => { error.status = response.status; throw error; }))
 
-        // On success, save token in local storage & redirect to home page
-        .then(data => {
-            if (data.token) localStorage.setItem('token', data.token);
-            window.location.href = '/home';
-        })
+        // On success, redirect to home page
+        .then(data => window.location.href = '/home')
 
         // On error, map status code to user-friendly message & image & display it
         .catch(error => {

@@ -287,11 +287,11 @@ input::-webkit-slider-thumb {
 #btn-recommend:hover .btn-img {
     content: url('images/symbol_recommend.png');
 }
-.btn-recommend-no, #btn-recommend-no:hover, #btn-recommend-no.selected {
+.btn-not_recommend, #btn-not_recommend:hover, #btn-not_recommend.selected {
     background-color: var(--red-50-opacity);
 }
-#btn-recommend-no.selected .btn-img,
-#btn-recommend-no:hover .btn-img {
+#btn-not_recommend.selected .btn-img,
+#btn-not_recommend:hover .btn-img {
     content: url('images/symbol_recommend_no.png');
 }
 .btn-pin, #btn-pin:hover, #btn-pin.selected{
