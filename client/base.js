@@ -1,3 +1,31 @@
+// Check user login status & update UI
+export async function checkLoginStatus() {
+    try {
+        const response = await fetch('/login-status');
+        const data = await response.json();
+        const isLoggedIn = data.loggedIn;
+
+        document.getElementById('login-btn').classList.toggle('hidden', isLoggedIn);
+        document.getElementById('logout-btn').classList.toggle('hidden', !isLoggedIn);
+        document.getElementById('profile-btn').classList.toggle('hidden', !isLoggedIn);
+    } catch (error) {
+        console.error('Error checking login status:', error);
+    }
+}
+
+// Handle basic redirection event handlers
+export function basicRedirectionHandling(home = true, login = true, logout = true, profile = true) {
+    if (home) document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');
+    if (login) document.getElementById('login-btn').addEventListener('click', () => window.location.href = '/login');
+    if (profile) document.getElementById('profile-btn').addEventListener('click', () => window.location.href = '/profile');
+    if (logout) {
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.setItem('logoutSuccess', 'true');
+            window.location.href = '/logout';
+        });
+    }
+}
+
 // Display message for specified time
 export function displayMessage(element, text, timeout) {
     element.innerHTML = text;
@@ -74,18 +102,15 @@ export async function appendCocktailById(cocktailId, containerId) {
     }
 }
 
-// Check user login status & update UI
-export async function checkLoginStatus() {
+// Fetch & return cocktail rating
+export async function updateCocktailRating(cocktailID) {
     try {
-        const response = await fetch('/login-status');
+        const response = await fetch(`/api/cocktail/${cocktailID}/rating`);
         const data = await response.json();
-        const isLoggedIn = data.loggedIn;
-
-        document.getElementById('login-btn').classList.toggle('hidden', isLoggedIn);
-        document.getElementById('logout-btn').classList.toggle('hidden', !isLoggedIn);
-        document.getElementById('profile-btn').classList.toggle('hidden', !isLoggedIn);
+        return data?.averageRating?.toFixed(1) || "0.0";
     } catch (error) {
-        console.error('Error checking login status:', error);
+        console.error('Error fetching rating:', error);
+        return "0.0";
     }
 }
 
@@ -102,30 +127,5 @@ export function slideValue(title, delimiter, initialValue) {
     if (range && slideValue) {
         updateSlideValue(initialValue);
         range.addEventListener("input", event => updateSlideValue(event.target.value));
-    }
-}
-
-// Fetch & return cocktail rating
-export async function updateCocktailRating(cocktailID) {
-    try {
-        const response = await fetch(`/api/cocktail/${cocktailID}/rating`);
-        const data = await response.json();
-        return data?.averageRating?.toFixed(1) || "0.0";
-    } catch (error) {
-        console.error('Error fetching rating:', error);
-        return "0.0";
-    }
-}
-
-// Handle basic redirection event handlers
-export function basicRedirectionHandling(home = true, login = true, logout = true, profile = true) {
-    if (home) document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');
-    if (login) document.getElementById('login-btn').addEventListener('click', () => window.location.href = '/login');
-    if (profile) document.getElementById('profile-btn').addEventListener('click', () => window.location.href = '/profile');
-    if (logout) {
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.setItem('logoutSuccess', 'true');
-            window.location.href = '/logout';
-        });
     }
 }

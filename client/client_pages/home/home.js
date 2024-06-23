@@ -8,6 +8,7 @@ import {
 
 checkLoginStatus();
 basicRedirectionHandling();
+slideValue(true, "-", 0);
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -37,10 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let sortOrder = 'asc';
     let allIngredients = new Set();
 
-    // Handle slide value
-    slideValue(true, "-", 0);
-
-    // Fetch cocktails from backend
+    // Fetch cocktails from BE
     const fetchCocktailsFromBackend = async () => {
         try {
             const response = await fetch('/cocktails');
@@ -222,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .forEach(tag => tag.addEventListener("click", applyFilter));
     ratingSlider.addEventListener("change", applyFilter);
 
+    // Handles ingredient tags upon using ingredient search
     const updateIngredientTags = (searchTerm) => {
         if (!ingredientTagsContainer) {
             console.error("Ingredient tags container not found");

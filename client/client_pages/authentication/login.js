@@ -35,7 +35,7 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         .then(response => response.ok ? response.json() : response.json().then(error => { error.status = response.status; throw error; }))
 
         // On success, redirect to home page
-        .then(data => window.location.href = '/home')
+        .then(() => window.location.href = '/home')
 
         // On error, map status code to user-friendly message & image & display it
         .catch(error => {
