@@ -8,6 +8,7 @@ import {
 } from '/client/base.js';
 
 const alertSuccess = document.getElementById('alert-success');
+const alertError = document.getElementById('alert-error');
 const alertFetchError = document.getElementById('alert-fetch-error');
 logoutBtnHandling();
 
@@ -222,7 +223,6 @@ document.querySelectorAll(".btn-part").forEach(btnPart => {
         };
         action = isSelected ? actionMap[btnId] : null;
 
-        // Check if 'btn-fav' is clicked & update isFavorite
         if (btnId === 'btn-fav') {
             isFavorite = !isFavorite;
             await updateOrDeleteFavorite();
@@ -272,6 +272,32 @@ document.getElementById('save-btn').addEventListener('click', async () => {
         }
     } else {
         console.log('No action selected');
+    }
+});
+
+// Delete user's cocktail rating
+document.getElementById('delete-btn').addEventListener('click', async () => {
+    try {
+        const response = await fetch(`/api/user/${userID}/interaction/${cocktailID}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            document.querySelectorAll('.btn-part').forEach(btnPart => {
+                btnPart.classList.remove("selected");
+                btnPart.classList.add("btn-grey");
+            });
+            document.getElementById('slide').value = 2.5;
+            slideValue(false, "/", 2.5);
+
+            displayMessage(alertSuccess, 'Rating successfully deleted!', 3000);
+        } else {
+            console.error('Failed to delete user interaction');
+            displayMessage(alertError, 'Failed to delete rating.', 3000);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        displayMessage(alertError, 'An error occurred while deleting the rating.', 3000);
     }
 });
 
