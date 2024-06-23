@@ -1,8 +1,13 @@
-import { appendCocktailById, displayMessage, logoutBtnHandling } from '/client/base.js';
+import {
+    appendCocktailById,
+    displayMessage,
+    basicRedirectionHandling
+} from '/client/base.js';
+
+basicRedirectionHandling(true, false, true, false);
+
 const alertError = document.getElementById('alert-error');
 const alertSuccess = document.getElementById('alert-success');
-
-logoutBtnHandling();
 
 // Display user data
 async function displayUserData(userID) {
@@ -241,6 +246,3 @@ document.getElementById('delete-btn').addEventListener('click', async () => {
         console.error('Error during delete operation:', error);
     }
 });
-
-// Navigation event listeners
-document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');

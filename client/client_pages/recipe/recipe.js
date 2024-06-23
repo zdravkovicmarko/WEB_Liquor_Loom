@@ -2,15 +2,16 @@ import {
     displayMessage,
     slideValue,
     updateCocktailRating,
-    logoutBtnHandling,
     checkLoginStatus,
-    handleProfileClick
+    basicRedirectionHandling
 } from '/client/base.js';
+
+checkLoginStatus();
+basicRedirectionHandling()
 
 const alertSuccess = document.getElementById('alert-success');
 const alertError = document.getElementById('alert-error');
 const alertFetchError = document.getElementById('alert-fetch-error');
-logoutBtnHandling();
 
 let userID;
 let cocktailID;
@@ -299,12 +300,4 @@ document.getElementById('delete-btn').addEventListener('click', async () => {
         console.error('Error:', error);
         displayMessage(alertError, 'An error occurred while deleting the rating.', 3000);
     }
-});
-
-// Navigation event listeners
-document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');
-document.getElementById('login-btn').addEventListener('click', () => window.location.href = '/login');
-document.addEventListener('DOMContentLoaded', function() {
-    checkLoginStatus();
-    document.getElementById('profile-btn').addEventListener('click', handleProfileClick);
 });

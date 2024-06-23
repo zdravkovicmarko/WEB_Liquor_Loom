@@ -1,6 +1,21 @@
-import { displayMessage, displayErrorImg } from '/client/base.js';
+import {
+    displayMessage,
+    displayErrorImg,
+    basicRedirectionHandling
+} from '/client/base.js';
+
+basicRedirectionHandling(true, false, false, false)
+
 const alertError = document.getElementById('alert-error');
 const alertSuccess = document.getElementById('alert-success');
+
+// Check if redirected from successful signup & display success message
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('accountCreated') === 'true') {
+        displayMessage(alertSuccess, 'Account successfully created! Please login now.', 3000);
+        localStorage.removeItem('accountCreated');
+    }
+});
 
 document.querySelector('form[action="/login"]').addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent default form submission
@@ -38,14 +53,5 @@ document.querySelector('form[action="/login"]').addEventListener('submit', funct
         });
 });
 
-// Check if redirected from successful signup & display success message
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('accountCreated') === 'true') {
-        displayMessage(alertSuccess, 'Account successfully created! Please login now.', 3000);
-        localStorage.removeItem('accountCreated');
-    }
-});
-
-// Navigation event handlers
-document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');
+// Navigation event handler
 document.getElementById('signup').addEventListener('click', () => window.location.href = '/signup');

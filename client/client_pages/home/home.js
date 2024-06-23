@@ -2,14 +2,28 @@ import {
     appendCocktailFromDb,
     checkLoginStatus,
     displayMessage,
-    handleProfileClick,
-    logoutBtnHandling,
-    slideValue
+    slideValue,
+    basicRedirectionHandling
 } from '/client/base.js';
 
-logoutBtnHandling();
+checkLoginStatus();
+basicRedirectionHandling();
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    // Display success messages if set in localStorage
+    const SuccessMessage = document.getElementById('alert-success');
+
+    if (localStorage.getItem('logoutSuccess') === 'true') {
+        displayMessage(SuccessMessage, 'Successfully logged out!', 3000);
+        localStorage.removeItem('logoutSuccess');
+    }
+
+    if (localStorage.getItem('deleteSuccess') === 'true') {
+        displayMessage(SuccessMessage, 'Account successfully deleted!', 3000);
+        localStorage.removeItem('deleteSuccess');
+    }
+
     const randomContainer = document.getElementById("random-button");
     const cocktailsContainer = document.querySelector(".cocktails-container");
     const searchInput = document.getElementById("search");
@@ -260,12 +274,4 @@ document.addEventListener("DOMContentLoaded", () => {
         const searchTerm = event.target.value.trim();
         updateIngredientTags(searchTerm);
     });
-});
-
-// Navigation event listeners
-document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');
-document.getElementById('login-btn').addEventListener('click', () => window.location.href = '/login');
-document.addEventListener('DOMContentLoaded', function() {
-    checkLoginStatus();
-    document.getElementById('profile-btn').addEventListener('click', handleProfileClick);
 });

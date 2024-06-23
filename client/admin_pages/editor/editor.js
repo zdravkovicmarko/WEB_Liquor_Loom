@@ -1,4 +1,5 @@
-import {displayMessage} from "/client/base.js";
+import { displayMessage } from "/client/base.js";
+
 const alertSuccess = document.getElementById('alert-success');
 const alertError = document.getElementById('alert-error');
 

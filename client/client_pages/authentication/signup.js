@@ -1,4 +1,11 @@
-import {displayMessage, displayErrorImg} from '/client/base.js';
+import {
+    displayMessage,
+    displayErrorImg,
+    basicRedirectionHandling
+} from '/client/base.js';
+
+basicRedirectionHandling(true, true, false, false)
+
 const alertError = document.getElementById('alert-error');
 
 document.querySelector('form[action="/signup"]').addEventListener('submit', function (event) {
@@ -50,7 +57,3 @@ const showError = (message, imageUrl) => {
     displayMessage(alertError, message, 5000);
     displayErrorImg(imageUrl);
 };
-
-// Navigation event handlers
-document.getElementById('logo-container').addEventListener('click', () => window.location.href = '/home');
-document.getElementById('login-btn').addEventListener('click', () => window.location.href = '/login');
