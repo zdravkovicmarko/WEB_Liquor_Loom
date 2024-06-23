@@ -40,16 +40,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
             FOREIGN KEY(cocktail_id) REFERENCES cocktails(id)
         )`);
 
-        db.run(`CREATE TABLE IF NOT EXISTS
-        cocktail_stats (
-            cocktail_id INTEGER PRIMARY KEY,
-            recommendations INTEGER DEFAULT 0,
-            do_not_recommendations INTEGER DEFAULT 0,
-            pinned INTEGER DEFAULT 0,
-            rating REAL DEFAULT 0.0,
-            amount_ratings INTEGER DEFAULT 0
-        )`);
-
         db.run(`CREATE TABLE IF NOT EXISTS 
         users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

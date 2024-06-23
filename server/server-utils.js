@@ -1,8 +1,6 @@
 const {processCocktailData} = require("./cocktail-utils");
 const {addCocktailToDb} = require("./liquorloom-database-utils");
-const jwt = require('jsonwebtoken');
-
-const secretKey = 'DaS_ISt_meIN_sEcReT_KEY';
+const xml2js = require('xml2js');
 
 function transformCocktailData(apiCocktail) {
     return {
@@ -99,34 +97,63 @@ async function getAllCocktailsFromAPI() {
     return allCocktails;
 }
 
-function generateToken(user) {
-    return jwt.sign({ id: user.id, isAdmin: user.is_admin }, secretKey, { expiresIn: '1d' });
+function sanitizeKeys(key) { // replaces all characters that are dots, underscores, hyphens or not alphanumeric characters with "_"
+    let sanitizedKey = key.replace(/[^a-zA-Z0-9._-]/g, '_');
+    if (/^[0-9]/.test(sanitizedKey)) {
+        sanitizedKey = '_' + sanitizedKey;
+    }
+    return sanitizedKey;
 }
 
-// Middleware-Funktion zum Überprüfen des JWT-Tokens
-function verifyToken(req, res, next) {
-    let token = req.headers['authorization'];
-
-    if (!token) {
-        return res.status(401).json({ error: 'Access Denied' });
+function escapeXmlCharacters(value) {
+    if (typeof value === 'string') {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
     }
-     
+    return value;
+}
 
-    jwt.verify(token, secretKey, (err, decoded) => {
-        if (err) {
-            return res.status(403).json({ error: 'Admins only' });
-        }
-        req.user = decoded;
-        next();
-    });
+function sanitizeDataForXml(data) {
+    if (Array.isArray(data)) { // if data is an array then recursively call function but for every item of array separately
+        return data.map(item => sanitizeDataForXml(item));
+    } else if (typeof data === 'object' && data !== null) { // if data is an object then sanitize each key and recursively sanitize each value
+        const sanitizedObject = {};
+        Object.keys(data).forEach(key => {
+            const sanitizedKey = sanitizeKeys(key);
+            sanitizedObject[sanitizedKey] = sanitizeDataForXml(data[key]);
+        });
+        return sanitizedObject;
+    } else { // if data is a string
+        return escapeXmlCharacters(data);
+    }
+}
+
+function sendResponse(req, res, data, builderOptions = {}) {
+    const acceptHeader = req.headers.accept;
+
+    if (acceptHeader && acceptHeader.includes('application/xml')) {
+
+        const sanitizedData = sanitizeDataForXml(data); // Sanitize data before XML conversion
+
+        const rootName = builderOptions.rootName || 'response'; // if given a rootName then use it, otherwise use "response" as rootName
+
+        const xmlBuilder = new xml2js.Builder({ ...builderOptions, rootName }); // Extract all properties in builderOptions with "...builderOptions", our rootName overwrites the rootName of builderOptions
+        const xml = xmlBuilder.buildObject(sanitizedData);
+
+        res.set('Content-Type', 'application/xml');
+        res.status(200).send(xml);
+    } else {
+        res.status(200).json(data);
+    }
 }
 
 module.exports = {
     transformCocktailData,
     fetchCocktailData,
-    addAllCocktailsFromAPIToDb,
-    fetchCocktailsByLetter,
     getAllCocktailsFromAPI,
-    generateToken,
-    verifyToken
+    sendResponse
 }

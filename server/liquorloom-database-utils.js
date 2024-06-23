@@ -79,20 +79,6 @@ async function removeCocktailFromDb(cocktailId) {
     }
 }
 
-async function clearCocktailDatabase() {
-    try {
-        // Drop the cocktails table
-        await runQuery(`DROP TABLE IF EXISTS cocktails`);
-
-        // Drop the ingredients table
-        await runQuery(`DROP TABLE IF EXISTS ingredients`);
-
-        console.log("Database cleared successfully");
-    } catch (err) {
-        console.error("Error clearing database:", err);
-    }
-}
-
 function getCocktailById(id) {
     return new Promise((resolve, reject) => {
         db.get(`SELECT * FROM cocktails WHERE id = ?`, [id], (err, cocktail) => {
@@ -252,21 +238,6 @@ function insertUser(username, email, password) {
     });
 }
 
-function updateUserPut(id, username, email, password) {
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?`;
-        db.run(query, [username, email, password, id], function (err) {
-            if (err) {
-                console.error('Error updating user:', err);
-                reject(err);
-            } else {
-                console.log(`User with ID ${id} updated successfully`);
-                resolve();
-            }
-        });
-    });
-}
-
 async function updateUserPatch(id, userData) {
     return new Promise((resolve, reject) => {
         const updateFields = Object.keys(userData).map(field => `${field} = ?`).join(', ');
@@ -301,22 +272,6 @@ function setIsAdmin(userId, isAdmin) { // isAdmin is a boolean
     });
 }
 
-async function isUserAdmin(userId) {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT is_admin FROM users WHERE id = ?', [userId], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                if (row && row.is_admin === 'yes') {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            }
-        });
-    });
-}
-
 function removeUserByUsername(username) {
     return new Promise((resolve, reject) => {
         const query = 'DELETE FROM users WHERE username = ?';
@@ -332,20 +287,6 @@ function removeUserByUsername(username) {
                 } else {
                     console.log('User removed with username:', username);
                 }
-            }
-        });
-    });
-}
-
-function clearUserDatabase() {
-    return new Promise((resolve, reject) => {
-        db.run(`DELETE FROM users`, function (err) {
-            if (err) {
-                console.error('Error clearing database:', err);
-                reject(err);
-            } else {
-                console.log('Database cleared successfully');
-                resolve();
             }
         });
     });
@@ -798,11 +739,8 @@ function getCocktailsByIngredients(ingredients) {
 }
 
 module.exports ={
-    runQuery,
-    insertIngredients,
     addCocktailToDb,
     removeCocktailFromDb,
-    clearCocktailDatabase,
     getCocktailById,
     getCocktailByName,
     getAllCocktailsFromDb,
@@ -811,11 +749,8 @@ module.exports ={
     updateCocktailStats,
     insertUser,
     setIsAdmin,
-    isUserAdmin,
-    updateUserPut,
     updateUserPatch,
     removeUserByUsername,
-    clearUserDatabase,
     getUser,
     getUsernameById,
     getEmailById,

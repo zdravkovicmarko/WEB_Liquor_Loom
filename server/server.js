@@ -1,14 +1,13 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const xml2js = require('xml2js');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const secret = crypto.randomBytes(32).toString('hex');
 const { processCocktailData } = require('./cocktail-utils');
-const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, clearDatabase, getCocktailById, getCocktailByName, insertUser, setIsAdmin, isUserAdmin, updateUserPut, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId, getIngredientsByCocktailIDs, getCocktailsByIngredient } = require('./liquorloom-database-utils.js');
+const { addCocktailToDb, updateCocktailStats, updateCocktailInDb, updateCocktailIngredients, getAllCocktailsFromDb, getCocktailsByIngredients, getCocktailIdsByUserId, removeCocktailFromDb, getCocktailById, getCocktailByName, insertUser, setIsAdmin, updateUserPatch, checkUserExists, checkEmailExists, deleteUserInteraction, removeUserByUsername, getUser, getUserRatingById, getUserInteractionById, updateUserInteraction, rateCocktail, getAllUniqueIngredients, getUserFavCocktailId, updateUserFav, deleteUserFav, getCounterByCocktailId, getCounterByUserId, getAverageRatingByCocktailId, getAverageRatingByUserId } = require('./liquorloom-database-utils.js');
 const { getUsernameById, getEmailById, getPasswordById } = require('./liquorloom-database-utils');
-const { transformCocktailData, fetchCocktailData, addAllCocktailsFromAPIToDb, fetchCocktailsByLetter, getAllCocktailsFromAPI, generateToken, verifyToken} = require('./server-utils.js')
+const { transformCocktailData, fetchCocktailData, getAllCocktailsFromAPI, sendResponse} = require('./server-utils.js')
 const app = express();
 const app_admin = express();
 let fetch;
@@ -51,10 +50,10 @@ import('node-fetch').then(module => {
                 console.error('Network response was not ok.');
             }
             const data = await response.json();
-            res.json(data);
+            sendResponse(req, res, data)
         } catch (error) {
             console.error('Failed to fetch quote:', error);
-            res.status(500).json({ error: 'Failed to fetch quote' });
+            res.status(500).send({ error: 'Failed to fetch quote' });
         }
     });
 
@@ -79,18 +78,18 @@ import('node-fetch').then(module => {
 
     app.get('/login-status', (req, res) => {
         if (req.session && req.session.userId) {
-            res.json({ loggedIn: true });
+            sendResponse(req, res, { loggedIn: true });
         } else {
-            res.json({ loggedIn: false });
+            sendResponse(req, res, { loggedIn: false });
         }
     });
 
     app.get('/current-user', (req, res) => {
         if (req.session && req.session.userId) {
             const userId = req.session.userId;
-            res.json({ userId });
+            sendResponse(req, res, { userId });
         } else {
-            res.status(401).json({ error: 'User not logged in' });
+            res.status(401).send({ error: 'User not logged in' });
         }
     });
 
@@ -128,7 +127,8 @@ import('node-fetch').then(module => {
                 cocktails = await getAllCocktailsFromDb(); // Fetch the cocktails again after adding
             }
 
-            res.json(cocktails);
+            sendResponse(req, res, cocktails);
+
         } catch (error) {
             console.error('Error fetching cocktails:', error);
             res.status(500).send('Error occurred while fetching cocktails');
@@ -139,18 +139,7 @@ import('node-fetch').then(module => {
     app.get('/api/allrecipes', async (req, res) => {
         try {
             const allCocktails = await getAllCocktailsFromAPI();
-
-            const acceptHeader = req.headers.accept;
-            if (acceptHeader && acceptHeader.includes('application/xml')) {
-                const builder = new xml2js.Builder();
-                const xml = builder.buildObject({ cocktails: allCocktails });
-
-                res.set('Content-Type', 'application/xml');
-                res.send(xml);
-
-            } else {
-                res.json(allCocktails);
-            }
+            sendResponse(req, res, { cocktails: allCocktails })
         } catch (error) {
             console.log('Error fetch all cocktails', error);
             res.status(500).send('Failed to fetch all cocktails');
@@ -185,17 +174,7 @@ import('node-fetch').then(module => {
             }
 
             if (cocktail) {
-                const acceptHeader = req.headers.accept;
-                if (acceptHeader && acceptHeader.includes('application/xml')) {
-                    // Convert the cocktail object to XML
-                    const builder = new xml2js.Builder();
-                    const xml = builder.buildObject({ cocktail });
-
-                    res.set('Content-Type', 'application/xml');
-                    res.send(xml);
-                } else {
-                    res.json(cocktail);
-                }
+                sendResponse(req, res, cocktail )
             } else {
                 res.status(404).send('Recipe not found');
             }
@@ -206,28 +185,35 @@ import('node-fetch').then(module => {
     });
 
     app.get('/api/getAllIngredients', async (req, res) => {
-        getAllUniqueIngredients((err, ingredients) => {
-            if (err) {
-                console.error('Fehler beim Abrufen der eindeutigen Zutaten:', err);
-            } else {
-                //console.log('Eindeutige Zutaten:', ingredients);
-                res.send(ingredients);
-            }
-        });
-    })
+        try {
+            getAllUniqueIngredients((err, ingredients) => {
+                if (err) {
+                    console.error('Error retrieving unique ingredients:', err);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+
+                sendResponse(req, res, ingredients)
+
+            });
+        } catch (error) {
+            console.error('Unexpected error:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
 
     app.get('/api/cocktail', async (req, res) => {
         try {
             const ingredients = req.query.ingredients ? req.query.ingredients.split(',') : [];
             if (ingredients.length === 0) {
-                return res.status(400).json({ error: 'No ingredients provided' });
+                return res.status(400).send({ error: 'No ingredients provided' });
             }
             const response = await getCocktailsByIngredients(ingredients);
             if (response.length > 0) {
-                res.json(response);
+                sendResponse(req, res, response, { rootName: 'ingredients' }); // Wrap data in "ingredients" tags as their root because of query parameter
             } else {
                 console.log('No cocktails found for ingredients:', ingredients);
-                res.status(404).json({ error: 'Cocktail not found' });
+                res.status(404).send({ error: 'Cocktail not found' });
             }
         } catch (error) {
             console.error('Error getting filtered cocktails:', error);
@@ -241,13 +227,13 @@ import('node-fetch').then(module => {
         try {
             const cocktail = await getCocktailById(cocktailId);
             if (!cocktail) {
-                res.status(404).json({ error: 'Cocktail not found' });
+                res.status(404).send({ error: 'Cocktail not found' });
             } else {
-                res.json(cocktail);
+                sendResponse(req, res, cocktail)
             }
         } catch (error) {
             console.error('Error fetching cocktail:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -257,10 +243,10 @@ import('node-fetch').then(module => {
 
         try {
             const count = await getCounterByCocktailId(cocktailID, action);
-            res.json({ cocktailID, action, count });
+            sendResponse(req, res, {cocktailID, action, count})
         } catch (error) {
             console.error('Error fetching the count:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -269,10 +255,10 @@ import('node-fetch').then(module => {
 
         try {
             const averageRating = await getAverageRatingByCocktailId(cocktailID);
-            res.json({ cocktailID, averageRating });
+            sendResponse(req, res, { cocktailID, averageRating })
         } catch (error) {
             console.error('Error fetching the average rating:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -282,10 +268,10 @@ import('node-fetch').then(module => {
 
         try {
             const rating = await getUserRatingById(userId, cocktailId);
-            res.json({ userId, cocktailId, rating });
+            sendResponse(req, res, { userId, cocktailId, rating })
         } catch (error) {
             console.error('Error fetching the rating:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -295,10 +281,10 @@ import('node-fetch').then(module => {
 
         try {
             const action = await getUserInteractionById(userId, cocktailId);
-            res.json({ userId, cocktailId, action });
+            sendResponse(req, res, { userId, cocktailId, action })
         } catch (error) {
             console.error('Error fetching the interaction:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -308,17 +294,17 @@ import('node-fetch').then(module => {
 
         try {
             const favCocktailId = await getUserFavCocktailId(userId);
-            res.status(200).json({ userId, favoriteCocktailId: favCocktailId });
+            sendResponse(req, res, { userId, favoriteCocktailId: favCocktailId });
         } catch (error) {
             console.error('Error fetching user favorite cocktail ID:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
     app.get('/api/user/:id/username', async (req, res) => {
         try {
             const username = await getUsernameById(req.params.id);
-            res.json({ username });
+            sendResponse(req, res, {username})
         } catch (error) {
             console.error('Error fetching username:', error);
             res.status(500).send('Internal Server Error');
@@ -328,7 +314,7 @@ import('node-fetch').then(module => {
     app.get('/api/user/:id/email', async (req, res) => {
         try {
             const email = await getEmailById(req.params.id);
-            res.json({ email });
+            sendResponse(req, res, {email})
         } catch (error) {
             console.error('Error fetching email:', error);
             res.status(500).send('Internal Server Error');
@@ -338,7 +324,7 @@ import('node-fetch').then(module => {
     app.get('/api/user/:id/password', async (req, res) => {
         try {
             const password = await getPasswordById(req.params.id);
-            res.json({ password });
+            sendResponse(req, res, {password})
         } catch (error) {
             console.error('Error fetching password:', error);
             res.status(500).send('Internal Server Error');
@@ -351,10 +337,10 @@ import('node-fetch').then(module => {
 
         try {
             const count = await getCounterByUserId(userId, action);
-            res.json({ userId, action, count });
+            sendResponse(req, res, { userId, action, count })
         } catch (error) {
             console.error('Error fetching the count:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -364,10 +350,10 @@ import('node-fetch').then(module => {
 
         try {
             const cocktailIds = await getCocktailIdsByUserId(userId, action);
-            res.json({ userId, action, cocktailIds });
+            sendResponse(req, res, { userId, action, cocktailIds })
         } catch (error) {
             console.error('Error fetching the cocktail IDs:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -376,10 +362,10 @@ import('node-fetch').then(module => {
 
         try {
             const averageRating = await getAverageRatingByUserId(userId);
-            res.json({ userId, averageRating });
+            sendResponse(req, res, { userId, averageRating })
         } catch (error) {
             console.error('Error fetching the average rating:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -389,10 +375,10 @@ import('node-fetch').then(module => {
 
         try {
             await deleteUserFav(userId);
-            res.status(200).json({ message: 'Favorite deleted successfully' });
+            res.status(200).send({ message: 'Favorite deleted successfully' });
         } catch (error) {
             console.error('Error deleting user favorite:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -403,10 +389,10 @@ import('node-fetch').then(module => {
 
         try {
             await deleteUserInteraction(userId, cocktailId);
-            res.status(200).json({ message: 'User interaction deleted successfully' });
+            res.status(200).send({ message: 'User interaction deleted successfully' });
         } catch (error) {
             console.error('Error deleting user interaction:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -440,10 +426,10 @@ import('node-fetch').then(module => {
 
         try {
             await updateUserFav(userId, cocktailId);
-            res.status(200).json({ message: 'Favorite updated successfully' });
+            res.status(200).send({ message: 'Favorite updated successfully' });
         } catch (error) {
             console.error('Error updating user favorite:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -453,7 +439,7 @@ import('node-fetch').then(module => {
         try {
             // Check if user is already logged in
             if (req.session && req.session.userId) {
-                res.status(409).json({ error: 'User already logged in'});
+                res.status(409).send({ error: 'User already logged in'});
                 return;
             }
 
@@ -462,7 +448,7 @@ import('node-fetch').then(module => {
             const emailExists = await checkEmailExists(username);
 
             if (!userExists && !emailExists) {
-                res.status(404).json({ error: 'Account does not exist' });
+                res.status(404).send({ error: 'Account does not exist' });
                 return;
             }
 
@@ -471,13 +457,13 @@ import('node-fetch').then(module => {
 
             if (user) { // Create session for the logged-in user
                 req.session.userId = user.id;
-                res.json({ success: true });
+                res.send({ success: true });
             } else {
-                res.status(401).json({ error: 'Invalid username or password' });
+                res.status(401).send({ error: 'Invalid username or password' });
             }
         } catch (error) {
             console.error('Error logging in user:', error);
-            res.status(500).json({ error: 'Error logging in user' });
+            res.status(500).send({ error: 'Error logging in user' });
         }
     });
 
@@ -486,42 +472,42 @@ import('node-fetch').then(module => {
 
         // Check if username is at least 3 characters long and has no spaces
         if (username.length < 3 || /\s/.test(username)) {
-            return res.status(400).json({ error: 'Username must be at least 3 characters long and contains no spaces'});
+            return res.status(400).send({ error: 'Username must be at least 3 characters long and contains no spaces'});
         }
 
         // Check if email is valid
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(email)) {
-            return res.status(400).json({ error: 'Please enter a valid email address' });
+            return res.status(400).send({ error: 'Please enter a valid email address' });
         }
 
         // Check if password is at least 6 characters
         if (password.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+            return res.status(400).send({ error: 'Password must be at least 6 characters long' });
         }
 
         if (password !== verification) {
-            return res.status(400).json({ error: 'Passwords do not match' });
+            return res.status(400).send({ error: 'Passwords do not match' });
         }
 
         Promise.all([checkUserExists(username), checkEmailExists(email)])
             .then(([usernameExists, emailExists]) => {
                 if (usernameExists) {
-                    return res.status(400).json({ error: 'Username already in use' });
+                    return res.status(400).send({ error: 'Username already in use' });
                 }
                 if (emailExists) {
-                    return res.status(400).json({ error: 'Email already in use' });
+                    return res.status(400).send({ error: 'Email already in use' });
                 }
 
                 return insertUser(username, email, password);
             })
             .then(userId => {
-                res.status(201).json({ message: 'User created', userId });
+                res.status(201).send({ message: 'User created', userId });
             })
             .catch(error => {
                 // Ensure this catch block only sends a response if an error occurred
                 if (!res.headersSent) {
-                    res.status(500).json({ error: 'Error creating user' });
+                    res.status(500).send({ error: 'Error creating user' });
                 }
             });
     });
@@ -549,38 +535,23 @@ import('node-fetch').then(module => {
             }
 
             const ingredients = await getIngredientsByCocktailIDs(cocktailIDs);
-            res.json(ingredients);
+            sendResponse(req, res, ingredients)
         } catch (error) {
             console.error('Error fetching ingredients:', error);
             res.status(500).send('Error occurred while fetching ingredients');
         }
     });
 
-    app.post('/cocktails-by-ingredient', async (req, res) => {
-        try {
-            const { ingredient } = req.body;
-            if (!ingredient) {
-                return res.status(400).send('No ingredient provided');
-            }
-
-            const cocktails = await getCocktailsByIngredient(ingredient);
-            res.json(cocktails);
-        } catch (error) {
-            console.error('Error fetching cocktails:', error);
-            res.status(500).send('Error occurred while fetching cocktails');
-        }
-    });
-
-    app.post('/user/:userId/set-admin', verifyToken, async (req, res) => {
+    app.post('/user/:userId/set-admin', async (req, res) => {
         const userId = req.params.userId;
 
         try {
             // Call setIsAdmin function to set user as admin
             await setIsAdmin(userId, true);
-            res.status(200).json({ message: 'Admin rights changed successfully' });
+            res.status(200).send({ message: 'Admin rights changed successfully' });
         } catch (error) {
             console.error('Error setting admin rights:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -598,21 +569,21 @@ import('node-fetch').then(module => {
             const usernameExists = await checkUserExists(userData.username);
 
             if (emailExists && userData.email !== userEmail) {
-                res.status(400).json({ error: 'Email already exists. Please use a different email.' });
+                res.status(400).send({ error: 'Email already exists. Please use a different email.' });
             } else if (usernameExists && userData.username !== userUsername) {
-                res.status(400).json({ error: 'Username already exists. Please choose a different username.' });
+                res.status(400).send({ error: 'Username already exists. Please choose a different username.' });
             } else if (emailExists && userData.email === userEmail) {
-                res.status(400).json({ error: 'That is your email??? Duh-doy!' });
+                res.status(400).send({ error: 'That is your email??? Duh-doy!' });
             } else if (usernameExists && userData.username === userUsername) {
-                res.status(400).json({ error: 'That is your username you idiot.' });
+                res.status(400).send({ error: 'That is your username you idiot.' });
             } else {
                 // Update user data in the database using the userId and provided data
                 await updateUserPatch(userId, userData);
-                res.status(200).json({ message: `User with ID ${userId} updated successfully` });
+                res.status(200).send({ message: `User with ID ${userId} updated successfully` });
             }
         } catch (error) {
             console.error('Error updating user:', error);
-            res.status(500).json({ error: 'Failed to update user' });
+            res.status(500).send({ error: 'Failed to update user' });
         }
     });
 
@@ -657,13 +628,13 @@ import('node-fetch').then(module => {
         try {
             const cocktail = await getCocktailById(cocktailId);
             if (!cocktail) {
-                res.status(404).json({ error: 'Cocktail not found' });
+                res.status(404).send({ error: 'Cocktail not found' });
             } else {
-                res.json(cocktail);
+                sendResponse(req, res, cocktail)
             }
         } catch (error) {
             console.error('Error fetching cocktail:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -673,13 +644,13 @@ import('node-fetch').then(module => {
         try {
             const cocktail = await getCocktailByName(cocktailName);
             if (!cocktail) {
-                res.status(404).json({ error: 'Cocktail not found' });
+                res.status(404).send({ error: 'Cocktail not found' });
             } else {
-                res.json(cocktail);
+                sendResponse(req, res, cocktail)
             }
         } catch (error) {
             console.error('Error fetching cocktail:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
@@ -689,10 +660,10 @@ import('node-fetch').then(module => {
 
         addCocktailToDb(cocktailData)
             .then(cocktail => {
-                res.status(201).json({ message: 'Cocktail added successfully', cocktail });
+                res.status(201).send({ message: 'Cocktail added successfully', cocktail });
             })
             .catch(error => {
-                res.status(500).json({ error: 'Failed to add cocktail' });
+                res.status(500).send({ error: 'Failed to add cocktail' });
             });
     });
 
@@ -702,13 +673,13 @@ import('node-fetch').then(module => {
         try {
             const result = await removeCocktailFromDb(cocktailId);
             if (result.error) {
-                res.status(404).json({ error: result.error });
+                res.status(404).send({ error: result.error });
             } else {
-                res.json(result);
+                sendResponse(req, res, result)
             }
         } catch (error) {
             console.error('Error removing cocktail:', error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).send({ error: 'Internal Server Error' });
         }
     });
 
