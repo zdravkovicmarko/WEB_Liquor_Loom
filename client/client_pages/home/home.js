@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const lowercaseSearchTerm = searchTerm.toLowerCase().trim();
         const matchingIngredients = Array.from(allIngredients).filter(ingredient =>
-            ingredient.toLowerCase().includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient.toLowerCase())
+            ingredient.toLowerCase().includes(lowercaseSearchTerm) && !selectedIngredients.has(ingredient)
         );
 
         matchingIngredients.forEach(ingredient => createIngredientTag(ingredient, false));
