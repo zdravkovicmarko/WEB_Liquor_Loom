@@ -137,7 +137,7 @@ import('node-fetch').then(module => {
     // Fetch all unique ingredients
     app.get('/api/get-all-ingredients', async (req, res) => {
         try {
-            getAllUniqueIngredients((err, ingredients) => {
+            await getAllUniqueIngredients((err, ingredients) => {
                 if (err) {
                     console.error('Error retrieving unique ingredients:', err);
                     res.status(500).send('Internal Server Error');
@@ -387,8 +387,19 @@ import('node-fetch').then(module => {
         }
     });
 
+    // Update user's admin setting
+    app.put('/user/:userId/set-admin', async (req, res) => {
+        try {
+            await setIsAdmin(req.params.userId, true);
+            res.status(200).send({ message: 'Admin rights changed successfully' });
+        } catch (error) {
+            console.error('Error setting admin rights:', error);
+            res.status(500).send({ error: 'Internal Server Error' });
+        }
+    });
+
     // Update user's cocktail overall rating (rating value + interaction)
-    app.post('/update-interaction', async (req, res) => {
+    app.put('/update-interaction', async (req, res) => {
         try {
             const { userId, cocktailId, action, rating } = req.body;
             if (rating !== null) await rateCocktail(userId, cocktailId, rating);
@@ -401,23 +412,12 @@ import('node-fetch').then(module => {
     });
 
     // Update user's favorite cocktail
-    app.post('/api/user/:userId/fav/:id', async (req, res) => {
+    app.put('/api/user/:userId/fav/:id', async (req, res) => {
         try {
             await updateUserFav(req.params.userId, req.params.id);
             res.status(200).send({ message: 'Favorite updated successfully' });
         } catch (error) {
             console.error('Error updating user favorite:', error);
-            res.status(500).send({ error: 'Internal Server Error' });
-        }
-    });
-
-    // Update user's admin setting
-    app.post('/user/:userId/set-admin', async (req, res) => {
-        try {
-            await setIsAdmin(req.params.userId, true);
-            res.status(200).send({ message: 'Admin rights changed successfully' });
-        } catch (error) {
-            console.error('Error setting admin rights:', error);
             res.status(500).send({ error: 'Internal Server Error' });
         }
     });

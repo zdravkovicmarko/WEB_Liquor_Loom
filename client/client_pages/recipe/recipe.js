@@ -236,7 +236,7 @@ async function updateOrDeleteFavorite() {
     if (isFavorite) {
         try {
             const response = await fetch(`/api/user/${userID}/fav/${cocktailID}`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' }
             });
             if (!response.ok) console.error('Failed to add favorite');
@@ -262,7 +262,7 @@ document.getElementById('save-btn').addEventListener('click', async () => {
 
         try {
             const response = await fetch('/update-interaction', {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestData)
             });
