@@ -1,7 +1,7 @@
 # WEB_Liquor_Loom
 #### WIllkommen zu unserem Projekt LiquorLoom
 
-#### Auf unseren Website können sich Feinschmecker (bald) austoben und die verschiedenen Cocktail-Rezepte durchprobieren.
+#### Auf unseren Website können sich Feinschmecker (bald) austoben & die verschiedenen Cocktail-Rezepte durchprobieren.
 
 ## Website Starten:
 #### 1. Terminal öffnen
@@ -9,24 +9,6 @@
 #### 3. 'npm run start-nodemon' eingeben und ausführen
 #### 4. Link zur Website ist im Terminal 'http://localhost:666/home'
 
-## Geplante Features: 
-
-- Allgemeine Homepage
-    - Rezeptauswahl
-    - Random Recipe of the Day
-      
-- Rezeptseite
-    - Favorites
-    - Kommentarfunktion
-    - Rating
-      
-- Persönliches Profil (Session Management über Login)
-   - Lieblingsrezepten
-   - Anzahl von Rezepten probiert
-   - Liste von Rezepten mit "would recommend" oder "would not recommend"
-   
-- Responsive Design für Smartphones sowie Computer
-  
 ## Die Aufgabenaufteilung lautet wie folgt:
 
 - Frontend(HTML, CSS, Design...): Marko
