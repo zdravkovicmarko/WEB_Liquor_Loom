@@ -19,9 +19,24 @@ export function basicRedirectionHandling(home = true, login = true, logout = tru
     if (login) document.getElementById('login-btn').addEventListener('click', () => window.location.href = '/login');
     if (profile) document.getElementById('profile-btn').addEventListener('click', () => window.location.href = '/profile');
     if (logout) {
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.setItem('logoutSuccess', 'true');
-            window.location.href = '/logout';
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    localStorage.setItem('logoutSuccess', 'true');
+                    window.location.href = '/home';
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
         });
     }
 }

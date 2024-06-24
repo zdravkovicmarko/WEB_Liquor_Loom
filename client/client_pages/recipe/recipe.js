@@ -59,7 +59,7 @@ async function displayRecipe(cocktailID) {
     const alertFetch = document.getElementById('alert-fetch-data');
     displayMessage(alertFetch, 'Currently fetching recipe...', 1000000);
     try {
-        const response = await fetch(`/api/recipe/${cocktailID}`);
+        const response = await fetch(`/api/cocktail/${cocktailID}`);
         if (!response.ok) console.error('Failed to fetch recipe data');
 
         const recipeData = await response.json();
@@ -261,7 +261,7 @@ document.getElementById('save-btn').addEventListener('click', async () => {
         const requestData = { userId: userID, cocktailId: cocktailID, action, rating };
 
         try {
-            const response = await fetch('/updateInteraction', {
+            const response = await fetch('/update-interaction', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestData)

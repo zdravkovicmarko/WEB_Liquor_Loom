@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Update user data on server & display success / error message
     const updateUserData = async (userId, userData) => {
         try {
-            const response = await fetch(`/users/${userId}`, {
+            const response = await fetch(`/user/${userId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
@@ -235,7 +235,7 @@ document.getElementById('delete-btn').addEventListener('click', async () => {
         const { userId } = await fetch('/current-user').then(res => res.json());
         const { username } = await fetch(`/api/user/${userId}/username`).then(res => res.json());
 
-        const deleteResponse = await fetch(`/users/${username}`, { method: 'DELETE' });
+        const deleteResponse = await fetch(`/user/${username}`, { method: 'DELETE' });
         if (deleteResponse.ok) {
             localStorage.setItem('deleteSuccess', 'true');
             window.location.href = '/home';

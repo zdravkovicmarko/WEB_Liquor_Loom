@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch all ingredients
     const getAllIngredients = async () => {
         try {
-            const response = await fetch('/api/getAllIngredients');
+            const response = await fetch('/api/get-all-ingredients');
             return await response.json() || [];
         } catch (error) {
             console.error('Error fetching ingredients:', error);
@@ -222,10 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Handles ingredient tags upon using ingredient search
     const updateIngredientTags = (searchTerm) => {
-        if (!ingredientTagsContainer) {
-            console.error("Ingredient tags container not found");
-            return;
-        }
+        if (!ingredientTagsContainer) return console.error("Ingredient tags container not found");
 
         ingredientTagsContainer.innerHTML = '';
 
@@ -236,13 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
             ingredientTag.textContent = ingredient.toLowerCase();
 
             ingredientTag.addEventListener("click", () => {
-                if (selectedIngredients.has(ingredient)) {
-                    ingredientTag.classList.remove("selected");
-                    selectedIngredients.delete(ingredient);
-                } else {
-                    ingredientTag.classList.add("selected");
-                    selectedIngredients.add(ingredient);
-                }
+                ingredientTag.classList.toggle("selected");
+                selectedIngredients.has(ingredient) ? selectedIngredients.delete(ingredient) : selectedIngredients.add(ingredient);
                 updateIngredientTags(searchTerm);
                 applyFilter();
             });

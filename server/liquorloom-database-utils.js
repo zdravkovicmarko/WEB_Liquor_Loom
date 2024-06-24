@@ -1,51 +1,115 @@
 const { db } = require('./liquorloom-database');
 
-function runQuery(query, params) { // SQL query on database, creates Promise that either resolved or rejected
+// Helper function to run an SQL query with parameters & return Promise
+function runQuery(query, params) {
     return new Promise((resolve, reject) => {
         db.run(query, params, function(err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(this);
-            }
+            if (err) reject(err);
+            else resolve(this);
         });
     });
 }
 
-function insertIngredients(cocktailId, ingredients, measures) {
-    // Combine ingredients and measures into an array of objects
-    const combined = ingredients.map((ingredient, index) => ({
-        ingredient,
-        measure: measures[index] || null // Use null if there is no corresponding measure
-    }));
-
-    // Create an array of promises to insert each ingredient
-    const promises = combined.map(({ ingredient, measure }) =>
-        runQuery(`INSERT INTO ingredients (cocktail_id, ingredient, measure) VALUES (?, ?, ?)`, [cocktailId, ingredient, measure])
-    );
-
-    // Return a promise that resolves when all inserts are done
-    return Promise.all(promises);
+// Helper function to get results from an SQL query with parameters & return a Promise
+function getQuery(query, params) {
+    return new Promise((resolve, reject) => {
+        db.get(query, params, (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+        });
+    });
 }
 
+// Helper function to get all results from an SQL query with parameters & return a Promise
+function allQuery(query, params) {
+    return new Promise((resolve, reject) => {
+        db.all(query, params, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
+}
+
+// Get cocktail by its ID
+function getCocktailById(id) {
+    return getQuery(`SELECT * FROM cocktails WHERE id = ?`, [id])
+        .then(cocktail => {
+            if (!cocktail) return null;
+            return allQuery(`SELECT ingredient, measure FROM ingredients WHERE cocktail_id = ?`, [id])
+                .then(ingredients => {
+                    cocktail.ingredients = ingredients.map(row => ({ ingredient: row.ingredient, measure: row.measure }));
+                    return cocktail;
+                });
+        });
+}
+
+// Get cocktail by its name
+function getCocktailByName(name) {
+    return getQuery(`SELECT * FROM cocktails WHERE name = ?`, [name])
+        .then(cocktail => {
+            if (!cocktail) return null;
+            return allQuery(`SELECT ingredient, measure FROM ingredients WHERE cocktail_id = ?`, [cocktail.id])
+                .then(ingredients => {
+                    cocktail.ingredients = ingredients.map(row => ({ ingredient: row.ingredient, measure: row.measure }));
+                    return cocktail;
+                });
+        });
+}
+
+// Get cocktails by ingredients
+function getCocktailsByIngredients(ingredients) {
+    const placeholders = ingredients.map(() => '?').join(', ');
+    const query = `
+        SELECT c.id, c.name, c.category, c.alcoholic, c.glass, c.instructions, c.thumbnail
+        FROM cocktails c
+        JOIN ingredients i ON c.id = i.cocktail_id
+        WHERE i.ingredient IN (${placeholders})
+        GROUP BY c.id
+    `;
+    return allQuery(query, ingredients)
+        .catch(err => console.error('Error retrieving cocktails by ingredients:', err));
+}
+
+// Get all unique ingredients
+function getAllUniqueIngredients(callback) {
+    return allQuery(
+        `SELECT DISTINCT ingredient FROM ingredients`, [])
+        .then(rows => {
+            const uniqueIngredients = rows.map(row => row.ingredient);
+            callback(null, uniqueIngredients);
+        })
+        .catch(err => {
+            console.error('Error retrieving unique ingredients:', err.message);
+            callback(err, null);
+        });
+}
+
+// Get all cocktails from database
+function getAllCocktailsFromDb() {
+    return allQuery(`SELECT * FROM cocktails`, [])
+        .then(rows => rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            category: row.category,
+            alcoholic: row.alcoholic,
+            glass: row.glass,
+            instructions: row.instructions,
+            thumbnail: row.thumbnail
+        })));
+}
+
+// Add new cocktail to database
 async function addCocktailToDb(cocktail) {
     const { id, name, category, alcoholic, glass, instructions, thumbnail, ingredients, measures } = cocktail;
     try {
-        // Check if the cocktail already exists in the database
+        // Check if cocktail already exists in DB
         const existingCocktail = await getCocktailById(id);
-        if (existingCocktail) {
-            // If the cocktail already exists, throw an error or handle it accordingly
-            console.log('Cocktail already in database')
-            return;
-        }
+        if (existingCocktail) return console.log('Cocktail already in database')
 
-        // Insert cocktail
+        // Insert cocktail & ingredients
         await runQuery(
             `INSERT INTO cocktails ( id, name, category, alcoholic, glass, instructions, thumbnail) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [id, name, category, alcoholic, glass, instructions, thumbnail]
-        );
-
-        // Insert ingredients
+            [id, name, category, alcoholic, glass, instructions, thumbnail]);
         await insertIngredients(id, ingredients, measures);
 
         console.log("Cocktail added successfully");
@@ -54,22 +118,47 @@ async function addCocktailToDb(cocktail) {
     }
 }
 
+// Insert ingredients for cocktail
+function insertIngredients(cocktailId, ingredients, measures) {
+    const promises = ingredients.map((ingredient, index) =>
+        runQuery(
+            `INSERT INTO ingredients (cocktail_id, ingredient, measure) VALUES (?, ?, ?)`,
+            [cocktailId, ingredient, measures[index] || null]));
+    return Promise.all(promises);
+}
+
+// Update cocktail ingredients in database
+function updateIngredients(cocktailId, ingredients, measures) {
+    if (ingredients.length !== measures.length) return Promise.reject(new Error('Ingredients and measures arrays must be of the same length'));
+
+    return runQuery(`DELETE FROM ingredients WHERE cocktail_id = ?`, [cocktailId])
+        .then(() => insertIngredients(cocktailId, ingredients, measures))
+        .then(() => console.log(`Ingredients for cocktail with ID ${cocktailId} updated successfully`))
+        .catch(err => console.error('Error updating ingredients:', err));
+}
+
+// Update cocktail in database
+function updateCocktailInDb(id, name, category, alcoholic, glass, instructions, thumbnail) {
+    return runQuery(
+        `UPDATE cocktails SET name = ?, category = ?, alcoholic = ?, glass = ?, instructions = ?, thumbnail = ? WHERE id = ?`,
+        [name, category, alcoholic, glass, instructions, thumbnail, id])
+        .then(() => console.log(`Cocktail with ID ${id} updated successfully`))
+        .catch(err => console.error('Error updating cocktail:', err));
+}
+
+// Remove cocktail from database
 async function removeCocktailFromDb(cocktailId) {
     try {
-        // Check if the cocktail exists in the database
         const existingCocktail = await getCocktailById(cocktailId);
-        if (!existingCocktail) {
-            console.log("Cocktail not found in the database");
-        }
+        if (!existingCocktail) return console.log("Cocktail not found in the database");
 
-        // Delete associated ingredients first
+        // Delete associated ingredients, user interactions & cocktail itself
         await runQuery(`DELETE FROM ingredients WHERE cocktail_id = ?`, [cocktailId]);
         console.log(`Ingredients deleted for cocktail with ID: ${cocktailId}`);
 
         await runQuery(`DELETE FROM user_interaction WHERE cocktail_id = ?`, [cocktailId]);
         console.log(`Deleted user interaction associated with CocktailID: ${cocktailId}`);
 
-        // Now delete cocktail from cocktails table
         await runQuery(`DELETE FROM cocktails WHERE id = ?`, [cocktailId]);
         console.log(`Cocktail deleted from cocktails table with ID: ${cocktailId}`);
 
@@ -79,356 +168,182 @@ async function removeCocktailFromDb(cocktailId) {
     }
 }
 
-function getCocktailById(id) {
-    return new Promise((resolve, reject) => {
-        db.get(`SELECT * FROM cocktails WHERE id = ?`, [id], (err, cocktail) => {
-            if (err) {
-                return reject(err);
-            }
-            if (!cocktail) { // Cocktail not found
-                return resolve(null);
-            }
-            db.all(`SELECT ingredient, measure FROM ingredients WHERE cocktail_id = ?`, [id], (err, ingredients) => {
-                if (err) {
-                    return reject(err);
-                }
-                cocktail.ingredients = ingredients.map(row => ({ ingredient: row.ingredient, measure: row.measure }));
-                resolve(cocktail);
-            });
+// Insert new user into database
+function insertNewUser(username, email, password) {
+    return runQuery(`INSERT INTO users (username, email, password) VALUES (?, ?, ?)`, [username, email, password])
+        .then(result => {
+            console.log(`${username} inserted with ID:`, result.lastID);
+            return result.lastID;
+        })
+        .catch(err => {
+            console.log('Error inserting user:', err);
+            throw err;
         });
-    });
 }
 
-function getCocktailByName(name) {
-    return new Promise((resolve, reject) => {
-        db.get(`SELECT * FROM cocktails WHERE name = ?`, [name], (err, cocktail) => {
-            if (err) {
-                return reject(err);
-            }
-            if (!cocktail) { // Cocktail not found
-                return resolve(null);
-            }
-            db.all(`SELECT ingredient, measure FROM ingredients WHERE cocktail_id = ?`, [cocktail.id], (err, ingredients) => {
-                if (err) {
-                    return reject(err);
-                }
-                cocktail.ingredients = ingredients.map(row => ({ ingredient: row.ingredient, measure: row.measure }));
-                resolve(cocktail);
-            });
-        });
-    });
-}
-
-function getAllCocktailsFromDb() {
-    return new Promise((resolve, reject) => {
-        db.all(`SELECT * FROM cocktails`, (err, rows) => {
-            if (err) {
-                return reject(err);
-            }
-            const cocktails = rows.map(row => ({
-                id: row.id,
-                name: row.name,
-                category: row.category,
-                alcoholic: row.alcoholic,
-                glass: row.glass,
-                instructions: row.instructions,
-                thumbnail: row.thumbnail
-            }));
-            resolve(cocktails);
-        });
-    });
-}
-
-function updateCocktailInDb(id, name, category, alcoholic, glass, instructions, thumbnail) {
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE cocktails SET 
-        name = ?,
-        category = ?,
-        alcoholic = ?,
-        glass = ?,
-        instructions = ?,
-        thumbnail = ?
-        WHERE id = ?`;
-
-        db.run(query, [name, category, alcoholic, glass, instructions, thumbnail, id], function (err) {
-            if (err) {
-                console.error('Error updating cocktail:', err);
-                reject(err);
-            } else {
-                console.log(`Cocktail with ID ${id} updated successfully`);
-                resolve();
-            }
-        });
-    });
-}
-
-function updateCocktailIngredients(cocktailId, ingredients, measures) {
-    return new Promise((resolve, reject) => {
-        if (ingredients.length !== measures.length) {
-            return reject(new Error('Ingredients and measures arrays must be of the same length'));
-        }
-
-        // Assuming ingredients are stored in a separate table
-        const deleteQuery = `DELETE FROM ingredients WHERE cocktail_id = ?`;
-        db.run(deleteQuery, [cocktailId], function (err) {
-            if (err) {
-                console.error('Error deleting old ingredients:', err);
-                return reject(err);
-            } else {
-                const insertQuery = `INSERT INTO ingredients (cocktail_id, ingredient, measure) VALUES (?, ?, ?)`;
-                const stmt = db.prepare(insertQuery);
-
-                // Insert each ingredient and measure pair
-                for (let i = 0; i < ingredients.length; i++) {
-                    stmt.run([cocktailId, ingredients[i], measures[i]], (err) => {
-                        if (err) {
-                            console.error('Error inserting new ingredients:', err);
-                            return reject(err);
-                        }
-                    });
-                }
-
-                stmt.finalize((err) => {
-                    if (err) {
-                        console.error('Error finalizing statement:', err);
-                        return reject(err);
-                    } else {
-                        console.log(`Ingredients for cocktail with ID ${cocktailId} updated successfully`);
-                        resolve();
-                    }
-                });
-            }
-        });
-    });
-}
-
-function updateCocktailStats(id, recommendations, do_not_recommendations, pinned, rating, amount_ratings) {
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE cocktail_stats SET
-        recommendations = ?,
-        do_not_recommendations = ?,
-        pinned = ?,
-        rating = ?,
-        amount_ratings = ?
-        WHERE cocktail_id = ?`;
-        db.run(query, [recommendations, do_not_recommendations, pinned, rating, amount_ratings, id], function (err) {
-            if (err) {
-                console.error('Error updating cocktail stats:', err);
-                reject(err);
-            } else {
-                console.log(`Stats for cocktail with ID ${id} updated successfully`);
-                resolve();
-            }
-        });
-    });
-}
-
-function insertUser(username, email, password) {
-    return new Promise((resolve, reject) => {
-        const query = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
-        db.run(query, [username, email, password], function (err) {
-            if (err) {
-                console.log('Error inserting user:', err);
-                reject(err);
-            } else {
-                console.log(`${username}, inserted with ID:`, this.lastID);
-                resolve(this.lastID);
-            }
-        });
-    });
-}
-
-async function updateUserPatch(id, userData) {
-    return new Promise((resolve, reject) => {
-        const updateFields = Object.keys(userData).map(field => `${field} = ?`).join(', ');
-        const values = Object.values(userData);
-        values.push(id);
-
-        const query = `UPDATE users SET ${updateFields} WHERE id = ?`;
-
-        db.run(query, values, function (err) {
-            if (err) {
-                console.error('Error updating user:', err);
-                reject(err);
-            } else {
-                console.log(`User with ID ${id} updated successfully`);
-                resolve();
-            }
-        });
-    });
-}
-
-function setIsAdmin(userId, isAdmin) { // isAdmin is a boolean
-    return new Promise((resolve, reject) => {
-        const sql = `UPDATE users SET is_admin = ? WHERE id = ?`;
-        db.run(sql, [isAdmin ? 'yes' : 'no', userId], function(err) {
-
-            if (err) {
-                reject(err);
-            } else {
-                resolve(`is_admin field for user with ID ${userId} set to ${isAdmin}`);
-            }
-        });
-    });
-}
-
-function removeUserByUsername(username) {
-    return new Promise((resolve, reject) => {
-        const query = 'DELETE FROM users WHERE username = ?';
-        db.run(query, [username], function (err) {
-            // error function
-            if (err) {
-                console.error('Error removing user:', err);
-                reject(err);
-            } else {
-                if (this.changes === 0) {
-                    console.log('No user found with username:', username);
-                    resolve(null);
-                } else {
-                    console.log('User removed with username:', username);
-                }
-            }
-        });
-    });
-}
-
+// Get user by their username / email & password
 function getUser(usernameOrEmail, password) {
-    return new Promise((resolve, reject) => {
-        const query = 'SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?';
-        db.get(query, [usernameOrEmail, usernameOrEmail, password], (err, row) => {
-            if (err) {
-                console.error('Error fetching user:', err);
-                reject(err);
-            } else {
-                resolve(row);
-            }
+    return getQuery(`SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?`, [usernameOrEmail, usernameOrEmail, password])
+        .catch(err => {
+            console.error('Error fetching user:', err);
+            throw err;
         });
-    });
 }
 
+// Get username by user ID
 function getUsernameById(id) {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT username FROM users WHERE id = ?', [id], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.username : null);
-            }
-        });
-    });
+    return getQuery('SELECT username FROM users WHERE id = ?', [id])
+        .then(row => row ? row.username : null);
 }
 
+// Get email by user ID
 function getEmailById(id) {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT email FROM users WHERE id = ?', [id], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.email : null);
-            }
-        });
-    });
+    return getQuery('SELECT email FROM users WHERE id = ?', [id])
+        .then(row => row ? row.email : null);
 }
 
+// Get password by user ID
 function getPasswordById(id) {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT password FROM users WHERE id = ?', [id], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.password : null);
-            }
-        });
-    });
+    return getQuery('SELECT password FROM users WHERE id = ?', [id])
+        .then(row => row ? row.password : null);
 }
 
-// New function to check if email exists
-function checkEmailExists(email) {
-    return new Promise((resolve, reject) => {
-        const query = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
-        db.get(query, [email], (err, row) => {
-            if (err) {
-                console.error('Error checking email existence:', err);
-                reject(err);
-            } else {
-                resolve(row.count > 0);
-            }
-        });
-    });
-}
-
+// Check if username exists in database
 function checkUserExists(username) {
-    return new Promise((resolve, reject) => {
-        const query = 'SELECT COUNT(*) AS count FROM users WHERE username = ?';
-        db.get(query, [username], (err, row) => {
-            if (err) {
-                console.error('Error checking user existence:', err);
-                reject(err);
-            } else {
-                resolve(row.count > 0);
-            }
+    return getQuery(`SELECT COUNT(*) AS count FROM users WHERE username = ?`, [username])
+        .then(row => row.count > 0)
+        .catch(err => {
+            console.error('Error checking user existence:', err);
+            throw err;
         });
-    });
 }
 
+// Check if email exists in database
+function checkEmailExists(email) {
+    return getQuery(`SELECT COUNT(*) AS count FROM users WHERE email = ?`, [email])
+        .then(row => row.count > 0)
+        .catch(err => {
+            console.error('Error checking email existence:', err);
+            throw err;
+        });
+}
+
+// Update user information in database
+function updateUserPatch(id, userData) {
+    const updateFields = Object.keys(userData).map(field => `${field} = ?`).join(', ');
+    const values = Object.values(userData);
+    values.push(id);
+
+    return runQuery(`UPDATE users SET ${updateFields} WHERE id = ?`, values)
+        .then(() => console.log(`User with ID ${id} updated successfully`))
+        .catch(err => console.error('Error updating user:', err));
+}
+
+// Set user as admin
+function setIsAdmin(userId, isAdmin) {
+    return runQuery(`UPDATE users SET is_admin = ? WHERE id = ?`, [isAdmin ? 'yes' : 'no', userId])
+        .then(() => `is_admin field for user with ID ${userId} set to ${isAdmin}`)
+        .catch(err => { throw err; });
+}
+
+// Remove user by their username
+function removeUserByUsername(username) {
+    return runQuery(`DELETE FROM users WHERE username = ?`, [username])
+        .then(result => {
+            if (result.changes === 0) console.log('No user found with username:', username);
+            else console.log('User removed with username:', username);
+            return result.changes > 0;
+        })
+        .catch(err => {
+            console.error('Error removing user:', err);
+            throw err;
+        });
+}
+
+// Get user's rating value for specific cocktail
 function getUserRatingById(userId, cocktailId) {
-    return new Promise((resolve, reject) => {
-        db.get(`SELECT rating FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.rating : null);
-            }
-        });
-    });
+    return getQuery(
+        `SELECT rating FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`,
+        [userId, cocktailId]
+    ).then(row => row ? row.rating : null);
 }
 
+// Get user's interaction for specific cocktail
+function getUserInteractionById(userId, cocktailId) {
+    return getQuery(
+        `SELECT action FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action IN ('recommend', 'not_recommend', 'pin')`,
+        [userId, cocktailId]
+    ).then(row => row ? row.action : null);
+}
+
+// Get action's counter by cocktail ID & action
+function getCounterByCocktailId(cocktailID, action) {
+    return getQuery(
+        `SELECT COUNT(*) as count FROM user_interaction WHERE cocktail_id = ? AND action = ?`,
+        [cocktailID, action]
+    ).then(row => row ? row.count : 0);
+}
+
+// Get action's counter by user ID & action
+function getCounterByUserId(userId, action) {
+    return getQuery(
+        `SELECT COUNT(*) as count FROM user_interaction WHERE user_id = ? AND action = ?`,
+        [userId, action]
+    ).then(row => row ? row.count : 0);
+}
+
+// Get cocktail IDs by user ID & action
+function getCocktailIdsByUserId(userId, action) {
+    return allQuery(
+        `SELECT cocktail_id FROM user_interaction WHERE user_id = ? AND action = ?`,
+        [userId, action]
+    ).then(rows => rows.map(row => row.cocktail_id));
+}
+
+// Get cocktail's overall average rating by cocktail ID
+function getAverageRatingByCocktailId(cocktailId) {
+    return getQuery(
+        `SELECT AVG(rating) as averageRating FROM user_interaction WHERE cocktail_id = ?`,
+        [cocktailId]
+    ).then(row => row ? row.averageRating : 0);
+}
+
+// Get user's average rating given to cocktails by user ID
+function getAverageRatingByUserId(userId) {
+    return getQuery(
+        `SELECT AVG(rating) as averageRating FROM user_interaction WHERE user_id = ?`,
+        [userId]
+    ).then(row => row ? row.averageRating : 0);
+}
+
+// Update cocktail's rating value
 async function rateCocktail(userId, cocktailId, rating) {
     try {
-        // Check if the user exists
+        // Check if user & cocktail exist
         const userExists = checkUserExists(userId);
-        if (!userExists) {
-            console.error('User does not exist');
-            return;
-        }
-
-        // Check if the cocktail exists
+        if (!userExists) return console.error('User does not exist');
         const cocktailExists = await getCocktailById(cocktailId);
-        if (!cocktailExists) {
-            console.error('Cocktail does not exist');
-            return;
-        }
+        if (!cocktailExists) return console.error('Cocktail does not exist');
 
-        // Check if there's already a rating entry for this user and cocktail
+        // Check if rating entry exists for this user & cocktail
         db.get(`SELECT * FROM user_interaction 
                 WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], (err, row) => {
-            if (err) {
-                console.error('Error checking existing entry:', err);
-                return;
-            }
+            if (err) return console.error('Error checking existing entry:', err);
 
-            if (row) {
-                // If a rating entry exists, update the rating value
+            if (row) { // Update existing rating
                 const updateQuery = `UPDATE user_interaction 
                                      SET rating = ?
                                      WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`;
                 db.run(updateQuery, [rating, userId, cocktailId], (err) => {
-                    if (err) {
-                        console.error('Error updating rating:', err);
-                    } else {
-                        console.log('Rating updated successfully');
-                    }
+                    if (err) console.error('Error updating rating:', err);
+                    else console.log('Rating updated successfully');
                 });
-            } else {
-                // If no rating entry exists, insert a new one
+            } else { // Insert new rating entry
                 const insertQuery = `INSERT INTO user_interaction (user_id, cocktail_id, action, rating) 
                                      VALUES (?, ?, 'rating', ?)`;
                 db.run(insertQuery, [userId, cocktailId, rating], (err) => {
-                    if (err) {
-                        console.error('Error adding rating:', err);
-                    } else {
-                        console.log('Rating added successfully');
-                    }
+                    if (err) console.error('Error adding rating:', err);
+                    else console.log('Rating added successfully');
                 });
             }
         });
@@ -437,339 +352,126 @@ async function rateCocktail(userId, cocktailId, rating) {
     }
 }
 
-function getUserInteractionById(userId, cocktailId) {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT action FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action IN ("recommend", "not_recommend", "pin")', [userId, cocktailId], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.action : null);
-            }
-        });
-    });
-}
-
+// Update user's interaction with cocktail
 function updateUserInteraction(userId, cocktailId, action) {
-    return new Promise((resolve, reject) => {
-        // Check if an entry with the same user_id and cocktail_id already exists for the given action types
-        db.get(`SELECT * FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action IN ('recommend', 'not_recommend', 'pin')`, [userId, cocktailId], (err, row) => {
-            if (err) {
-                console.error('Error checking existing entry:', err);
-                reject(err);
+    return getQuery(
+        `SELECT * FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action IN ('recommend', 'not_recommend', 'pin')`,
+        [userId, cocktailId]
+    ).then(row => {
+        if (row) { // If entry with same user_id & cocktail_id for given action types exists in DB
+            if (row.action === action) { // Same action, do nothing
+                console.log(`Action '${action}' already exists for user ${userId} and cocktail ${cocktailId}`);
                 return;
             }
-
-            if (row) {
-                // An entry already exists for this user_id and cocktail_id with the same action
-                if (row.action === action) {
-                    // If the existing action is the same as the new action, do nothing
-                    console.log(`Action '${action}' already exists for user ${userId} and cocktail ${cocktailId}`);
-                    resolve();
-                } else {
-                    // If the existing action is different from the new action, update the existing entry with the new action
-                    db.run(`UPDATE user_interaction SET action = ? WHERE user_id = ? AND cocktail_id = ? AND action IN ('recommend', 'not_recommend', 'pin')`, [action, userId, cocktailId], function (err) {
-                        if (err) {
-                            console.error('Error updating action:', err);
-                            reject(err);
-                        } else {
-                            console.log(`Action updated successfully for user ${userId} and cocktail ${cocktailId}`);
-
-                            // If the action is now 'pin', delete any rating entry for this user and cocktail
-                            if (action === 'pin') {
-                                db.run(`DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], function (err) {
-                                    if (err) {
-                                        console.error('Error deleting rating entry:', err);
-                                        reject(err);
-                                    } else {
-                                        console.log('Rating entry deleted successfully');
-                                        resolve();
-                                    }
-                                });
-                            } else {
-                                resolve();
-                            }
-                        }
-                    });
+            return runQuery( // Different action, update existing entry
+                `UPDATE user_interaction SET action = ? WHERE user_id = ? AND cocktail_id = ? AND action IN ('recommend', 'not_recommend', 'pin')`,
+                [action, userId, cocktailId]
+            ).then(() => {
+                console.log(`Action updated successfully for user ${userId} and cocktail ${cocktailId}`);
+                if (action === 'pin') { // If action is 'pin', delete user's rating
+                    return runQuery(
+                        `DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`,
+                        [userId, cocktailId]
+                    ).then(() => console.log('Rating entry deleted successfully'));
                 }
-            } else {
-                // No existing entry found with the specified actions, insert the new interaction with the action
-                db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action) VALUES (?, ?, ?)`, [userId, cocktailId, action], function (err) {
-                    if (err) {
-                        console.error('Error inserting user interaction:', err);
-                        reject(err);
-                    } else {
-                        console.log('User interaction inserted successfully');
-
-                        // If the action is 'pin', delete any rating entry for this user and cocktail
-                        if (action === 'pin') {
-                            db.run(`DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`, [userId, cocktailId], function (err) {
-                                if (err) {
-                                    console.error('Error deleting rating entry:', err);
-                                    reject(err);
-                                } else {
-                                    console.log('Rating entry deleted successfully');
-                                    resolve();
-                                }
-                            });
-                        } else {
-                            resolve();
-                        }
-                    }
-                });
-            }
-        });
+            });
+        } else { // No entry found, insert new interaction with action
+            return runQuery(
+                `INSERT INTO user_interaction (user_id, cocktail_id, action) VALUES (?, ?, ?)`,
+                [userId, cocktailId, action]
+            ).then(() => {
+                console.log('User interaction inserted successfully');
+                if (action === 'pin') { // If action is 'pin', delete user's rating
+                    return runQuery(
+                        `DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ? AND action = 'rating'`,
+                        [userId, cocktailId]
+                    ).then(() => console.log('Rating entry deleted successfully'));
+                }
+            });
+        }
     });
 }
 
-async function deleteUserInteraction(userId, cocktailId) {
-    return new Promise((resolve, reject) => {
-        const deleteQuery = `DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ?`;
-        db.run(deleteQuery, [userId, cocktailId], function (err) {
-            if (err) {
-                console.error('Error deleting user interactions:', err);
-                reject(err);
-            } else {
-                console.log(`User interactions for user ${userId} and cocktail ${cocktailId} deleted successfully`);
-                resolve();
-            }
-        });
-    });
+// Delete user interaction for specific cocktail
+function deleteUserInteraction(userId, cocktailId) {
+    return runQuery(
+        `DELETE FROM user_interaction WHERE user_id = ? AND cocktail_id = ?`,
+        [userId, cocktailId])
+        .then(() => console.log(`User interactions for user ${userId} and cocktail ${cocktailId} deleted successfully`))
+        .catch(err => console.error('Error deleting user interactions:', err));
 }
 
+// Get user's favorite cocktail ID
 function getUserFavCocktailId(userId) {
-    return new Promise((resolve, reject) => {
-        db.get('SELECT cocktail_id FROM user_interaction WHERE user_id = ? AND action = "fav"', [userId], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.cocktail_id : null);
-            }
-        });
-    });
+    return getQuery(
+        `SELECT cocktail_id FROM user_interaction WHERE user_id = ? AND action = 'fav'`,
+        [userId]
+    ).then(row => row ? row.cocktail_id : null);
 }
 
+// Update user's favorite cocktail
 function updateUserFav(userId, newCocktailId) {
-    return new Promise((resolve, reject) => {
-        // Check if there's already an entry with action set to 'favourites' for this user
-        db.get(`SELECT * FROM user_interaction WHERE user_id = ? AND action = 'fav'`, [userId], (err, row) => {
-            if (err) {
-                console.error('Error checking existing entry:', err);
-                reject(err);
-                return;
+    return getQuery(
+        `SELECT * FROM user_interaction WHERE user_id = ? AND action = 'fav'`,
+        [userId]
+    ).then(row => {
+        if (row) { // If fav entry with same user_id exists in DB
+            if (row.cocktail_id !== newCocktailId) { // Different cocktail_id, update it
+                return runQuery(
+                    `UPDATE user_interaction SET cocktail_id = ? WHERE user_id = ? AND action = 'fav'`,
+                    [newCocktailId, userId]
+                ).then(() => console.log(`Favourites updated successfully for user ${userId}`));
+            } else {  // Same cocktail_id, do nothing
+                console.log(`Favourites already set for user ${userId} and cocktail ${newCocktailId}`);
             }
-
-            if (row) {
-                // If an entry with action set to 'favourites' already exists
-                if (row.cocktail_id !== newCocktailId) {
-                    // If the existing entry's cocktail_id is different from the new one, update it
-                    db.run(`UPDATE user_interaction SET cocktail_id = ? WHERE user_id = ? AND action = 'fav'`, [newCocktailId, userId], function (err) {
-                        if (err) {
-                            console.error('Error updating favourites:', err);
-                            reject(err);
-                        } else {
-                            console.log(`Favourites updated successfully for user ${userId}`);
-                            resolve();
-                        }
-                    });
-                } else {
-                    // If the existing entry's cocktail_id is the same as the new one, do nothing
-                    console.log(`Favourites already set for user ${userId} and cocktail ${newCocktailId}`);
-                    resolve();
-                }
-            } else {
-                // No existing entry found, insert the new favourite entry
-                db.run(`INSERT INTO user_interaction (user_id, cocktail_id, action) VALUES (?, ?, 'fav')`, [userId, newCocktailId], function (err) {
-                    if (err) {
-                        console.error('Error inserting favourites:', err);
-                        reject(err);
-                    } else {
-                        console.log('Favourites inserted successfully');
-                        resolve();
-                    }
-                });
-            }
-        });
+        } else { // No entry found, insert new favourite entry
+            return runQuery(
+                `INSERT INTO user_interaction (user_id, cocktail_id, action) VALUES (?, ?, 'fav')`,
+                [userId, newCocktailId]
+            ).then(() => console.log('Favourites inserted successfully'));
+        }
     });
 }
 
+// Delete user's favorite cocktail
 function deleteUserFav(userId) {
-    const query = `DELETE FROM user_interaction WHERE user_id = ? AND action = 'fav'`;
-
-    // Execute the DELETE statement
-    db.run(query, [userId], function(err) {
-        if (err) {
-            console.error('Error deleting favorite entry:', err.message);
-        } else {
-            console.log(`Deleted favorite entry for user ${userId}`);
-        }
-    });
+    return runQuery(
+        `DELETE FROM user_interaction WHERE user_id = ? AND action = 'fav'`,
+        [userId]
+    ).then(() => console.log(`Deleted favorite entry for user ${userId}`));
 }
 
-function getCounterByCocktailId(cocktailID, action) {
-    return new Promise((resolve, reject) => {
-        const query = `
-            SELECT COUNT(*) as count 
-            FROM user_interaction 
-            WHERE cocktail_id = ? AND action = ?
-        `;
-
-        db.get(query, [cocktailID, action], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.count : 0);
-            }
-        });
-    });
-}
-
-function getCounterByUserId(userId, action) {
-    return new Promise((resolve, reject) => {
-        const query = `
-            SELECT COUNT(*) as count 
-            FROM user_interaction 
-            WHERE user_id = ? AND action = ?
-        `;
-
-        db.get(query, [userId, action], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.count : 0);
-            }
-        });
-    });
-}
-
-function getCocktailIdsByUserId(userId, action) {
-    return new Promise((resolve, reject) => {
-        const query = `
-            SELECT cocktail_id 
-            FROM user_interaction 
-            WHERE user_id = ? AND action = ?
-        `;
-
-        db.all(query, [userId, action], (err, rows) => {
-            if (err) {
-                reject(err);
-            } else {
-                const cocktailIds = rows.map(row => row.cocktail_id);
-                resolve(cocktailIds);
-            }
-        });
-    });
-}
-
-
-function getAverageRatingByCocktailId(cocktailID) {
-    return new Promise((resolve, reject) => {
-        const query = `
-            SELECT AVG(rating) as averageRating 
-            FROM user_interaction
-            WHERE cocktail_id = ?
-        `;
-
-        db.get(query, [cocktailID], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.averageRating : 0);
-            }
-        });
-    });
-}
-
-function getAverageRatingByUserId(userId) {
-    return new Promise((resolve, reject) => {
-        const query = `
-            SELECT AVG(rating) as averageRating 
-            FROM user_interaction
-            WHERE user_id = ?
-        `;
-
-        db.get(query, [userId], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row ? row.averageRating : 0);
-            }
-        });
-    });
-}
-
-function getAllUniqueIngredients(callback) {
-    const query = `
-        SELECT DISTINCT ingredient FROM ingredients
-    `;
-
-    // Execute the SQL query
-    db.all(query, function(err, rows) {
-        if (err) {
-            console.error('Error retrieving unique ingredients:', err.message);
-            callback(err, null);
-        } else {
-            const uniqueIngredients = rows.map(row => row.ingredient);
-            callback(null, uniqueIngredients);
-        }
-    });
-}
-
-function getCocktailsByIngredients(ingredients) {
-    return new Promise((resolve, reject) => {
-        const placeholders = ingredients.map(() => '?').join(', ');
-        const query = `
-            SELECT c.id, c.name, c.category, c.alcoholic, c.glass, c.instructions, c.thumbnail
-            FROM cocktails c
-            JOIN ingredients i ON c.id = i.cocktail_id
-            WHERE i.ingredient IN (${placeholders})
-            GROUP BY c.id
-        `;
-
-        const params = [...ingredients];
-
-        db.all(query, params, function(err, rows) {
-            if (err) {
-                console.error('Error retrieving cocktails by ingredients:', err.message);
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-}
-
-module.exports ={
-    addCocktailToDb,
-    removeCocktailFromDb,
+module.exports = {
     getCocktailById,
     getCocktailByName,
+    getCocktailsByIngredients,
+    getAllUniqueIngredients,
     getAllCocktailsFromDb,
+    addCocktailToDb,
+    updateIngredients,
     updateCocktailInDb,
-    updateCocktailIngredients,
-    updateCocktailStats,
-    insertUser,
-    setIsAdmin,
-    updateUserPatch,
-    removeUserByUsername,
+    removeCocktailFromDb,
+    insertNewUser,
     getUser,
     getUsernameById,
     getEmailById,
     getPasswordById,
-    checkEmailExists,
     checkUserExists,
+    checkEmailExists,
+    updateUserPatch,
+    setIsAdmin,
+    removeUserByUsername,
     getUserRatingById,
-    rateCocktail,
     getUserInteractionById,
+    getCounterByCocktailId,
+    getCounterByUserId,
+    getCocktailIdsByUserId,
+    getAverageRatingByCocktailId,
+    getAverageRatingByUserId,
+    rateCocktail,
     updateUserInteraction,
     deleteUserInteraction,
     getUserFavCocktailId,
     updateUserFav,
-    deleteUserFav,
-    getCounterByCocktailId,
-    getCounterByUserId,
-    getAverageRatingByCocktailId,
-    getAllUniqueIngredients,
-    getCocktailsByIngredients,
-    getCocktailIdsByUserId,
-    getAverageRatingByUserId
+    deleteUserFav
 }
